@@ -105,7 +105,7 @@ const Login = () => {
       <div className="text-center mb-4">
         <img src={Logo} alt="Logo" className="mx-auto w-29 h-20 sm:w-29 sm:h-24" />
       </div>
-      <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">Monument Login</h2>
+      <h2 className="text-xl sm:text-2xl font-bold text-center mb-4 sm:mb-6">Login</h2>
       <form onSubmit={handleSubmit}>
       
         <div className="mb-4 relative">

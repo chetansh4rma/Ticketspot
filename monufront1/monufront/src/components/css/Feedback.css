@@ -1,0 +1,55 @@
+.feedback-list {
+    max-width: 1000px; /* Limit the width of the feedback cards */
+    margin: 0 40px; /* Center the cards on the page */
+    padding: 20px; /* Add padding around the cards */
+  }
+  
+  .card1 {
+    margin-left: 80px;
+    width: 100%;
+    border: 1px solid #ddd; /* Light border around the card */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    overflow: hidden; /* Prevent content from overflowing */
+   
+    margin: 20px auto; /* Center each card with margin */
+  }
+  
+  .card1-header {
+    background-color: #007bff; /* Set a blue background */
+    color: white; /* White text for contrast */
+    font-size: 1.2rem; /* Slightly larger font for the header */
+    padding: 10px 15px; /* Padding inside the header */
+    text-align: center; /* Center-align the text */
+  }
+  
+  .card1-body {
+    padding: 15px; /* Add padding inside the body */
+    background-color: #f9f9f9; /* Light grey background */
+  }
+  
+  .card1-text {
+    font-size: 1rem; /* Regular font size for the text */
+    color: #666; /* Light grey text */
+    margin-bottom: 15px; /* Space between text and button */
+  }
+  
+  .btn-link {
+    color: #007bff; /* Link color */
+    padding: 0; /* Remove padding for button */
+    text-decoration: none; /* Remove underline */
+    cursor: pointer; /* Show pointer on hover */
+  }
+  
+  .btn-link:hover {
+    text-decoration: underline; /* Underline on hover */
+  }
+  
+  .text-muted {
+    color: #999; /* Lighter color for date text */
+  }
+  
+
+  .card1:hover {
+    transform: scale(1.05); /* Add a hover effect */
+}

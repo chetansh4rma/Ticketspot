@@ -164,7 +164,7 @@ const HomePage = () => {
         {/* Display card with revenue and current month bookings */}
         <div className="stats-card-container">
           <div className="stats-card">
-            <h3>Total Revenue In Month</h3>
+            <h3>Total Revenue</h3>
             <p>{revenue} INR</p>
           </div>
           <div className="stats-card">

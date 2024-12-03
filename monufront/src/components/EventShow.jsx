@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import NavBar from "./Navbar";
 import axios from "axios"; // for API requests
 import './css/EventShow.css'; // Optional: Add custom styling if needed
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash } from '@fortawesome/free-solid-svg-icons';
 
 export default function EventShow() {
   // State to hold events
@@ -49,28 +51,38 @@ export default function EventShow() {
     setPage(page + 1);
   };
 
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return str; // Check for empty string
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <div>
       <NavBar />
       <div className="event-card-container">
         {events.map((event) => (
-          <div key={event._id} className="card">
-            <h5 className="card-header">{event.eventName}</h5>
-            <div className="card-body">
-              <h6 className="card-title">Category: {event.eventCategory}</h6>
+          <div key={event._id} className="ev-show-card">
+          <div className="ev-show-card-header-cont">
+            <h5 className="ev-show-card-header">{capitalizeFirstLetter(event.eventName)}</h5>
+            <div className="ev-show-del" onClick={() => handleDelete(event._id)}>
+                 <FontAwesomeIcon icon={faTrash} size="lg"  className='trash'/>
+           </div>
+          </div>
+            <div className="ev-show-card-body">
+            <span style={{marginBottom:'15px'}}>Show Event Detail</span><br/>
               <p className="card-text">
-                <strong>Date of Opening:</strong> {new Date(event.eventDate).toDateString()} <br />
-                <strong>Opening & Closing Time:</strong> {event.eventTime} <br />
-                <strong>Ticket Price:</strong> ₹{event.ticketPrice} <br />
-                <strong>Tickets Available:</strong> {event.totalTicketsAvailable} <br />
-                <strong>Refreshments:</strong> {event.refreshment} <br />
-                <strong>Status:</strong> {event.status}
+              {/* <span className='ev-show-spec-txt'><strong>Category:</strong> {event.eventCategory}</span>  */}
+              <span className='ev-show-spec-txt'><strong>Date of Opening:</strong> {new Date(event.eventDate).toDateString()}</span> 
+                <span className='ev-show-spec-txt'><strong>Visiting Time:</strong> {event.eventTime}</span> 
+                <span className='ev-show-spec-txt'><strong>Ticket Price:</strong> ₹{event.eventTicketPrice}</span> 
+                <span className='ev-show-spec-txt'><strong>Tickets Available:</strong> {event.eventTotalTicketsAvailable}</span> 
+                {/* <span className='ev-show-spec-txt'><strong>Status:</strong> {event.status}</span> */}
               </p>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              {/* <div style={{ display: 'flex', gap: '10px' }}>
                 <button onClick={() => handleDelete(event._id)} className="btn btn-danger">
                   Delete
                 </button>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}

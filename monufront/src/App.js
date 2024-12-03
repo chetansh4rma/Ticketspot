@@ -11,7 +11,7 @@ import ShowCompete from './components/ShowCompete'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import EventCreation from './components/EventCreation';
 import EventShow from './components/EventShow';
-
+import ToggleComponent from './components/ToggleComponent';
 
 function App() {
   const { isLoactionExist} = useStore()
@@ -21,12 +21,12 @@ function App() {
   return (
     <Routes>
       {/* Private route for Home, only accessible if authenticated */}
-      <Route path="/" element={<PrivateRoute element={Home} />} />
+      <Route path="/" element={<PrivateRoute element={ToggleComponent} />} />
       <Route path="/feedback" element={<PrivateRoute element={Feedback} />} />
-      <Route path="/event-show" element={<PrivateRoute element={EventShow} />} />
-      <Route path="/event-creation" element={<PrivateRoute element={EventCreation} />} />
+     <Route path="/event-show" element={<PrivateRoute element={EventShow} />} /> 
+      {/*<Route path="/event-creation" element={<PrivateRoute element={EventCreation} />} />
       <Route path="/show-competitor" element={<PrivateRoute element={ShowCompete} />} />
-      
+       */}
       
       
 

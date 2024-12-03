@@ -9,11 +9,10 @@ const Register = () => {
   // State management for the form fields
   const [agencyName, setAgencyName] = useState(''); // New agency name state
   const [monumentName, setMonumentName] = useState('');
-  const [category, setCategory] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [contactNumber, setContactNumber] = useState('');
-  const [monumentLogo, setMonumentLogo] = useState(null);
+  // const [monumentLogo, setMonumentLogo] = useState(null);
   const [location, setLocation] = useState({
     street: '',
     city: '',
@@ -51,8 +50,7 @@ formData.append('monumentName', monumentName);
 formData.append('email', email);
 formData.append('password', password);
 formData.append('contactNumber', contactNumber);
-formData.append('category', category);
-formData.append('monumentLogo', monumentLogo); // monumentLogo should be the file object
+// formData.append('monumentLogo', monumentLogo); // monumentLogo should be the file object
 formData.append('location.street', location.street);
 formData.append('location.city', location.city);
 formData.append('location.state', location.state);
@@ -80,9 +78,9 @@ const result = await axios.post(`${process.env.REACT_APP_BACK_URL}/api/agency/re
     setLocation({ ...location, [e.target.name]: e.target.value });
   };
 
-  const handleFileChange = (e) => {
-    setMonumentLogo(e.target.files[0]); // Update state with the selected file
-  };
+  // const handleFileChange = (e) => {
+  //   setMonumentLogo(e.target.files[0]); // Update state with the selected file
+  // };
 
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
@@ -164,22 +162,10 @@ const result = await axios.post(`${process.env.REACT_APP_BACK_URL}/api/agency/re
               />
             </div>
 
-            {/* Monument Category */}
-            <div className="mb-4">
-              <label htmlFor="Category" className="block text-gray-700 font-medium">Category:</label>
-              <input
-                type="text"
-                id="Category"
-                name="Category"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                required
-                className="w-full px-4 py-2 border rounded-lg focus:outline-none"
-              />
-            </div>
+            
 
             {/* Monument Logo */}
-            <div className="mb-4">
+            {/* <div className="mb-4">
               <label htmlFor="monumentLogo" className="block text-gray-700 font-medium">Monument Logo:</label>
               <input
                 type="file"
@@ -189,7 +175,7 @@ const result = await axios.post(`${process.env.REACT_APP_BACK_URL}/api/agency/re
                 required
                 className="w-full px-4 py-2 border rounded-lg focus:outline-none"
               />
-            </div>
+            </div> */}
 
             {/* Location */}
             <div className="mb-4">

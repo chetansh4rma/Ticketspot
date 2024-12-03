@@ -1,20 +1,18 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import './css/EventCreation.css';  // Importing the custom CSS file
-import NavBar from './Navbar';
+import './css/EventCreation.css';
 
 const EventCreation = () => {
-  // State for event data
   const [eventData, setEventData] = useState({
     eventName: '',
-    eventCategory: '', // New field for Event Category
     totalTicketsAvailable: 0,
     eventDate: '',
     ticketPrice: 0,
     eventTime: '',
-    description: '',
-    refreshments: 'Paid', // New field for Refreshments
+    description: ''
   });
+
+  const [errors, setErrors] = useState({}); // State to track field errors
 
   // Handle change in input fields
   const handleChange = (e) => {
@@ -23,113 +21,131 @@ const EventCreation = () => {
       ...eventData,
       [name]: value,
     });
+    setErrors({
+      ...errors,
+      [name]: '', // Clear error for the field being edited
+    });
+  };
+
+  // Validate all fields
+  const validate = () => {
+    const newErrors = {};
+
+    if (!eventData.eventName.trim()) newErrors.eventName = 'Event Name is required.';
+    if (!eventData.totalTicketsAvailable || eventData.totalTicketsAvailable <= 0)
+      newErrors.totalTicketsAvailable = 'Total Tickets Available must be a positive number.';
+    if (!eventData.eventDate) newErrors.eventDate = 'Event Date is required.';
+    if (!eventData.ticketPrice || eventData.ticketPrice <= 0)
+      newErrors.ticketPrice = 'Ticket Price must be a positive number.';
+    if (!eventData.eventTime.trim()) newErrors.eventTime = 'Event Time is required.';
+    if (!eventData.description.trim()) newErrors.description = 'Description is required.';
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!validate()) return; // Stop if validation fails
+
     try {
-      // POST request to backend
-     const response = await axios.post(`${process.env.REACT_APP_BACK_URL}/api/agency/event-creation`, eventData,{withCredentials: true});
+      const response = await axios.post(
+        `${process.env.REACT_APP_BACK_URL}/api/agency/event-creation`,
+        eventData,
+        { withCredentials: true }
+      );
       alert('Event Created Successfully!');
-      console.log(response)
+      console.log(response);
     } catch (error) {
       console.error('There was an error creating the event:', error);
     }
   };
 
   return (
-    <div>
-    <NavBar/>
     <div className="create-event-container">
-      <h1>Create New Event</h1>
-      <form onSubmit={handleSubmit}>
+      <h1>Manage Monument</h1>
+      <p>Add Monument in the System</p>
+      <form onSubmit={handleSubmit} className="event-creation-form">
         {/* Event Name */}
-        <div className="form-group">
+        <div className="event-creation-form-group">
           <label>Event Name</label>
           <input
             type="text"
             name="eventName"
             value={eventData.eventName}
             onChange={handleChange}
-            required
             placeholder="Enter event name"
             className="input-field"
           />
+          {errors.eventName && <span className="error-message">{errors.eventName}</span>}
         </div>
 
-        {/* Event Category */}
-        <div className="form-group">
-          <label>Event Category</label>
-          <input
-            type="text"
-            name="eventCategory"
-            value={eventData.eventCategory}
-            onChange={handleChange}
-            required
-            placeholder="Enter event category"
-            className="input-field"
-          />
-        </div>
+        
 
         {/* Total Tickets Available */}
-        <div className="form-group">
+        <div className="event-creation-form-group">
           <label>Total Tickets Available</label>
           <input
             type="number"
             name="totalTicketsAvailable"
             value={eventData.totalTicketsAvailable}
             onChange={handleChange}
-            min="0"
-            required
             placeholder="Enter total tickets"
             className="input-field"
           />
+          {errors.totalTicketsAvailable && (
+            <span className="error-message">{errors.totalTicketsAvailable}</span>
+          )}
         </div>
 
         {/* Event Date */}
-        <div className="form-group">
-          <label>Event Date</label>
-          <input
-            type="date"
-            name="eventDate"
-            value={eventData.eventDate}
-            onChange={handleChange}
-            required
-            className="input-field"
-          />
-        </div>
+        <div className="event-creation-form-group">
+  <label>Event Date</label>
+  <input
+    type="date"
+    name="eventDate"
+    value={eventData.eventDate}
+    onChange={handleChange}
+    className="input-field"
+    min={new Date().toISOString().split("T")[0]} // Set the minimum date to today
+    max={new Date(new Date().setDate(new Date().getDate() + 4))
+      .toISOString()
+      .split("T")[0]} // Set the maximum date to 4 days from today
+  />
+  {errors.eventDate && <span className="error-message">{errors.eventDate}</span>}
+</div>
 
         {/* Ticket Price */}
-        <div className="form-group">
+        <div className="event-creation-form-group">
           <label>Ticket Price</label>
           <input
             type="number"
             name="ticketPrice"
             value={eventData.ticketPrice}
             onChange={handleChange}
-            required
             placeholder="Enter ticket price in INR"
             className="input-field"
           />
+          {errors.ticketPrice && <span className="error-message">{errors.ticketPrice}</span>}
         </div>
 
         {/* Event Time */}
-        <div className="form-group">
+        <div className="event-creation-form-group">
           <label>Event Time</label>
           <input
             type="text"
             name="eventTime"
             value={eventData.eventTime}
             onChange={handleChange}
-            required
-            placeholder="e.g. from : 6:00 A.M. -  18:00 P.M."
+            placeholder="e.g. from : 6:00 A.M. - 18:00 P.M."
             className="input-field"
           />
+          {errors.eventTime && <span className="error-message">{errors.eventTime}</span>}
         </div>
 
         {/* Description */}
-        <div className="form-group">
+        <div className="event-creation-form-group full-width">
           <label>Description</label>
           <textarea
             name="description"
@@ -138,25 +154,14 @@ const EventCreation = () => {
             placeholder="Enter event description"
             className="input-field textarea"
           ></textarea>
+          {errors.description && <span className="error-message">{errors.description}</span>}
         </div>
 
-        {/* Refreshments */}
-        <div className="form-group">
-          <label>Refreshments</label>
-          <select
-            name="refreshments"
-            value={eventData.refreshments}
-            onChange={handleChange}
-            className="input-field select-field"
-          >
-            <option value="Paid">Paid</option>
-            <option value="Free">Free</option>
-          </select>
-        </div>
-
-        <button type="submit" className="submit-button">Create Event</button>
+        {/* Submit Button */}
+        <button type="submit" className="submit-button">
+          Create Event
+        </button>
       </form>
-    </div>
     </div>
   );
 };

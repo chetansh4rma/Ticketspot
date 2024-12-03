@@ -1,4 +1,8 @@
 /* NavBar.css */
+
+.ul{
+  margin-bottom:0 !important;
+}
 .navbar {
   background-color: #282c34; /* Dark background */
   padding: 10px 20px; /* Padding around the navbar */
@@ -15,10 +19,35 @@
   width: 100%; /* Full width */
 }
 
+@media (max-width:468px)
+{
+  .navbar-logo{
+    display:none;
+  }
+
+  .navbar-item {
+    margin: 0 10px;
+  }
+
+  .navbar-menu{
+    margin-left:0;
+    padding-left: 0 !important;
+  }
+
+  .ul{
+    padding-left: 0 !important;
+  }
+}
+
 .navbar-logo {
   color: #61dafb; /* Logo color */
   font-size: 24px; /* Logo font size */
   text-decoration: none; /* Remove underline */
+  margin-left:10px;
+}
+
+.navbar-menu{
+  margin-bottom:0 !important;
 }
 
 .navbar-menu {

@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import './css/Feedback.css';
 import NavBar from './Navbar';
@@ -59,15 +61,27 @@ const Feedback = () => {
          
           <div className="card1" key={index}>
             <div className="card1-header">
-              <h5>{userName}</h5>
-              <span>{`Rating: ${rating} ⭐`}</span>
+            <div className="feed-profi">
+          <div className="feed-pro-cont">
+             <FontAwesomeIcon icon={faUser} />
+          </div>
+            <h5>{userName}</h5>
+            </div>
+
+              <div className='feed-rating'>
+                  <span>Rating: </span>
+                   {Array.from({ length: rating }, (_, index) => (
+                        <span key={index}>⭐</span>
+                    ))}
+             </div>
             </div>
             <div className="card1-body">
               <p className="card1-text">{commentToDisplay}</p>
-              <button className="btn btn-link" onClick={() => toggleComment(index)}>
+              <button className="btn btn-link feed-show-more" onClick={() => toggleComment(index)}>
                 {showFullComment ? 'Show Less' : 'Show More'}
               </button>
-              <p className="text-muted">Created At: {new Date(createdAt).toLocaleDateString()}</p>
+              <div className='feed-line'></div>
+              <p className="feed-text-muted ">Created At: {new Date(createdAt).toLocaleDateString()}</p>
             </div>
           </div>
         );

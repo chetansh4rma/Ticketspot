@@ -10,7 +10,8 @@ const {User,Otp} = require('./models/user');
 app.use(express.json());
 app.use(cookieParser());
 
-app.use('/images', express.static(path.join(__dirname, 'companyLogo')));
+app.use('/logoUrl', express.static(path.join(__dirname, 'uploads/companyLogo')));
+app.use('/imageUrl', express.static(path.join(__dirname, 'uploads/monuImages')));
 dotenv.config();
 
 const cors=require("cors");
@@ -23,20 +24,38 @@ const allowedOrigins = [
 
 app.use(cors({
   origin: (origin, callback) => {
-    // Check if the origin is in the list of allowed origins
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true); // Allow request
+    // Allow requests with no origin (like Postman) or from allowed origins
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true); // Allow the request
     } else {
-      callback(new Error('Not allowed by CORS')); // Block request
+      callback(new Error('Not allowed by CORS')); // Block the request
     }
+    console.log('Request Origin:', origin)
   },
-  credentials: true // Allow credentials (cookies, etc.)
+  credentials: true // Allow cookies and other credentials
 }));
+
+// console.log('Request Origin:', origin)
+
+
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     // Check if the origin is in the list of allowed origins
+//     if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+//       callback(null, true); // Allow request
+//     } else {
+//       callback(new Error('Not allowed by CORS')); // Block request
+//     }
+//   },
+//   credentials: true // Allow credentials (cookies, etc.)
+// }));
 
 // app.use(cors({
 //   origin: `${process.env.FRONT_URL}`, // Your frontend origin
 //   credentials: true
 // }));
+
+
 const authRoutes = require('./Users'); // Ensure correct path to auth routes
 const Monument=require("./Monumentdata");
 

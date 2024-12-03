@@ -33,48 +33,195 @@ const transporter = nodemailer.createTransport({
 
 
 
-
-// Define the multer storage
+// Set up storage for multer
 const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'companyLogo/'); // Folder to store the images
+  destination: (req, file, cb) => {
+    // Set destination for logo and images
+    const filePath = file.fieldname === 'logo' ? 'uploads/companyLogo' : 'uploads/monuImages';
+    cb(null, path.join(__dirname, filePath));
   },
-  filename: function (req, file, cb) {
-    const randomNumber = crypto.randomInt(1000, 9999);
-    const uniqueSuffix = `${req.body.agencyName}-${randomNumber}-${Date.now()}`;
-    cb(null, `${uniqueSuffix}${path.extname(file.originalname)}`); // File name: agencyName-randomNumber-timestamp.extension
-  }
+  filename: (req, file, cb) => {
+    // Ensure the agencyName is used as a prefix in the filename
+    if (!req.agency || !req.agency.agencyName) {
+      return cb(new Error('Agency information is missing from the request.'));
+    }
+    cb(null, `${req.agency.agencyName}_${Date.now()}${path.extname(file.originalname)}`);
+  },
 });
 
-// Define the file filter for image files
-const upload = multer({
-  storage: storage,
-  fileFilter: (req, file, cb) => {
-    const filetypes = /jpeg|jpg|png/;
-    const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
-    const mimetype = filetypes.test(file.mimetype);
-    if (mimetype && extname) {
-      return cb(null, true);
-    } else {
-      cb(new Error('Only images are allowed (jpeg, jpg, png)'));
+// Multer file filter to ensure file type is valid
+const fileFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image/')) {
+    cb(null, true); // Accept image files only
+  } else {
+    cb(new Error('Invalid file type'), false);
+  }
+};
+
+// Create multer instance with storage and file filter
+const upload = multer({ storage, fileFilter });
+
+
+
+router.post(
+  '/setting',  authenticateToken,  upload.fields([{ name: 'logo', maxCount: 1 }, { name: 'images', maxCount: 10 }]),
+
+  async (req, res) => {
+    const id=req.agency.agencyId;
+    // console.log(req.body,id)
+    try {
+     
+
+        const { ticketPrice, availableTickets, description, museumName,timing } = req.body ;
+       
+
+      // Get the uploaded logo and images URLs
+      const logoUrl = req.files && req.files.logo && req.files.logo[0]
+  ? `${process.env.BACK_URL}/logoUrl/${req.files.logo[0].filename}`
+  : undefined;
+  console.log(req.files.images)
+      // const imagesUrls = req.files && req.files.images
+      //   ? req.files.images.map(
+      //       (file) => `${process.env.BACK_URL}/imageUrl/${file.filename}`
+      //     )
+      //   : [];
+
+      const imagesUrls = req.files && req.files.images
+  ? req.files.images.map((file) => `${process.env.BACK_URL}/imageUrl/${file.filename}`)
+  : [];
+console.log(imagesUrls)
+      // Validate incoming data
+      if (ticketPrice && (isNaN(ticketPrice) || ticketPrice <= 0)) {
+        return res.status(400).json({ error: 'Valid ticket price is required' });
+      }
+      if(timing &&( timing==='' ||timing=='timing is required'))
+      {
+        return res.status(400).json({ error: 'Valid timing is required' });
+      }
+      if (availableTickets && (isNaN(availableTickets) || availableTickets <= 0)) {
+        return res.status(400).json({ error: 'Valid number of available tickets is required' });
+      }
+      console.log(description)
+      if(description &&( description==='' ||description=='Description is required and cannot be empty'))
+      {
+        return res.status(400).json({ error: 'Valid description is required' });
+      }
+      console.log("yo",description)
+      if(museumName){
+      const existingMonument = await Agency.findOne({  MonumentName: museumName, _id: { $ne: id } });
+
+      if(existingMonument)
+      {
+        return res.status(400).json({ error: 'Already exist with Same name' });
+      }
+    }
+
+      // Create an object to store the fields to update or create
+      const updateFields = {};
+
+      // Update only the fields that are provided in the request
+      if (ticketPrice) updateFields.ticketPrice = ticketPrice;
+      if (timing) updateFields.timing = timing;
+      if (availableTickets) updateFields.totalAvailableTicket = availableTickets;
+      if (description) updateFields.desc = description;
+      if (logoUrl) updateFields.MonumentLogo = logoUrl;
+      if (museumName) updateFields.MonumentName = museumName;
+
+      console.log(updateFields.desc)
+      
+      // Handle images
+      if (imagesUrls.length > 0) {
+        // Fetch the existing images in the database
+        const existingMonument = await Agency.findOne({ _id: id }).select('imageUrl');
+      
+        // Create a new array of image URLs by concatenating new images with the existing ones
+        const updatedImages = existingMonument ? existingMonument.imageUrl.concat(imagesUrls) : imagesUrls;
+      
+        // Ensure the total number of images does not exceed 5
+        if (updatedImages.length <= 5) {
+          updateFields.imageUrl = updatedImages; // Directly assign the new array to imageUrl
+        } else {
+          return res.status(400).json({ error: 'Total number of images cannot exceed 5' });
+        }
+      }
+
+      // console.log(imagesUrls)
+
+      // console.log(updateFields.MonumentLogo)
+      // Use findOneAndUpdate with upsert option to either update or create the document
+      const updatedMonument = await Agency.findOneAndUpdate(
+        { _id : id}, // Find by agencyId and monument name
+        { $set: updateFields }, // Set updated fields
+        { new: true, upsert: true } // Create if not exists, return the updated document
+      );
+
+      // Respond with success
+      return res.status(200).json({
+        message: updatedMonument ? 'Monument settings updated successfully' : 'New monument created successfully',
+        data: updatedMonument,
+      });
+    } catch (error) {
+      console.error('Error updating settings:', error);
+      return res.status(500).json({ error: 'Internal Server Error' });
     }
   }
-}).single('monumentLogo'); // Field name for file upload
+);
 
+
+
+router.get('/get-setting-detail', authenticateToken, async (req, res) => {
+  try {
+    // Only select the specific fields that are required
+    const user = await Agency.findById(req.agency.agencyId)
+      .select('MonumentName MonumentLogo timing imageUrl ticketPrice totalAvailableTicket desc');
+    //  console.log(user)
+    if (!user) {
+      return res.status(404).json({ msg: 'Agency not found' });
+    }
+
+    // Prepare the required fields object
+    const requiredFields = {};
+
+    // Check if each required field is missing and add it to the requiredFields object
+    requiredFields.MonumentName =!user.MonumentName? 'Monument Name is required':user.MonumentName;
+    requiredFields.timing =!user.timing? 'Timing is required':user.timing;
+     requiredFields.desc = !user.desc?'Description is required and cannot be empty':user.desc;
+     requiredFields.MonumentLogo = !user.MonumentLogo?'Monument Logo is required':user.MonumentLogo;
+     requiredFields.ticketPrice =!user.ticketPrice? 'Ticket Price is required':user.ticketPrice;
+    requiredFields.totalAvailableTicket =!user.totalAvailableTicket? 'Available Tickets is required':user.totalAvailableTicket;
+    requiredFields.imageUrl =(!user.imageUrl || user.imageUrl.length === 0)? 'At least one image is required':user.imageUrl;
+
+    // If any required field is missing, return it in the response
+    if (Object.keys(requiredFields).length > 0) {
+      return res.status(200).json({
+        message: 'Please fill in the missing fields.',
+        requiredFields,
+      });
+    }
+
+    console.log(user)
+    // If everything is filled, return success
+    res.status(200).json({ message: 'All required fields are filled.', requiredFields });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error retrieving setting details', error });
+  }
+});
 
 
 
 // Register Route
-router.post('/register', (req, res) => {
+router.post('/register', async(req, res) => {
   console.log(req.file);
-  upload(req, res, async function (err) {
-    if (err instanceof multer.MulterError) {
-      // A Multer error occurred when uploading.
-      return res.status(400).json({ error: err.message });
-    } else if (err) {
-      // An unknown error occurred when uploading.
-      return res.status(400).json({ error: err.message });
-    }
+  // upload(req, res, async function (err) {
+  //   if (err instanceof multer.MulterError) {
+  //     // A Multer error occurred when uploading.
+  //     return res.status(400).json({ error: err.message });
+  //   } else if (err) {
+  //     // An unknown error occurred when uploading.
+  //     return res.status(400).json({ error: err.message });
+  //   }
 
     // Extract other fields from the request
     const { agencyName, email, password, contactNumber, monumentName } = req.body;
@@ -109,7 +256,7 @@ const location1 = {
         email,
         password: hashedPassword,
         contactNumber,
-        MonumentLogo: req.file ? req.file.filename : '', // Store the file name if uploaded
+        // MonumentLogo: req.file ? `${process.env.BACK_URL}/logoUrl/${req.file.filename}` : '', // Store the file name if uploaded
        MonumentName: monumentName,
         location:location1,
       });
@@ -135,7 +282,7 @@ const location1 = {
       console.error('Registration error:', error);
       res.status(500).json({ error: 'Server error' });
     }
-  });
+  // });
 });
 
 
@@ -158,7 +305,7 @@ router.post('/verify-otp', async (req, res) => {
     const agency = await Agency.findOne({ email: email });
 
 
-    const payload = { agencyId: agency._id};
+    const payload = { agencyId: agency._id,agencyName: agency.agencyName};
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
@@ -197,7 +344,7 @@ router.post('/login', async (req, res) => {
       return res.status(400).json({ error: 'Invalid email or password' });
     }
 
-    const payload = { agencyId: agency._id};
+    const payload = { agencyId: agency._id,agencyName: agency.agencyName};
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
 
     res.cookie('token', token, {
@@ -218,10 +365,10 @@ router.post('/login', async (req, res) => {
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  // console.log(req)
+  // console.log(req, " ",token)
   if (token == null) return res.sendStatus(401); // Unauthorized
   
-  
+   
   jwt.verify(token, process.env.JWT_SECRET, (err, agency) => {
     if (err) return res.sendStatus(403); // Forbidden
     req.agency = agency;
@@ -268,6 +415,7 @@ router.get('/agencydetails', authenticateToken, async (req, res) => {
 
 // Endpoint to get bookings for an agency
 router.get('/fetch-bookings',authenticateToken, async (req, res) => {
+  
   try {
     
     
@@ -293,7 +441,7 @@ router.get('/fetch-bookings',authenticateToken, async (req, res) => {
 router.post('/event-creation',authenticateToken, async (req, res) => {
      
     const monumentId = req.agency.agencyId; // Extract the monument ID from the URL
-    const { eventName,eventCategory, totalTicketsAvailable, eventDate, eventTime, ticketPrice, description,refreshments } = req.body;
+    const { eventName, totalTicketsAvailable, eventDate, eventTime, ticketPrice, description} = req.body;
     console.log(req.agency)
     try {
       // Find the agency (monument) by ID
@@ -305,14 +453,12 @@ router.post('/event-creation',authenticateToken, async (req, res) => {
       // Create a new event linked to this agency
       const newEvent = new Event({
         eventName,
-        eventCategory,
         MonumentId: monumentId, // Link the event to the monument
-        totalTicketsAvailable,
+        eventTotalTicketsAvailable:totalTicketsAvailable,
         eventDate,
         eventTime,
-        ticketPrice,
-        description,
-        refreshments
+        eventTicketPrice: ticketPrice,
+        description
       });
   
       // Save the event to the database
@@ -432,25 +578,25 @@ router.post('/event-creation',authenticateToken, async (req, res) => {
 
         for (const agency of agencies) {
             // Get the first event ID if it exists
-            const firstEventId = agency.events[0];
+            // const firstEventId = agency.events[0];
 
-            let eventTime = 'N/A';
-            let ticketPrice = 0;
+            // let eventTime = 'N/A';
+            // let ticketPrice = 0;
 
             // Fetch the first event details if it exists
-            if (firstEventId) {
-                const event = await Event.findOne({_id:firstEventId}).select('eventTime ticketPrice');
-                if (event) {
-                    eventTime = event.eventTime || 'N/A';
-                    ticketPrice = event.ticketPrice || 0;
-                }
-            }
+            // if (firstEventId) {
+            //     const event = await Event.findOne({_id:firstEventId}).select('eventTime ticketPrice');
+            //     if (event) {
+            //         eventTime = event.eventTime || 'N/A';
+            //         ticketPrice = event.ticketPrice || 0;
+            //     }
+            // }
 
             responseData.push({
-                agencyName: agency.MonumentName, // Assuming MonumentName is the agency name
+                agencyName: agency.agencyName, // Assuming MonumentName is the agency name
                 monumentName: agency.MonumentName, // Assuming MonumentName is the same as monument name
-                eventTime,
-                ticketPrice,
+                timing:agency.timing|| 'N/A',
+                ticketPrice:agency.ticketPrice || 'N/A',
                 url:agency.MonumentLogo
             });
         }
@@ -509,34 +655,40 @@ router.get('/fetch-revenue', authenticateToken, async (req, res) => {
 
     // Get current date, month, and year
     const currentDate = new Date();
-    const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+    // const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+    const currentMonth = String(currentDate.getMonth() + 1).padStart(2, '0');
     const currentYear = currentDate.getFullYear();
-    const currentMonthYear = `${currentMonth} ${currentYear}`;
+    const currentMonthYear = `${currentYear}-${currentMonth}`;
+    console.log(currentMonthYear)
 
     // Find current month's booking count
     const currentMonthBooking = agency.bookings.find(booking => booking.month === currentMonthYear);
 
     // If no bookings for the current month, return 0
     const bookingCount = currentMonthBooking ? currentMonthBooking.count : 0;
+    const currentMonthRevenue=currentMonthBooking ? currentMonthBooking.monthlyRevenue : 0;
+    // console.log(bookingCount)
 
     // Calculate total revenue by fetching the ticket price of the first event
-    let totalRevenue = 0;
+    let totalRevenue = agency.totalRevenue;
 
-    if (bookingCount > 0 && agency.events.length > 0) {
-      // Get the first event ID from the agency's events array
-      const firstEventId = agency.events[0];
+    // if (bookingCount > 0 && agency.events.length > 0) {
+    //   // Get the first event ID from the agency's events array
+    //   const firstEventId = agency.events[0];
 
-      // Fetch the event by ID to get the ticket price
-      const event = await Event.findById(firstEventId);
-      console.log(event,firstEventId)
-      if (event) {
+    //   // Fetch the event by ID to get the ticket price
+    //   const event = await Event.findById(firstEventId);
+    //   console.log(event,firstEventId)
+    //   if (event) {
         
-        totalRevenue = event.ticketPrice * bookingCount; // Calculate total revenue
-      }
-    }
+    //     totalRevenue = event.ticketPrice * bookingCount; // Calculate total revenue
+    //   }
+    // }
+    // console.log()
 
     res.json({
       currentMonth: currentMonthYear,
+      currentMonthRevenue,
       bookingCount,
       totalRevenue,
     });

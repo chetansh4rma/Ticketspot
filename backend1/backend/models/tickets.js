@@ -7,9 +7,9 @@ const TicketSchema = new mongoose.Schema({
     unique: true, // Ensure ticket number is unique
     required: true,
   },
-  eventId: {
+  MonumentId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Event', // Reference to the Event model
+    ref: 'Monument',
     required: true,
   },
   userId: {

@@ -1,19 +1,29 @@
 /* General container styling */
 .competitor-list {
     display: flex;
-    flex-wrap: wrap;
+    width: 100%;
+    flex-direction: column;
+    /* flex-wrap: wrap; */
     justify-content: space-between; /* Adjust if necessary */
     gap: 30px; /* Reduce gap between cards */
-    padding: 2rem 5rem;
+    /* padding: 2rem 5rem; */
+}
+
+.logo-monu{
+  height:40px;
+  width:40px;
+  border-radius: 100%;
 }
 
 /* Card styling */
-.card {
+.compete-card {
+   
+    padding:20px;
+    width: 100%;
     background-color: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    width: 30%; /* Ensure 3 cards in a row */
     margin-bottom: 1rem;
     display: flex;
     flex-direction: column;
@@ -22,27 +32,41 @@
     transition: transform 0.2s ease-in-out;
 }
 
-.card:hover {
-    transform: scale(1.05); /* Add a hover effect */
+.compete-card:hover {
+    transform: scale(1.02); /* Add a hover effect */
 }
 
 /* Image styling */
-.card-img-top {
-    width: 100%;
-    height: 200px;
+.logo-monu .card-img-top {
+    width: 40px;
+    height: 40px;
     object-fit: cover;
+    border-radius: 100%;
+}
+
+.logo-nd-h-cont{
+    display:flex;
+    gap: 20px;
 }
 
 /* Card body styling */
-.card-body {
-    padding: 1rem;
+.compete-card-body {
+    padding: 15px 0;
+}
+
+.compete-spec-txt{
+    display: flex;
+    justify-content: space-between;
+    height: 40px;
+    align-items: center;
+    border-bottom: 1px solid hsl(240,5.9%,90%);
 }
 
 /* Card text styling */
 .card-title {
-    font-size: 1.25rem;
+    font-size: 25px;
     font-weight: bold;
-    margin-bottom: 0.5rem;
+    margin-top: 4px;
 }
 
 .card-text {

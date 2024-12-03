@@ -35,19 +35,30 @@ export default function ShowCompete() {
     }
   };
 
+  const capitalizeFirstLetter = (str) => {
+    if (!str) return str; // Check for empty string
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
   return (
     <div>
-      <Navbar />
+      
       <div className="competitor-list">
         {competitors.map((competitor, index) => (
-          <div className="card" style={{ width: "18rem", margin: "1rem" }} key={index}>
-            <img src={`${process.env.REACT_APP_BACK_URL}/images/${competitor.url}`} className="card-img-top" alt={competitor.agencyName} />
-            <div className="card-body">
-              <h5 className="card-title">{competitor.agencyName}</h5>
+          <div className="compete-card " style={{}} key={index}>
+          <div className="logo-nd-h-cont">
+          <div className="logo-monu">
+            <img src={competitor.url} className="card-img-top" alt={competitor.agencyName} />
+          </div>
+          <h5 className="card-title">{capitalizeFirstLetter(competitor.agencyName)}</h5>
+          </div>
+            <div className="compete-card-body">
+              
               <p className="card-text">
-                <strong>Monument:</strong> {competitor.monumentName} <br />
-                <strong>Timing:</strong> {competitor.eventTime} <br />
-                <strong>Ticket Price:</strong> ₹{competitor.ticketPrice}
+                 <span style={{marginBottom:'10px'}}>Show Competitor Price</span><br/>
+                <span className='compete-spec-txt'><strong>Monument:</strong> {competitor.monumentName}</span>
+                <span className='compete-spec-txt'><strong>Timing:</strong> {competitor.timing}</span> 
+                <span className='compete-spec-txt'><strong>Ticket Price:</strong> ₹{competitor.ticketPrice}</span>
               </p>
             </div>
           </div>

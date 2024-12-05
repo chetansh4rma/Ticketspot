@@ -27,7 +27,7 @@ function App() {
       {/*<Route path="/event-creation" element={<PrivateRoute element={EventCreation} />} />
       <Route path="/show-competitor" element={<PrivateRoute element={ShowCompete} />} />
        */}
-      
+       
       
 
       

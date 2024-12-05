@@ -1,180 +1,4 @@
-// import { useState, useEffect, useRef } from 'react'
-// import { motion, AnimatePresence } from 'framer-motion'
-// import { Bot, ChevronLeft, ChevronRight, X } from 'lucide-react'
-// import './css/chatbot.css'
-// import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-// // import { faComment } from "@fortawesome/free-solid-svg-icons";
-// import { faComment } from "@fortawesome/free-regular-svg-icons";
-
-// const mockGuides = [
-//   { id: '1', name: 'Alice Johnson', rating: 4.8, photo: '/placeholder.svg?height=80&width=80', speciality: 'Renaissance Art' },
-//   { id: '2', name: 'Bob Smith', rating: 4.6, photo: '/placeholder.svg?height=80&width=80', speciality: 'Modern Art' },
-//   { id: '3', name: 'Carol Williams', rating: 4.9, photo: '/placeholder.svg?height=80&width=80', speciality: 'Ancient History' },
-//   { id: '4', name: 'David Brown', rating: 4.7, photo: '/placeholder.svg?height=80&width=80', speciality: 'Impressionism' },
-//   { id: '5', name: 'Eva Martinez', rating: 4.5, photo: '/placeholder.svg?height=80&width=80', speciality: 'Contemporary Art' },
-// ]
-
-// export default function Chatbot() {
-//   const [isOpen, setIsOpen] = useState(false)
-//   const [messages, setMessages] = useState([])
-//   const [currentStep, setCurrentStep] = useState(0)
-//   const [bookingDetails, setBookingDetails] = useState({
-//     date: '',
-//     tickets: 0,
-//     name: '',
-//   })
-//   const [showGuides, setShowGuides] = useState(false)
-//   const [selectedGuide, setSelectedGuide] = useState(null)
-//   const [currentGuideIndex, setCurrentGuideIndex] = useState(0)
-//   const [isTyping, setIsTyping] = useState(false)
-//   const messagesEndRef = useRef(null)
-
-//   const chatSteps = [
-//     { question: "Welcome to MuseumTix! I'm your AI assistant. Let's book your ticket. What date would you like to visit?", type: 'date' },
-//     { question: "Excellent choice! How many tickets would you like to book?", type: 'number' },
-//     { question: "Perfect. Can I get your name for the booking?", type: 'text' },
-//     { question: "Great! Your ticket has been booked. Would you like to download it now?", type: 'confirm' },
-//     { question: "One last thing - would you like to book an expert guide for your visit?", type: 'confirm' },
-//   ]
-
-//   useEffect(() => {
-//     if (isOpen && messages.length === 0) {
-//       addBotMessage(chatSteps[0].question)
-//     }
-//   }, [isOpen])
-
-//   useEffect(() => {
-//     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-//   }, [messages])
-
-//   const addBotMessage = (text) => {
-//     setIsTyping(true)
-//     setTimeout(() => {
-//       setMessages(prev => [...prev, { text, sender: 'bot' }])
-//       setIsTyping(false)
-//     }, 1000 + Math.random() * 500)
-//   }
-
-//   const addUserMessage = (text) => {
-//     setMessages(prev => [...prev, { text, sender: 'user' }])
-//   }
-
-//   const handleUserInput = (input) => {
-//     addUserMessage(input)
-    
-//     if (currentStep < chatSteps.length - 1) {
-//       setBookingDetails(prev => ({
-//         ...prev,
-//         [Object.keys(bookingDetails)[currentStep]]: input
-//       }))
-//       setCurrentStep(currentStep + 1)
-//       addBotMessage(chatSteps[currentStep + 1].question)
-//     } else if (currentStep === chatSteps.length - 1) {
-//       if (input.toLowerCase() === 'yes') {
-//         setShowGuides(true)
-//         addBotMessage("Fantastic! Here are our top-rated guides. Use the arrows to browse and click 'Select' to choose your perfect guide.")
-//       } else {
-//         downloadTicket()
-//       }
-//     }
-//   }
-
-//   const handleGuideSelection = (guide) => {
-//     setSelectedGuide(guide)
-//     addBotMessage(`Excellent choice! You've selected ${guide.name} as your guide. Shall we confirm this booking?`)
-//     setShowGuides(false)
-//   }
-
-//   const confirmGuideBooking = () => {
-//     if (selectedGuide) {
-//       addBotMessage(`Wonderful! Your guide ${selectedGuide.name} is confirmed. Get ready for an enriching experience!`)
-//       setSelectedGuide(null)
-//     }
-//   }
-
-//   const downloadTicket = () => {
-//     alert("Your ticket has been generated and is ready for download!")
-//     addBotMessage("Thank you for booking with MuseumTix. Your cultural journey awaits!")
-//   }
-
-//   const renderUserOptions = () => {
-//     if (currentStep < chatSteps.length) {
-//       switch (chatSteps[currentStep].type) {
-//         case 'date':
-//           return (
-//             <motion.div className="chatbot-input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-//               <input type="date" onChange={(e) => handleUserInput(e.target.value)} className="chatbot-input-field" />
-//             </motion.div>
-//           )
-//         case 'number':
-//           return (
-//             <motion.div className="chatbot-input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-//               <input type="number" min="1" max="10" onChange={(e) => handleUserInput(e.target.value)} className="chatbot-input-field" />
-//             </motion.div>
-//           )
-//         case 'text':
-//           return (
-//             <motion.div className="chatbot-input" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-//               <input type="text" onChange={(e) => handleUserInput(e.target.value)} className="chatbot-input-field" />
-//             </motion.div>
-//           )
-//         case 'confirm':
-//           return (
-//             <motion.div className="chatbot-confirm" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-//               <button className="chatbot-button conf-btn confirm" onClick={() => handleUserInput('yes')}>Yes</button>
-//               <button className="chatbot-button dec-btn decline" onClick={() => handleUserInput('no')}>No</button>
-//             </motion.div>
-//           )
-//         default:
-//           return null
-//       }
-//     } else if (showGuides) {
-//       return (
-//         <motion.div className="chatbot-guides" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-//           <motion.div className="guide-card">
-//             {/* Code to show guides */}
-//           </motion.div>
-//         </motion.div>
-//       )
-//     }
-//   }
-
-//   return (
-//     <>
-//       {!isOpen &&<div className='chatBot-thumbnail' onClick={() => setIsOpen((prev) => !prev)}>
-//       <FontAwesomeIcon icon={faComment} className='chat-bot-msg-icon'/>
-//       </div>}
-    
-//       {isOpen&&<div className={`chatbot-container ${isOpen ? 'open' : ''}`}>
-     
-      
-      
-//       <div className="chatbot-header">
-//         <Bot />
-//         <button onClick={() => setIsOpen((prev) => !prev)}>{isOpen ? <X /> : <Bot />}</button>
-//       </div>
-//       {isOpen && (
-//         <>
-//           <div className="chatbot-messages">
-//             <AnimatePresence>
-//               {messages.map((message, index) => (
-//                 <motion.div key={index} className={`message ${message.sender}`} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }}>
-//                   {message.text}
-//                 </motion.div>
-//               ))}
-//             </AnimatePresence>
-//             {isTyping && <div className="loader "></div>}
-//             <div ref={messagesEndRef} />
-//           </div>
-//           <div className="chatbot-footer">{renderUserOptions()}</div>
-//         </>
-//       )}
-//     </div>}
-//     </>
-//   )
-// }
-
-import { useState, useEffect, useRef } from 'react';
+import  React,{ useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, X } from 'lucide-react';
 import './css/chatbot.css';
@@ -185,6 +9,7 @@ export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [currentStep, setCurrentStep] = useState(0);
+  const [apiInput, setApiInput] = useState('');
   const [bookingDetails, setBookingDetails] = useState({
     date: '',
     tickets: '',
@@ -219,7 +44,42 @@ export default function Chatbot() {
   const addUserMessage = (text) => {
     setMessages((prev) => [...prev, { text, sender: 'user' }]);
   };
-
+  const fetchApiResponse = async (input) => {
+    addBotMessage('Processing your input...');
+    try {
+      console.log(input)
+      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-dvnq/agent/sessions/3be097c7-f599-9d1c-928d-15cd290ab790:detectIntent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization':`Bearer ya29.a0AeDClZBdBoA4Qm8B7JhXbUvWhL9aIHKPbv4gBE4DkB8C4IYAuqKpAr1wY7CKAiKOzT7YDCfCRHl9k4ML9g_0mgDRs5iToMtX2PahrDSlK4UD0FS5ylqG2msu7hMLHATVUJWxUXrc-EVTgsCDQWEBTigrBMGxcMQk10Xmz7JnBp0m7qlFE9l9kOUNr5X7ozBP2_cU9x3_hZmoCyQGQgf-ZOALQ6s-xfJfPCcB4OYjjLk33DE---Szkx_BLiwLakFUplVXBgqtrErxEnhjxW5vlNRoRZl4A4k5QzyPD-bS4Z7P99SfpK6sw-8iLX4GKrnCVzE-xXAhktG-v6v1fGfIIVKjZA8cN0fi2aH7aSTLiI4S1WOgWsPZBHJOKXFZrHb5MUGqCb6u0Sor-ornT6aNKDHTlfLOFr-McNyqUicaCgYKAU8SARESFQHGX2MiAdgzMYsDsaiEi95yy96wIw0430`, // Replace with your Dialogflow token
+        },
+        body: JSON.stringify({
+          queryInput: {
+            text: {
+              text: input,
+              languageCode: 'en',
+            },
+          },
+          queryParams: {
+            source: 'DIALOGFLOW_CONSOLE',
+            timeZone: 'Asia/Calcutta',
+          },
+        }),
+      });
+      const data = await response.json();
+  console.log("response",data)
+      if (data.queryResult && data.queryResult.fulfillmentText) {
+        addBotMessage(data.queryResult.fulfillmentText);
+      } else {
+        addBotMessage('Sorry, I could not understand that.');
+      }
+    } catch (error) {
+      console.error('Error fetching API response:', error);
+      addBotMessage('There was an error processing your request. Please try again later.');
+    }
+  };
+  
   const validateInput = () => {
     setError('');
     const input = userInput.trim();
@@ -257,6 +117,17 @@ export default function Chatbot() {
   };
 
   const handleInputSubmit = () => {
+    if (!apiInput.trim()) {
+      setError('Input cannot be empty.');
+      return;
+    }
+  
+    setError('');
+    const userMessage = apiInput.trim();
+    addUserMessage(userMessage); // Display user input in the chat
+    setApiInput(''); // Clear input field
+    
+    fetchApiResponse(userMessage); // Fetch and display API response
     const errorMessage = validateInput();
     if (errorMessage) {
       setError(errorMessage);
@@ -395,6 +266,17 @@ export default function Chatbot() {
             <div ref={messagesEndRef} />
           </div>
           <div className="chatbot-footer">
+          <input
+              type="text"
+              placeholder="Type your message here..."
+              value={apiInput}
+              onChange={(e) => setApiInput(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
+              className="chatbot-input-field"
+            />
+            <button className="chatbot-button" onClick={handleInputSubmit}>
+              Send
+            </button>
             {renderUserOptions()}
             {error && <p className="error">{error}</p>}
           </div>

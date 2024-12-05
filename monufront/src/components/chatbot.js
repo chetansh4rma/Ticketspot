@@ -48,11 +48,11 @@ export default function Chatbot() {
     addBotMessage('Processing your input...');
     try {
       console.log(input)
-      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-qhnm/agent/sessions/43c97e81-7006-2e83-79a5-c81203e64330:detectIntent', {
+      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-dvnq/agent/sessions/3be097c7-f599-9d1c-928d-15cd290ab790:detectIntent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ya29.a0AeDClZBBc9pk5eImOch_j4L-5DQrqEF71rPpMli24sxy8iulhCIin_irwE5RWHIX3K5ViCKJuedgjtLQo8VXq0N7hkDNZxyi7pfANSSiAhscUtRD-3JJzUgGc-zXtc-gSYAICLDVZIdiiYgEDnfPzsR70r8TQFFQMQMMG5zbvZQcs40AyD3U4IrtZJpZKlJ5VSzVM8GnV0FRoIduXkrd8anUf3sZ_yBEtY8or6ysa4X9bO8dDdOCPyhD_p4kCHvg4-PTrD3-pVP9IXWWdXM9vD4FYe62qoxdRSceZPBew6ca5hllHAUZWAUcoIiFlMkQphoGYel48cah1is-wY-3rMyQKNJtz9eZJ0l9nvDJcTPLzUkaLYjFiT8CYWJ60BbiBVeM4HY9IZJ6FKqSkxoID3PTz9ObPtUoPWs4iC_piyivaQaCgYKAVkSARESFQHGX2Mi8ULxZtxOy82grpRHmEKRSw0437`, // Replace with your Dialogflow token
+          'Authorization':`Bearer ya29.a0AeDClZBdBoA4Qm8B7JhXbUvWhL9aIHKPbv4gBE4DkB8C4IYAuqKpAr1wY7CKAiKOzT7YDCfCRHl9k4ML9g_0mgDRs5iToMtX2PahrDSlK4UD0FS5ylqG2msu7hMLHATVUJWxUXrc-EVTgsCDQWEBTigrBMGxcMQk10Xmz7JnBp0m7qlFE9l9kOUNr5X7ozBP2_cU9x3_hZmoCyQGQgf-ZOALQ6s-xfJfPCcB4OYjjLk33DE---Szkx_BLiwLakFUplVXBgqtrErxEnhjxW5vlNRoRZl4A4k5QzyPD-bS4Z7P99SfpK6sw-8iLX4GKrnCVzE-xXAhktG-v6v1fGfIIVKjZA8cN0fi2aH7aSTLiI4S1WOgWsPZBHJOKXFZrHb5MUGqCb6u0Sor-ornT6aNKDHTlfLOFr-McNyqUicaCgYKAU8SARESFQHGX2MiAdgzMYsDsaiEi95yy96wIw0430`, // Replace with your Dialogflow token
         },
         body: JSON.stringify({
           queryInput: {

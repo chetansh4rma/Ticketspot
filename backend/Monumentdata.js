@@ -224,15 +224,19 @@ router.post('/register', async(req, res) => {
   //   }
 
     // Extract other fields from the request
-    const { agencyName, email, password, contactNumber, monumentName,city,state,pincode,description,price} = req.body;
+    const { agencyName, email, password, contactNumber, monumentName } = req.body;
 
-
+    const street = req.body['location.street'];
+    const city = req.body['location.city'];
+    const state = req.body['location.state'];
+    const zipCode = req.body['location.zipCode'];
 
 // Create the location object
 const location1 = {
+  street,
   city,
   state,
-  zipCode:pincode,
+  zipCode,
 };
 
 
@@ -250,11 +254,9 @@ const location1 = {
       const newAgency = new Agency({
         agencyName,
         email,
-        desc:description,
         password: hashedPassword,
         contactNumber,
-        ticketPrice:price,
-        MonumentLogo: req.file ? req.file.filename : '', // Store the file name if uploaded
+        // MonumentLogo: req.file ? `${process.env.BACK_URL}/logoUrl/${req.file.filename}` : '', // Store the file name if uploaded
        MonumentName: monumentName,
         location:location1,
       });
@@ -262,18 +264,18 @@ const location1 = {
       // Save to the database
       await newAgency.save();
 
-      // // Generate OTP
-      // const otpCode = crypto.randomInt(1000, 9999).toString();
-      // const otp = new Otp({ email, otp: otpCode });
-      // await otp.save();
+      // Generate OTP
+      const otpCode = crypto.randomInt(1000, 9999).toString();
+      const otp = new Otp({ email, otp: otpCode });
+      await otp.save();
 
-      // // Send OTP via email
-      // await transporter.sendMail({
-      //   from: process.env.EMAIL,
-      //   to: email,
-      //   subject: 'Your OTP Code',
-      //   text: `Your OTP code is ${otpCode}`,
-      // });
+      // Send OTP via email
+      await transporter.sendMail({
+        from: process.env.EMAIL,
+        to: email,
+        subject: 'Your OTP Code',
+        text: `Your OTP code is ${otpCode}`,
+      });
 
       res.status(201).json({ message: 'OTP is sent to your email', agencyId: newAgency._id });
     } catch (error) {

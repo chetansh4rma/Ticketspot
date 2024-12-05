@@ -1,7 +1,10 @@
 // server.js
 const dotenv = require('dotenv');
 const express = require('express');
+const functions = require('@google-cloud/functions-framework');
 const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const Agency = require('./models/agency'); 
 const cookieParser = require('cookie-parser');
 const app = express();
 const jwt = require('jsonwebtoken');
@@ -9,7 +12,7 @@ const path = require('path');
 const {User,Otp} = require('./models/user');
 app.use(express.json());
 app.use(cookieParser());
-
+app.use(bodyParser.json());
 app.use('/logoUrl', express.static(path.join(__dirname, 'uploads/companyLogo')));
 app.use('/imageUrl', express.static(path.join(__dirname, 'uploads/monuImages')));
 dotenv.config();
@@ -80,6 +83,135 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+functions.http('handleWebhook', (request, response) => {
+  const tag = request.body.queryResult.intent.displayName;
+
+  // Log the value of 'tag' to the console
+  console.log('Intent Display Name:', tag);
+
+  let jsonResponse = {};
+  
+  if (tag === 'Default Welcome Intent') {
+    jsonResponse = {
+      fulfillmentMessages: [
+        {
+          text: {
+            text: ['Hello from a GCF Webhook'],
+          },
+        },
+      ],
+    };
+  } else if (tag === 'get-name') {
+    jsonResponse = {
+      fulfillmentMessages: [
+        {
+          text: {
+            text: ['My name is Flowhook'],
+          },
+        },
+      ],
+    };
+  } else if (tag === 'student_events') {
+    jsonResponse = {
+      fulfillmentMessages: [
+        {
+          text: {
+            text: ['Yes, there are free events available for students. Check our website for more details.'],
+          },
+        },
+      ],
+    };
+  } else {
+    jsonResponse = {
+      fulfillmentMessages: [
+        {
+          text: {
+            text: [`There are no fulfillment responses defined for the "${tag}" tag.`],
+          },
+        },
+      ],
+    };
+  }
+
+  response.setHeader('Content-Type', 'application/json');
+  response.status(200).send(jsonResponse);
+});
+app.post('/webhook', async (req, res) => {
+  const intentName = req.body.queryResult.intent.displayName;
+  const Price = req.body.queryResult.parameters.budget;
+  const Date = req.body.queryResult.parameters.date;
+  const Place = req.body.queryResult.parameters.any;
+  console.log("Display Name",req.body);
+  let result=null;
+  // let monument=null;
+  try {
+    if(Price&&Date){
+      const params={
+        price:Price,
+        date:Date
+      }
+       const results= await fetchmuseum(params);
+      result=results[0].MonumentName;
+    }
+    let response;
+ if(Place){
+  const params={
+  MonumentName:Place
+  }
+ const results=await fetchmuseum(params);
+ console.log("result",results)
+  result=results.desc
+ }
+    // Handle different intents
+    if (intentName === 'IntentName1') {
+      // Query for data relevant to IntentName1
+      response = await YourModel1.findOne({ name: 'some criteria' });
+    } else if (intentName === 'IntentName2') {
+      // Query for data relevant to IntentName2
+      response = await YourModel2.findOne({ name: 'some other criteria' });
+    } else {
+      // Handle fallback or default response
+      response = { message: 'Sorry, I don\'t understand the request.' };
+    }
+
+    // Send the response back to Dialogflow
+    return res.json({
+      fulfillmentText: result,  // This will be shown as the bot's reply
+      source: 'webhook'
+    });
+
+
+  } catch (error) {
+    console.error(error);
+    return res.json({
+      fulfillmentText: 'There was an error processing your request.',
+      source: 'webhook'
+    });
+  }
+});
+const fetchmuseum = async (params) => {
+  const { price, date ,MonumentName} = params;
+
+  try {
+    let results=null;
+    // Fetch monuments with ticket prices less than or equal to the provided budget
+   if(price && date){
+    results = await Agency.find({
+       ticketPrice: { $lte: price }, // Ensure ticketPrice is less than or equal to the budget
+      });
+    }
+    else if(MonumentName){
+      results = await Agency.findOne({
+        MonumentName:MonumentName, // Ensure ticketPrice is less than or equal to the budget
+       });
+    }
+
+    return results;
+  } catch (error) {
+    console.error('Error fetching monuments:', error);
+    throw new Error('Unable to fetch monuments within budget');
+  }
+};
 
 // User Details Route (use `authenticateToken` middleware here)
 app.get('/api/userdetails', authenticateToken, async (req, res) => {

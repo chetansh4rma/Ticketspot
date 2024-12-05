@@ -10,7 +10,8 @@ import Search from './components/Search';
 import LocationForm from './components/LocationForm';
 import useStore from './components/utils/store';
 import Myticket from "./components/myticket"
-
+import Flight from "./flight"
+import Profile from "./profile"
 function App() {
   const { isLoactionExist} = useStore()
   const { authenticated } = useAuth();
@@ -23,6 +24,8 @@ function App() {
       <Route path="/get-location" element={!isLoactionExist && authenticated ? <LocationForm/> : <Navigate to="/" /> } />
       <Route path="/search" element={<PrivateRoute element={Search} />}  />
       <Route path="/myticket" element={<Myticket/>} />
+      <Route path="/flight" element={<Flight/>} />
+      <Route path="/profile" element={<Profile/>} />
 
 
 

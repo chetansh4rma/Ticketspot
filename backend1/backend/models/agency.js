@@ -4,19 +4,13 @@ const MonumentSchema = new mongoose.Schema({
   
   agencyName: {
     type: String,
-    required: true
+    required: true,
   },
   MonumentName: {
     type: String,
     required: true,
     trim: true,
-    unique: true
   },
-  desc:{
-    type:String,
-    // required:true
-  }
-  ,
   email: {
     type: String,
     required: true,
@@ -28,19 +22,23 @@ const MonumentSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  desc:{
+    type:String,
+    required:true
+  },
   contactNumber: {
     type: String,
     required: true,
+  },
+  ticketPrice:{
+type:String,
+required:true
   },
   MonumentLogo: {
     type: String,
     default: '', // URL for the logo image
   },
   location: {
-    street: {
-      type: String,
-      trim: true,
-    },
     city: {
       type: String,
       trim: true,
@@ -54,30 +52,29 @@ const MonumentSchema = new mongoose.Schema({
       trim: true,
     },
   },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'active',
+  },
+  guides:[
+  ],
   events: [
     {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Event',
     },
   ],
-totalAvailableTicket:{
-   type:Number,
-   default:1000
-},
-ticketPrice:{
-  type:Number,
-  default:100
-},
-totalRevenue:{
-  type:Number,
-  default:0
-},
-timing:{
-  type: String
-    // required: true,
-},
+  imageUrl:[
+    {
+      type:String
+    }
+  ],
   bookings: [
     {
+      tickets:{
+        type:String
+      },
       month: {
         type: String, // e.g., "2024-10" for October 2024
         required: true,
@@ -86,18 +83,8 @@ timing:{
         type: Number,
         default: 0, // Default number of bookings for this month
       },
-      monthlyRevenue:{
-        type: Number,
-        default: 0,
-      }
     },
-  ],
-  tickets: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Ticket' // Reference to the Ticket model
-  }],
-  imageUrl:[],
-  guides:[]
+  ]
 });
 
 // Create a method to increment the booking count for a specific month

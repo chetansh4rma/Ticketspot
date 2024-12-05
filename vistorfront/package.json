@@ -20,10 +20,11 @@
     "react-chatbot-kit": "^2.2.2",
     "react-chatbotify": "^2.0.0-beta.16",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.1",
+    "react-router-dom": "^6.28.0",
     "react-scripts": "5.0.1",
     "react-scroll": "^1.9.0",
     "react-slick": "^0.30.2",
+    "reactstrap": "^9.2.3",
     "slick-carousel": "^1.8.1",
     "web-vitals": "^2.1.4",
     "zustand": "^5.0.0-rc.2"

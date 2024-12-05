@@ -1,35 +1,34 @@
-import  React,{ useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Bot, X } from 'lucide-react';
+import { BotIcon, X, Send, Home, Info, Calendar, Users, User, Mic } from 'lucide-react';
+import axios from "axios";
 import './css/chatbot.css';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faComment } from '@fortawesome/free-regular-svg-icons';
+
+const buttonColors = ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0'];
+
+const IconButton = ({ icon: Icon, label, onClick }) => (
+  <motion.button
+    className="icon-button"
+    onClick={onClick}
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+  >
+    <Icon size={20} />
+    <span>{label}</span>
+  </motion.button>
+);
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [currentStep, setCurrentStep] = useState(0);
-  const [apiInput, setApiInput] = useState('');
-  const [bookingDetails, setBookingDetails] = useState({
-    date: '',
-    tickets: '',
-    name: '',
-    guideBooking: false,
-  });
-  const [userInput, setUserInput] = useState('');
+  const [input, setInput] = useState('');
   const [error, setError] = useState('');
   const messagesEndRef = useRef(null);
-
-  const chatSteps = [
-    { question: "Welcome to MuseumTix! Let's book your ticket. What date would you like to visit?", type: 'date' },
-    { question: "How many tickets would you like to book?", type: 'number' },
-    { question: "Can I get your name for the booking?", type: 'text' },
-    { question: "Would you like to book an expert guide for your visit?", type: 'confirm' },
-  ];
+  const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      addBotMessage(chatSteps[0].question);
+      addBotMessage('Welcome to MuseumTix! How can I assist you today?');
     }
   }, [isOpen]);
 
@@ -44,15 +43,15 @@ export default function Chatbot() {
   const addUserMessage = (text) => {
     setMessages((prev) => [...prev, { text, sender: 'user' }]);
   };
+
   const fetchApiResponse = async (input) => {
-    addBotMessage('Processing your input...');
+    addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
     try {
-      console.log(input)
-      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-dvnq/agent/sessions/3be097c7-f599-9d1c-928d-15cd290ab790:detectIntent', {
+      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-omya/agent/sessions/57a7df7e-9458-c675-313b-38d6a2351168:detectIntent', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization':`Bearer ya29.a0AeDClZBdBoA4Qm8B7JhXbUvWhL9aIHKPbv4gBE4DkB8C4IYAuqKpAr1wY7CKAiKOzT7YDCfCRHl9k4ML9g_0mgDRs5iToMtX2PahrDSlK4UD0FS5ylqG2msu7hMLHATVUJWxUXrc-EVTgsCDQWEBTigrBMGxcMQk10Xmz7JnBp0m7qlFE9l9kOUNr5X7ozBP2_cU9x3_hZmoCyQGQgf-ZOALQ6s-xfJfPCcB4OYjjLk33DE---Szkx_BLiwLakFUplVXBgqtrErxEnhjxW5vlNRoRZl4A4k5QzyPD-bS4Z7P99SfpK6sw-8iLX4GKrnCVzE-xXAhktG-v6v1fGfIIVKjZA8cN0fi2aH7aSTLiI4S1WOgWsPZBHJOKXFZrHb5MUGqCb6u0Sor-ornT6aNKDHTlfLOFr-McNyqUicaCgYKAU8SARESFQHGX2MiAdgzMYsDsaiEi95yy96wIw0430`, // Replace with your Dialogflow token
+          Authorization: `Bearer ya29.a0AeDClZCzCkwUhFDN4prNqmkB_44hzhmJ772-GqQTesGi9qKlOuNC7yyP0873g6STv-xgygTn0BYBXgDqZOfF0cEhCWX-EbSTfv664YjouReD7ej1mu3IbjryOPhwYQ1nqSZErUp4vonUjbJACsWQuXolDsPYm-AVzQN-7mW9vl-3-ePmgvK4ZF6e3jqPi7WG-ESSvbwVhX_-4OEQ8U1gyy3EYu8orccfeWEATnotI2-uUCwJeMXXaQPBRCKCwz8sVm2J10cCPZI6zIh_rzVRRCZH46bjRH_nV-V-eDN17WgCU7uaQ-jQBTvK7ZupowMmoXCsXTvLWS5O7tu5KlyiZssxSOPi3PkrnX_hfuv1b0ajQZuGYzepEbG_PRU2rJAa5WiWs8d4Y0Uv3iKlgA8ib-_YwjFSLL0z46glv4WmtC8JaCgYKAYISARMSFQHGX2MidyNq-SmzthuDYH0uUhuTfw0435`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -68,220 +67,259 @@ export default function Chatbot() {
         }),
       });
       const data = await response.json();
-  console.log("response",data)
-      if (data.queryResult && data.queryResult.fulfillmentText) {
+
+      setMessages((prev) => prev.slice(0, -1)); // Remove typing indicator
+
+      if (data.queryResult) {
+        const Intent = data.queryResult.intent.displayName;
+        console.log(Intent);
+
+        switch (Intent) {
+          case "greeting":
+          
+          break;
+
+          case "family_events":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
+              console.log("Res", res);
+          
+            
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; 
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching family events:", error);
+              addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+            }
+            break;
+          case "student_event":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumStudentevents");
+              console.log("Res", res);
+          
+              
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+          
+                // Create a button for each monument with the MonumentName and _id in the URL
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching Student events:", error);
+              addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+            }
+  break;
+          case "solotravel":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumSoloevents");
+              console.log("Res", res);
+          
+              // Iterate through the fetched data and add a button for each monument
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+          
+                // Create a button for each monument with the MonumentName and _id in the URL
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching solo events:", error);
+              addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+            }
+  break;
+  case "PlaceToVisitIntent":
+    const Place = data.queryResult.parameters.place;
+    console.log("Place",Place)
+      try {
+        const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
+        console.log("Res", res);
+    
+        // Iterate through the fetched data and add a button for each monument
+        res.data.forEach((event) => {
+          const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+    
+          // Create a button for each monument with the MonumentName and _id in the URL
+          addBotMessage(
+            <button
+              onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+              className="redirect-button"
+            >
+              Visit {MonumentName}
+            </button>
+          );
+        });
+      } catch (error) {
+        console.error("Error fetching solo events:", error);
+        addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+      }
+break;
+        default:
+          addBotMessage('Sorry, I could not understand that.');
+      }
+
+      if (data.queryResult.fulfillmentText) {
         addBotMessage(data.queryResult.fulfillmentText);
-      } else {
-        addBotMessage('Sorry, I could not understand that.');
       }
-    } catch (error) {
+    } else {
+      addBotMessage('Sorry, I could not understand that.');
+    }
+  } catch (error) {
       console.error('Error fetching API response:', error);
-      addBotMessage('There was an error processing your request. Please try again later.');
+      addBotMessage('I apologize, but there seems to be a technical issue. Please try again later.');
     }
-  };
-  
-  const validateInput = () => {
-    setError('');
-    const input = userInput.trim();
-
-    switch (chatSteps[currentStep].type) {
-      case 'date': {
-        const currentDate = new Date();
-        const selectedDate = new Date(input);
-        const maxDate = new Date();
-        maxDate.setDate(currentDate.getDate() + 7);
-
-        if (!input) return 'Please select a date.';
-        if (selectedDate < currentDate) return 'The date cannot be in the past.';
-        if (selectedDate > maxDate) return 'The date cannot exceed 7 days from today.';
-        break;
-      }
-      case 'number': {
-        if (!input) return 'Please enter the number of tickets.';
-        if (isNaN(input) || parseInt(input, 10) <= 0) return 'Please enter a valid number of tickets.';
-        break;
-      }
-      case 'text': {
-        if (!input) return 'Name cannot be empty.';
-        break;
-      }
-      case 'confirm': {
-        if (!input) return 'Please select Yes or No.';
-        break;
-      }
-      default:
-        break;
-    }
-
-    return '';
   };
 
   const handleInputSubmit = () => {
-    if (!apiInput.trim()) {
-      setError('Input cannot be empty.');
+    if (!input.trim()) {
+      setError('Please enter a message.');
       return;
     }
-  
     setError('');
-    const userMessage = apiInput.trim();
-    addUserMessage(userMessage); // Display user input in the chat
-    setApiInput(''); // Clear input field
-    
-    fetchApiResponse(userMessage); // Fetch and display API response
-    const errorMessage = validateInput();
-    if (errorMessage) {
-      setError(errorMessage);
-      return;
-    }
+    addUserMessage(input);
+    fetchApiResponse(input);
+    setInput('');
+  };
 
-    addUserMessage(userInput);
+  const handleIconClick = (intent) => {
+    fetchApiResponse(intent);
+  };
 
-    const updatedBookingDetails = { ...bookingDetails };
+  const handleVoiceInput = () => {
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new window.webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
 
-    switch (chatSteps[currentStep].type) {
-      case 'date':
-        updatedBookingDetails.date = userInput;
-        break;
-      case 'number':
-        updatedBookingDetails.tickets = parseInt(userInput, 10);
-        break;
-      case 'text':
-        updatedBookingDetails.name = userInput;
-        break;
-      case 'confirm':
-        updatedBookingDetails.guideBooking = userInput === 'Yes';
-        break;
-      default:
-        break;
-    }
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
 
-    setBookingDetails(updatedBookingDetails);
-    setUserInput('');
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
 
-    if (currentStep < chatSteps.length - 1) {
-      setCurrentStep(currentStep + 1);
-      addBotMessage(chatSteps[currentStep + 1].question);
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
     } else {
-      sendBookingDetails(updatedBookingDetails);
+      console.error('Speech recognition not supported');
+      addBotMessage('Speech recognition is not supported in your browser.');
     }
   };
 
-  const sendBookingDetails = async (details) => {
-    addBotMessage('Processing your booking...');
-    try {
-      const response = await fetch('/api/bookings', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(details),
-      });
-      const data = await response.json();
-      addBotMessage('Your booking is confirmed! Thank you for choosing MuseumTix.');
-    } catch (error) {
-      console.error('Error sending booking details:', error);
-      addBotMessage('Something went wrong. Please try again later.');
-    }
-  };
-
-  const renderUserOptions = () => {
-    switch (chatSteps[currentStep].type) {
-      case 'date':
-        return (
-          <input
-            type="date"
-            min={new Date().toISOString().split('T')[0]}
-            max={new Date(new Date().setDate(new Date().getDate() + 7)).toISOString().split('T')[0]}
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
-            className="chatbot-input-field"
-          />
-        );
-      case 'number':
-        return (
-          <input
-            type="number"
-            placeholder="Enter number of tickets"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
-            className="chatbot-input-field"
-          />
-        );
-      case 'text':
-        return (
-          <input
-            type="text"
-            placeholder="Enter your name"
-            value={userInput}
-            onChange={(e) => setUserInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
-            className="chatbot-input-field"
-          />
-        );
-      case 'confirm':
-        return (
-          <>
-            <button onClick={() => setUserInput('Yes')} className="chatbot-button confirm">
-              Yes
-            </button>
-            <button onClick={() => setUserInput('No')} className="chatbot-button decline">
-              No
-            </button>
-          </>
-        );
-      default:
-        return null;
-    }
-  };
-
+  
   return (
     <>
       {!isOpen && (
-        <div className="chatBot-thumbnail" onClick={() => setIsOpen(true)}>
-          <FontAwesomeIcon icon={faComment} className="chat-bot-msg-icon" />
-        </div>
+        <motion.div
+          className="chatbot-icon"
+          onClick={() => setIsOpen(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <BotIcon size={24} />
+        </motion.div>
       )}
-      {isOpen && (
-        <div className="chatbot-container">
-          <div className="chatbot-header">
-            <Bot />
-            <button onClick={() => setIsOpen(false)}>
-              <X />
-            </button>
-          </div>
-          <div className="chatbot-messages">
-            <AnimatePresence>
-              {messages.map((message, index) => (
-                <motion.div
-                  key={index}
-                  className={`message ${message.sender}`}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  {message.text}
-                </motion.div>
-              ))}
-            </AnimatePresence>
-            <div ref={messagesEndRef} />
-          </div>
-          <div className="chatbot-footer">
-          <input
-              type="text"
-              placeholder="Type your message here..."
-              value={apiInput}
-              onChange={(e) => setApiInput(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
-              className="chatbot-input-field"
-            />
-            <button className="chatbot-button" onClick={handleInputSubmit}>
-              Send
-            </button>
-            {renderUserOptions()}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="chatbot-container"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="chatbot-header">
+              <div className="chatbot-header-title">
+                <BotIcon size={24} className="bot-icon" />
+                <h3>MuseumTix Assistant</h3>
+              </div>
+              <button onClick={() => setIsOpen(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="chatbot-icons">
+              <IconButton icon={Home} label="Home" onClick={() => handleIconClick("greeting")} />
+              <IconButton icon={Info} label="Info" onClick={() => handleIconClick("info")} />
+              <IconButton icon={Calendar} label="Events" onClick={() => handleIconClick("events")} />
+              <IconButton icon={Users} label="Family" onClick={() => handleIconClick("family_events")} />
+              <IconButton icon={User} label="Solo" onClick={() => handleIconClick("solotravel")} />
+            </div>
+            <div className="chatbot-messages">
+              <AnimatePresence>
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    className={`message ${message.sender}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    {message.text}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="chatbot-input">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleInputSubmit()}
+                placeholder="Type your message here..."
+              />
+               <motion.button
+                onClick={handleVoiceInput}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`voice-input-button ${isListening ? 'listening' : ''}`}
+              >
+                <Mic size={20} />
+              </motion.button>
+              <motion.button
+                onClick={handleInputSubmit}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Send size={20} />
+              </motion.button>
+            </div>
             {error && <p className="error">{error}</p>}
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
-}
+}  

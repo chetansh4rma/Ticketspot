@@ -5,6 +5,7 @@ const functions = require('@google-cloud/functions-framework');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const Agency = require('./models/agency'); 
+const Event=require("./models/event");
 const cookieParser = require('cookie-parser');
 const app = express();
 const jwt = require('jsonwebtoken');
@@ -83,6 +84,67 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+app.get("/fetchmuseumfamilyevents", async(req,res)=>{
+  try{
+   const results = await Agency.find({
+      Category:"family_events", // Ensure ticketPrice is less than or equal to the budget
+     });
+res.json(results);
+  }
+  catch{
+res.json("error");
+  }
+})
+app.get("/fetchmuseumStudentevents", async (req, res) => {
+  try {
+    const results = await Agency.find({
+      // Category: "student_event"  // Filter by category
+    }).sort({ ticketPrice: 1 }); // Sort by eventTicketPrice in ascending order (low to high)
+    console.log(results);
+    res.json(results); // Send the results as JSON
+  } catch (error) {
+    console.error("Error fetching student events:", error);
+    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+  }
+});
+app.get("/fetchmuseumSoloevents", async (req, res) => {
+  try {
+    const results = await Agency.find({
+      // Category: "student_event"  // Filter by category
+    }).sort({ ticketPrice: 1 }); // Sort by eventTicketPrice in ascending order (low to high)
+    console.log(results);
+    res.json(results); // Send the results as JSON
+  } catch (error) {
+    console.error("Error fetching student events:", error);
+    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+  }
+});
+app.get("/fetchmuseumfromplace/:Place", async (req, res) => {
+  try {
+    const { Place } = req.params;
+    console.log("Searching for:", Place);
+
+    // Using regex to handle case-insensitivity and allow for some spelling flexibility
+    const results = await Agency.find({
+      MonumentName: { 
+        $regex: `^${Place.replace(/[.*+?^=!:${}()|\[\]\/\\]/g, "\\$&")}$`, // Escape special characters
+        $options: 'i' // Case-insensitive search
+      }
+    }).sort({ ticketPrice: 1 }); // Sort by ticketPrice in ascending order (low to high)
+
+    // Check if results are empty
+    if (results.length === 0) {
+      return res.status(404).json({ message: "No matching places found." });
+    }
+
+    res.json(results); // Send the results as JSON
+  } catch (error) {
+    console.error("Error fetching museums from place:", error);
+    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+  }
+});
+
+
 functions.http('handleWebhook', (request, response) => {
   const tag = request.body.queryResult.intent.displayName;
 
@@ -151,6 +213,7 @@ app.post('/webhook', async (req, res) => {
         date:Date
       }
        const results= await fetchmuseum(params);
+       console.log("Results",results);
       //  console.log(results)
        result = ""; // Initialize an empty string
        for (let i = 0; i < 5; i++) {

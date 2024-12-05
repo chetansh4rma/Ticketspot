@@ -1,145 +1,308 @@
-.home-page {
-    padding: 20px;
-    font-family: Arial, sans-serif;
-  }
+:root {
+  --primary-color     : #ff7e01;
+  --secondary-color   : #faa935;
+  --heading-color     : #0b2727;
+  --text-color        : #6e7074;
+  --font-name         : "Montserrat", sans-serif;
+  --subtitle-font-name: "Island Moments", cursive;
+}
+
+/* Global Styles */
+body, html {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: var(--font-name);
+}
+
+main {
+  flex: 1;
+}
+
+.container {
+  flex: 1;
+}
+
+/* Hero Section */
+.hero__subtitle img {
+  width : 2.3rem;
+  height: 2.3rem;
+}
+
+.hero__content h1 {
+  font-size    : 2.5rem;
+  font-weight  : 600;
+  margin-top   : 1rem;
+  margin-bottom: 2rem;
+  color        : var(--heading-color);
+}
+
+.hero__content h1 .highlight {
+  color: var(--secondary-color);
+}
+
+.hero__content p {
+  font-size  : 1rem;
+  color      : var(--text-color);
+  line-height: 1.4rem;
+}
+
+.hero__img-box img,
+.hero__img-box video {
+  width        : 100%;
+  height       : 350px;
+  border-radius: 20px;
+  border       : 1px solid var(--secondary-color);
+  object-fit   : cover;
+}
+
+.hero__content {
+  padding-top: 3.5rem;
+}
+
+.hero__img-box {
+  padding-top: 2rem;
+}
+
+/* Search Bar */
+.search-bar-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin: 2rem auto;
+  width: 80%;
+  max-width: 600px;
+}
+
+.search-input {
+  padding: 10px;
+  width: 70%;
+  font-size: 16px;
+  margin-right: 10px;
+  border: 1px solid var(--secondary-color);
+  border-radius: 5px;
+}
+
+.search-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  background-color: #faa935;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.search-button:hover {
+  background-color: var(--primary-color);
+}
+
+
+/* corousal */
+.carousel-container {
+  margin-top: 60px;
+  text-align: center;
+}
+
+.carousel-container h2 {
+  margin-bottom: 20px;
+}
+
+.carousel-image {
+  height: 400px;
+  object-fit: cover;
+}
+
+
+/* Carousel Wrapper */
+.carousel-wrapper {
+  margin: 0 auto; /* Center the content */
+  width: 90%; /* Adjust the width as needed */
+  max-width: 1200px; /* Prevent it from stretching too wide */
+}
+
+
+.small-carousels-section {
+  margin: 20px 0;
+}
+
+.small-carousel-container {
+  margin-bottom: 20px;
+}
+
+.small-carousel-image {
+  height: 200px; /* Adjust height as needed */
+  object-fit: cover; /* Ensures images are covered */
+}
+
+/* Small Boxes Section */
+.small-boxes-section {
+  margin: 0 3rem; /* Add left and right margins */
+}
+
+.small-boxes-container {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Allows items to wrap if the screen is narrow */
+  margin: 20px 0; /* Space between carousel and small boxes */
+}
+
+.small-box {
+  flex: 1 1 18%; /* Each box takes up to 18% of the width */
+  margin: 10px; /* Space around each box */
+  background-color: #f9f9f9; /* Light background for boxes */
+  border-radius: 8px; /* Rounded corners */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+  overflow: hidden; /* Ensures no overflow */
+  height: 20vw; /* Fixed height */
+  display: flex;
+  flex-direction: column; /* Stack children vertically */
+  justify-content: space-between; /* Space between items */
+  text-align: center; /* Center text */
+}
+
+.small-box-image {
+  width: 100%; /* Full width */
+  height: auto; /* Auto height */
+  max-height: 70%; /* Limit height */
+  object-fit: cover; /* Ensure image covers area */
+}
+
+.small-box h4 {
+  margin: 10px 0; /* Space above and below text */
+}
+
+.small-box p {
+  margin: 0; /* Remove default margin */
+}
+
+
+/* Experience Section */
+.experience__content h2 {
+  font-size  : 2rem;
+  font-weight: 500;
+  margin-top : 1rem;
+  text-align:left;
   
-  .top-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+}
+
+.experience__content p {
+  font-size : 1.2rem;
+  color     : var(--text-color);
+  margin-top: 1rem;
+}
+
+.counter__wrapper {
+  margin-top: 1.6rem;
+}
+
+.counter__box span {
+  width          : 70px;
+  height         : 70px;
+  margin         : auto;
+  display        : flex;
+  align-items    : center;
+  justify-content: center;
+  background     : var(--primary-color);
+  color          : #fff;
+  font-size      : 1.2rem;
+  font-weight    : 600;
+  border-radius  : 10px 5px 10px 5px;
+}
+
+.counter__box h6 {
+  font-size : 0.8rem;
+  margin-top: 0.5rem;
+  color     : var(--text-color);
+}
+
+.experience__img img {
+  width: 90%;
+}
+
+
+
+
+/* TESTIMONIAL SECTION */
+.testimonial__title {
+  font-size : 1.6rem;
+  margin-top: 0.8rem;
+  text-align:left;
+}
+
+
+.chatbot-icon {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #007bff; /* Chat icon background color */
+  color: white;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  z-index: 1000;
+  font-size: 24px; /* Adjust the icon size */
+  transition: all 0.3s ease;
+}
+
+.chatbot-icon:hover {
+  background-color: #0056b3; /* Hover effect */
+}
+
+
+/* Footer Styles */
+.footer__content {
+  text-align: center;
+  padding: 2rem 0;
+  background-color: #222;
+  color: #fff;
+  width: 100%;
+}
+
+/* =============== RESPONSIVE ================ */
+@media only screen and (max-width:992px) {
+  .hero__content h1 {
+    font-size: 2.5rem;
   }
-  
-  .search-bar-container {
-    display: flex;
-    margin-left: 10vw;
-    width: 80vw;
-    align-items: center;
-    margin-bottom: 30px;
+
+  .hero__img-box {
+    display: none;
   }
-  
-  .search-input {
-    padding: 10px;
-    width: 300px;
-    font-size: 16px;
-    margin-right: 10px;
+
+  .hero__video-box {
+    display: block;
   }
-  
-  .search-button {
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    cursor: pointer;
+
+  .services__title,
+  .featured__tour-title,
+  .gallery__title,
+  .testimonial__title,
+  .experience__content h2 {
+    font-size: 2rem;
   }
-  
-  .search-button:hover {
-    background-color: #0056b3;
+
+  .experience__img {
+    margin-top: 2rem;
   }
-  
-  /* Profile Bar */
-  .profile-bar-container {
-    position: relative;
-    margin-bottom: 0.8vw;
+}
+
+@media only screen and (max-width: 576px) {
+  .hero__content h1 {
+    font-size: 1.8rem;
   }
-  
-  .profile-button {
-    background: none;
-    border: none;
-    cursor: pointer;
+
+  .services__title,
+  .featured__tour-title,
+  .gallery__title,
+  .testimonial__title,
+  .experience__content h2 {
+    font-size: 1.5rem;
   }
-  
-  .profile-icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-  }
-  
-  /* Dropdown Menu */
-  .profile-dropdown {
-    position: absolute;
-    top: 50px;
-    right: 0;
-    background-color: white;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    width: 150px;
-  }
-  
-  .profile-dropdown ul {
-    list-style: none;
-    padding: 10px;
-    margin: 0;
-  }
-  
-  .profile-dropdown ul li {
-    padding: 10px;
-    cursor: pointer;
-  }
-  
-  .profile-dropdown ul li:hover {
-    background-color: #f0f0f0;
-  }
-  
-  .carousel-container {
-    margin-top: 40px;
-    text-align: center;
-  }
-  
-  .carousel-container h2 {
-    margin-bottom: 20px;
-  }
-  
-  .carousel-image {
-    height: 400px;
-    object-fit: cover;
-  }
-  .small-carousels-section {
-    margin: 20px 0;
-  }
-  
-  .small-carousel-container {
-    margin-bottom: 20px;
-  }
-  
-  .small-carousel-image {
-    height: 200px; /* Adjust height as needed */
-    object-fit: cover; /* Ensures images are covered */
-  }
-  .small-boxes-container {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap; /* Allows items to wrap if the screen is narrow */
-    margin: 20px 0; /* Space between carousel and small boxes */
-  }
-  
-  .small-box {
-    flex: 1 1 18%; /* Each box takes up to 18% of the width */
-    margin: 10px; /* Space around each box */
-    background-color: #f9f9f9; /* Light background for boxes */
-    border-radius: 8px; /* Rounded corners */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow */
-    overflow: hidden; /* Ensures no overflow */
-    height: 20vw; /* Fixed height */
-    display: flex;
-    flex-direction: column; /* Stack children vertically */
-    justify-content: space-between; /* Space between items */
-    text-align: center; /* Center text */
-  }
-  
-  .small-box-image {
-    width: 100%; /* Full width */
-    height: auto; /* Auto height */
-    max-height: 70%; /* Limit height */
-    object-fit: cover; /* Ensure image covers area */
-  }
-  
-  .small-box h4 {
-    margin: 10px 0; /* Space above and below text */
-  }
-  
-  .small-box p {
-    margin: 0; /* Remove default margin */
-  }
-  
+}

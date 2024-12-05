@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { Box, Grid, Container, Typography, Link as MuiLink } from '@mui/material';
+import { Box, Grid, Container, Typography, Link as MuiLink, List, ListItem } from '@mui/material';
 
 // Define the navigation structure for the Monument Ticket Booking App
 const pageMenu = [
@@ -43,7 +43,18 @@ const socialLinks = [
 // Navigation Item component
 const NavigationItem: FC<{ label: string; path: string }> = ({ label, path }) => {
   return (
-    <MuiLink href={path} underline="hover" sx={{ display: 'block', mb: 1, color: 'primary.contrastText' }}>
+    <MuiLink
+      href={path}
+      underline="hover"
+      sx={{
+        display: 'block',
+        color: '#6e7074',
+        fontSize: '1.2rem',
+        '&:hover': {
+          color: '#faa935', // Hover color
+        },
+      }}
+    >
       {label}
     </MuiLink>
   );
@@ -52,11 +63,9 @@ const NavigationItem: FC<{ label: string; path: string }> = ({ label, path }) =>
 // Footer Section Title component
 const FooterSectionTitle: FC<{ title: string }> = ({ title }) => {
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', mb: 2 }}>
-      <Typography component="p" variant="h5" sx={{ color: 'primary.contrastText', fontWeight: '700' }}>
-        {title}
-      </Typography>
-    </Box>
+    <Typography component="h5" variant="h6" sx={{ color: '#0b2727', fontWeight: '700', mb: 2 }}>
+      {title}
+    </Typography>
   );
 };
 
@@ -67,7 +76,7 @@ const SocialLinkItem: FC<{ item: { name: string; link: string; icon: string } }>
     sx={{
       display: 'inline-block',
       color: 'primary.contrastText',
-      mr: 0.5,
+      mr: 2,
     }}
   >
     <MuiLink
@@ -85,7 +94,6 @@ const SocialLinkItem: FC<{ item: { name: string; link: string; icon: string } }>
           backgroundColor: 'secondary.main',
         },
         '& img': {
-          fill: 'currentColor',
           width: 22,
           height: 'auto',
         },
@@ -100,21 +108,12 @@ const SocialLinkItem: FC<{ item: { name: string; link: string; icon: string } }>
 // Social Links component
 const SocialLinks: FC = () => {
   return (
-    <Box sx={{ ml: -1 }}>
-      <Box
-        component="ul"
-        sx={{
-          m: 0,
-          p: 0,
-          lineHeight: 0,
-          borderRadius: 3,
-          listStyle: 'none',
-        }}
-      >
+    <Box sx={{ mb: 2 }}>
+      <List sx={{ display: 'flex', padding: 0 }}>
         {socialLinks.map((item) => (
           <SocialLinkItem key={item.name} item={item} />
         ))}
-      </Box>
+      </List>
     </Box>
   );
 };
@@ -122,44 +121,53 @@ const SocialLinks: FC = () => {
 // Main Footer component
 const Footer: FC = () => {
   return (
-    <Box component="footer" sx={{ backgroundColor: 'primary.main', py: { xs: 6, md: 10 }, color: 'primary.contrastText' }}>
+    <Box
+      component="footer"
+      sx={{
+        paddingTop: '70px',
+        paddingBottom: '30px',
+        backgroundColor: 'white', // Replace with your theme color
+        color: '#000', // Ensure text is visible against the background
+      }}
+    >
       <Container>
-        <Grid container spacing={1}>
-          <Grid item xs={12} md={5}>
-            <Box sx={{ width: { xs: '100%', md: 360 }, mb: { xs: 3, md: 0 } }}>
-              <Typography component="h2" variant="h2" sx={{ mb: 2 }}>
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={3}>
+            <Box sx={{ mb: 3 }}>
+              <Typography component="h2" variant="h5" sx={{ mb: 2 }}>
                 Monument Ticket Booking
               </Typography>
-              <Typography variant="subtitle1" sx={{ letterSpacing: 1, mb: 2 }}>
+              <Typography variant="body2" sx={{ mb: 2 }}>
                 Explore, discover, and book tickets to iconic monuments around the world.
               </Typography>
               <SocialLinks />
             </Box>
           </Grid>
-          <Grid item xs={12} md={7}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} md={4}>
-                <FooterSectionTitle title="Menu" />
-                {pageMenu.map(({ label, path }, index) => (
-                  <NavigationItem key={index + path} label={label} path={path} />
-                ))}
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <FooterSectionTitle title="Company" />
-                {companyMenu.map(({ label, path }, index) => (
-                  <NavigationItem key={index + path} label={label} path={path} />
-                ))}
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <FooterSectionTitle title="Connect" />
-                <Typography variant="subtitle2" sx={{ mb: 2, color: 'primary.contrastText' }}>
-                  Follow us on social media for the latest updates and offers.
-                </Typography>
-                <SocialLinks />
-              </Grid>
-            </Grid>
+          <Grid item xs={12} md={3}>
+            <FooterSectionTitle title="Menu" />
+            {pageMenu.map(({ label, path }, index) => (
+              <NavigationItem key={index + path} label={label} path={path} />
+            ))}
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <FooterSectionTitle title="Company" />
+            {companyMenu.map(({ label, path }, index) => (
+              <NavigationItem key={index + path} label={label} path={path} />
+            ))}
+          </Grid>
+          <Grid item xs={12} md={3}>
+            <FooterSectionTitle title="Connect" />
+            <Typography variant="body2" sx={{ mb: 2 }}>
+              Follow us on social media for the latest updates and offers.
+            </Typography>
+            <SocialLinks />
           </Grid>
         </Grid>
+        <Box sx={{ textAlign: 'center', mt: 4 }}>
+          <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+            &copy; {new Date().getFullYear()} Monument Ticket Booking. All rights reserved.
+          </Typography>
+        </Box>
       </Container>
     </Box>
   );

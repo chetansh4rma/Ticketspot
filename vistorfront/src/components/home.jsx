@@ -21,7 +21,7 @@ import placeholderImg3 from './assets/museum3.jpg';
 import placeholderImg4 from './assets/museum4.jpg';
 import placeholderImg5 from './assets/museum5.jpg';
 import placeholderImg6 from './assets/museum6.jpeg';
-
+import Chatbot from './chatbot.js';
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);

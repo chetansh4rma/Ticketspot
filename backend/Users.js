@@ -12,6 +12,7 @@ const dotenv = require('dotenv');
 const Event=require("./models/event");
 const Ticket=require("./models/tickets");
 const Monument=require("./models/agency")
+const Feedback=require("./models/feedback")
 const axios=require("axios");
 
 dotenv.config();
@@ -133,6 +134,8 @@ console.log(req.body)
       sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
       maxAge: 3600000, // Cookie expiry time in milliseconds
     });
+
+   
     res.status(201).json({ msg: 'User registered successfully' });
   } catch (err) {
     console.error(err.message);
@@ -142,7 +145,7 @@ console.log(req.body)
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  // console.log(req)
+  console.log(req)
   if (token == null) return res.sendStatus(401); // Unauthorized
   
   
@@ -521,6 +524,89 @@ router.post('/events-detail', async (req, res) => {
     res.status(500).json({ msg: 'Server error' });
   }
 });
+
+
+
+
+
+
+
+router.get('/products/:id',authenticateToken, async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Fetch the Monument document by ID while excluding certain fields
+    const monument = await Monument.findById(id).select(
+      '-tickets -bookings -guides -ticketPrice -totalAvailableTicket -totalRevenue -events -password'
+    );
+
+    if (!monument) {
+      return res.status(404).json({ msg: 'Monument not found' });
+    }
+
+    // Return the monument details
+    res.status(200).json({
+      msg: 'Monument details fetched successfully',
+      monument,
+    });
+  } catch (error) {
+    console.error('Error fetching monument details:', error);
+    res.status(500).json({ msg: 'Server error' });
+  }
+});
+
+
+router.post('/reviews', authenticateToken, async (req, res) => {
+  const { text, rating, id } = req.body; // Extract data from the request body
+  const userId = req.user.userId; // Assuming `req.user` is set by authentication middleware
+
+  // Fetch the user's name from the User collection
+  let userName;
+  try {
+    const user = await User.findOne({ _id: userId }).select('name');
+    if (!user) {
+      return res.status(404).json({ msg: 'User not found.' });
+    }
+    userName = user.name;
+  } catch (error) {
+    return res.status(500).json({ msg: 'Error fetching user details.' });
+  }
+
+  // Validation
+  if (!userId) {
+    return res.status(401).json({ msg: 'User must be logged in to submit feedback.' });
+  }
+  if (!id) {
+    return res.status(400).json({ msg: 'Monument ID is required.' });
+  }
+  if (!text || !text.trim()) {
+    return res.status(400).json({ msg: 'Feedback comment cannot be empty.' });
+  }
+  if (!rating || typeof rating !== 'number' || rating < 1 || rating > 5) {
+    return res.status(400).json({ msg: 'Rating must be a number between 1 and 5.' });
+  }
+
+  try {
+    // Create a new feedback entry
+    const feedback = new Feedback({
+      userId,
+      userName,
+      MonumentId: id,
+      rating,
+      comment: text.trim(),
+    });
+
+    // Save the feedback to the database
+    await feedback.save();
+
+    res.status(200).json({ msg: 'Feedback submitted successfully!', feedback });
+  } catch (error) {
+    console.error('Error submitting feedback:', error);
+    res.status(500).json({ msg: 'Server error while submitting feedback.' });
+  }
+});
+
+
 
 
 module.exports = router;

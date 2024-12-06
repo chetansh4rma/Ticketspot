@@ -11,6 +11,7 @@ import Search from './components/Search';
 import LocationForm from './components/LocationForm';
 import useStore from './components/utils/store';
 import Myticket from "./components/myticket"
+import ProductPage from './components/productpage'
 
 function App() {
   const { isLoactionExist} = useStore()
@@ -20,9 +21,37 @@ function App() {
   return (
     <Routes>
       {/* Private route for Home, only accessible if authenticated */}
-      <Route path="/" element={<Home/>}/>
+      {/* <Route path="/" element={<PrivateRoute element={Home} />} /> */}
       <Route path="/get-location" element={!isLoactionExist && authenticated ? <LocationForm/> : <Navigate to="/" /> } />
-      <Route path="/search" element={<PrivateRoute element={Search} />}  />
+      {/* <Route path="/search" element={<PrivateRoute element={Search} />}  /> */}
+      <Route
+  path="/"
+  element={
+    <PrivateRoute>
+      <Home />
+    </PrivateRoute>
+  }
+/>    
+      
+      
+      <Route
+  path="/search"
+  element={
+    <PrivateRoute>
+      <Search />
+    </PrivateRoute>
+  }
+/>
+     
+      <Route
+  path="/product/:id"
+  element={
+    <PrivateRoute>
+      <ProductPage />
+    </PrivateRoute>
+  }
+/>
+
       <Route path="/myticket" element={<Myticket/>} />
 
 

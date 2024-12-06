@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BotIcon, X, Send, Home, Info, Calendar, Users, User, Mic } from 'lucide-react';
 import axios from "axios";
-import './css/chatbot.css';
+import './css/Chatbot.css';
 
 const buttonColors = ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0'];
 
@@ -385,4 +385,3 @@ break;
     </>
   );
 }
-

@@ -18,6 +18,7 @@ export default function EventShow() {
       try {
         const response = await axios.get(`${process.env.REACT_APP_BACK_URL}/api/agency/events-show?page=${page}&limit=8`,{withCredentials:true}); // Adjust the API endpoint
         if (page === 1) {
+          console.log(response.data.events)
           setEvents(response.data.events);
         } else {
           setEvents((prevEvents) => [...prevEvents, ...response.data.events]);
@@ -76,6 +77,9 @@ export default function EventShow() {
                 <span className='ev-show-spec-txt'><strong>Visiting Time:</strong> {event.eventTime}</span> 
                 <span className='ev-show-spec-txt'><strong>Ticket Price:</strong> ₹{event.eventTicketPrice}</span> 
                 <span className='ev-show-spec-txt'><strong>Tickets Available:</strong> {event.eventTotalTicketsAvailable}</span> 
+                <span className='ev-show-spec-txt'><strong>Category:</strong> {event.category}</span> 
+                <span className='ev-show-spec-txt'><strong>Audience Type:</strong> {event.audience_type}</span> 
+                <span className='ev-show-spec-txt'><strong>Created At:</strong> {event.createdAt}</span> 
                 {/* <span className='ev-show-spec-txt'><strong>Status:</strong> {event.status}</span> */}
               </p>
               {/* <div style={{ display: 'flex', gap: '10px' }}>

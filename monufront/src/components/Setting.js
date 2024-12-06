@@ -13,6 +13,7 @@ const Setting = () => {
     ticketPrice: "",
     availableTickets: "",
     description: "",
+    iframe:""
   });
   const [initialData, setInitialData] = useState({});
   const [editFields, setEditFields] = useState({
@@ -23,6 +24,7 @@ const Setting = () => {
     ticketPrice: false,
     availableTickets: false,
     description: false,
+    iframe:false
   });
   const [imagePreviews, setImagePreviews] = useState([]);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -44,6 +46,7 @@ const Setting = () => {
           ticketPrice: data.requiredFields.ticketPrice || "",
           availableTickets: data.requiredFields.totalAvailableTicket || "",
           description: data.requiredFields.desc || "",
+          iframe:data.requiredFields.iframe || ""
         });
         setInitialData(data.requiredFields);
         setLogoPreview(data.requiredFields.MonumentLogo || null);
@@ -76,8 +79,13 @@ const Setting = () => {
   };
 
   const toggleEdit = (field) => {
+    console.log(field)
     setEditFields((prevState) => ({ ...prevState, [field]: !prevState[field] }));
   };
+
+  useEffect(()=>{
+      console.log(editFields.iframe)
+  },[editFields])
 
   const validateFields = () => {
     const formErrors = {};
@@ -95,6 +103,7 @@ const Setting = () => {
       formErrors.availableTickets = "Valid number of Available Tickets is required";
     if (!settingData.description.trim())
       formErrors.description = "Description is required";
+    if (!settingData.iframe.trim()) formErrors.iframe = "iframe src is required";
 
     setErrors(formErrors);
     return Object.keys(formErrors).length === 0;
@@ -130,6 +139,9 @@ const Setting = () => {
     }
     if (settingData.description !== initialData.desc) {
       formData.append("description", settingData.description);
+    }
+    if (settingData.iframe !== initialData.iframe) {
+      formData.append("iframe", settingData.iframe);
     }
   console.log(settingData.images)
 
@@ -377,8 +389,44 @@ const Setting = () => {
             onChange={handleChange}
             disabled={!editFields.description}
             className="input-field"
+            
           />
           {errors.description && <span className="error-text">{errors.description}</span>}
+        </div>
+
+        <div className="setting-form-group">
+        
+          <label>
+            iframe src
+            <FontAwesomeIcon
+              icon={faPenToSquare}
+              className="edit-icon"
+              onClick={() => toggleEdit("iframe")}
+            />
+          </label>
+          {/* {
+            settingData.iframe && settingData.iframe!==''    && <iframe
+                        src={settingData.iframe}
+                        width="100%"
+                        height="323"
+                        style={{ border: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title="Google Map of Goa"
+                      ></iframe>
+          } */}
+          <input
+            type="text"
+            value={settingData.iframe}
+            onChange={handleChange}
+            disabled={!editFields.iframe}
+            
+            name="iframe"
+            className="input-field"
+            placeholder="https://src"
+          />
+          {errors.museumName && <span className="error-text">{errors.iframe}</span>}
         </div>
 
         {/* Submit Button */}

@@ -145,7 +145,7 @@ console.log(req.body)
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  console.log(req)
+  console.log(req,"  ys ",token)
   if (token == null) return res.sendStatus(401); // Unauthorized
   
   
@@ -603,6 +603,36 @@ router.post('/reviews', authenticateToken, async (req, res) => {
   } catch (error) {
     console.error('Error submitting feedback:', error);
     res.status(500).json({ msg: 'Server error while submitting feedback.' });
+  }
+});
+
+router.get('/show-review', authenticateToken, async (req, res) => {
+  const limit = parseInt(req.query.limit) || 3; // Default limit
+  const page = parseInt(req.query.page) || 1; // Default page
+  const id=req.query.id;
+
+  if(!id)
+  {
+    return res.status(401).json({ msg: 'Something Went Wrong' });
+  }
+  const skip = (page - 1) * limit; // Calculate skip
+  const MonumentId = id;
+  const userId = req.user.userId;
+  
+
+  try {
+    const totalFeedbacks = await Feedback.countDocuments(); // Total number of feedbacks
+    const feedbacks = await Feedback.find({MonumentId:MonumentId})
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit).exec(); // Paginate with skip and limit
+    console.log(feedbacks)
+    res.json({
+      reviews: feedbacks,
+      total: totalFeedbacks,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching feedback data.' });
   }
 });
 

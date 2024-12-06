@@ -37,6 +37,12 @@ const eventSchema = new mongoose.Schema({
   createdAt: {
     type: Date,
     default: Date.now,
+  },
+  category:{
+     type:String
+  },
+  audience_type:{
+    type:String
   }
  
 });

@@ -8,7 +8,6 @@ import axios from 'axios';
 import worldImg from './assets/world.png';
 import heroImg from './assets/museum1.jpg';
 import heroImg02 from './assets/hero-img02.jpg';
-import Chatbot from "./chatbot.js"
 import heroVideo from './assets/hero-video.mp4';
 import experienceImg from './assets/experience.png';
 import Subtitle from '../shared/subtitle.jsx';

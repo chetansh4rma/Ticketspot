@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   AppBar,
   Box,
   Toolbar,
   IconButton,
   Typography,
-  Menu,
   Container,
   Button,
   Tooltip,
-  MenuItem,
   useScrollTrigger,
   Slide,
 } from '@mui/material';
@@ -27,8 +25,6 @@ const pages = [
   { label: 'Explore', path: '/explore', icon: <ExploreIcon /> },
 ];
 
-const settings = ['My Tickets', 'My Profile', 'Settings', 'Logout'];
-
 function HideOnScroll(props) {
   const { children } = props;
   const trigger = useScrollTrigger();
@@ -41,21 +37,11 @@ function HideOnScroll(props) {
 }
 
 const Navbar = () => {
-  const [anchorElUser, setAnchorElUser] = useState(null);
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
-
-  const handleLogout = () => {
-    document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    navigate('/login');
+  const handleProfileClick = () => {
+    navigate('/profile');
   };
 
   return (
@@ -94,38 +80,16 @@ const Navbar = () => {
                   }}
                 >
                   {page.icon}
-                  <Typography sx={{ ml: 1, display: { xs: 'none', md: 'block' } }}>{page.label}</Typography>
+                  <Typography sx={{ ml: 1, display: { md: 'block' } }}>{page.label}</Typography>
                 </Button>
               ))}
 
               <Box sx={{ flexGrow: 0, ml: 2 }}>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                <Tooltip title="Go to Profile">
+                  <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
                     <AccountCircleIcon sx={{ color: 'var(--secondary-color)', fontSize: 40 }} />
                   </IconButton>
                 </Tooltip>
-                <Menu
-                  sx={{ mt: '45px' }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'right',
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  {settings.map((setting) => (
-                    <MenuItem key={setting} onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}>
-                      <Typography textAlign="center">{setting}</Typography>
-                    </MenuItem>
-                  ))}
-                </Menu>
               </Box>
             </Box>
           </Toolbar>
@@ -136,4 +100,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

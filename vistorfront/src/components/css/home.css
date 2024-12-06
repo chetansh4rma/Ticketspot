@@ -21,6 +21,110 @@ main {
   flex: 1;
 }
 
+/* ... (previous CSS rules remain unchanged) */
+
+/* Recommended Places Carousel */
+.recommended-places {
+  padding: 3rem 0;
+}
+
+.carousel-wrapper {
+  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.carousel-image {
+  height: 60vh;
+  object-fit: cover;
+}
+
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 1rem;
+  border-radius: 5px;
+}
+
+.carousel-caption h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.carousel-caption p {
+  font-size: 1rem;
+}
+
+/* Featured Places */
+.featured-places {
+  padding: 3rem 0;
+}
+
+.tour__card {
+  border: 1px solid #ececec;
+  border-radius: 5px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.tour__card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+  transform: translateY(-5px);
+}
+
+.tour__img img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.card__info {
+  padding: 1rem;
+}
+
+.tour__title {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive adjustments */
+@media only screen and (max-width: 992px) {
+  .carousel-image {
+    height: 50vh;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  .carousel-image {
+    height: 40vh;
+  }
+
+  .carousel-caption h3 {
+    font-size: 1.2rem;
+  }
+
+  .carousel-caption p {
+    font-size: 0.9rem;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .carousel-image {
+    height: 30vh;
+  }
+
+  .carousel-caption h3 {
+    font-size: 1rem;
+  }
+
+  .carousel-caption p {
+    font-size: 0.8rem;
+  }
+
+  .tour__img img {
+    height: 150px;
+  }
+}
 .container {
   flex: 1;
 }

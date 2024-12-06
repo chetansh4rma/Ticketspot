@@ -53,6 +53,7 @@ function App() {
 />
 
       <Route path="/myticket" element={<Myticket/>} />
+      <Route path="/profile" element={<Profile/>} />
 
 
 

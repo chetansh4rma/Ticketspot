@@ -8,6 +8,8 @@ input:focus {
   outline: none; 
 }
 
+
+
 .chatbot-icon {
   position: fixed;
   bottom: 20px;
@@ -75,6 +77,13 @@ input:focus {
 }
 
 .chatbot-icons {
+  display: flex;
+  justify-content: space-around;
+  padding: 10px;
+  background-color: #f0f0f0;
+  border-bottom: 1px solid #e0e0e0;
+}
+.icon-button:hover {
   display: flex;
   justify-content: space-around;
   padding: 10px;

@@ -8,6 +8,7 @@ const Agency = require('./models/agency');
 const Event=require("./models/event");
 const cookieParser = require('cookie-parser');
 const app = express();
+const translate = require("google-translate-api-x");
 const jwt = require('jsonwebtoken');
 const path = require('path');
 const {User,Otp} = require('./models/user');
@@ -84,45 +85,194 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
-app.get("/fetchmuseumfamilyevents", async(req,res)=>{
-  try{
-   const results = await Agency.aggregate([
-      { $sample: { size: 5 } },  // Randomly selects 2 documents
-      { $sort: { ticketPrice: 1 } } ,
-    ]);
-res.json(results);
-  }
-  catch{
-res.json("error");
-  }
-})
-app.get("/fetchmuseumStudentevents", async (req, res) => {
+app.get("/fetchmuseumfamilyevents", async (req, res) => {
   try {
-    const results = await Agency.aggregate([
-      { $sample: { size: 5 } },  // Randomly selects 2 documents
-      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    const events = await Event.aggregate([
+      { $match: { audience_type: { $in: ["General", "family","children"] } } },
+      { $sample: { size: 5 } },
     ]);
-    console.log(results);
-    res.json(results); // Send the results as JSON
+    
+    const eventWithMonuments = await Promise.all(events.map(async (event) => {
+      const monument = await Agency.findById(event.MonumentId);
+         // Translate monument name into Tamil
+         const translatedName = await translate(monument.MonumentName, {
+          to: "ta",
+        });
+      return {
+        eventName: event.eventName,
+        eventTicketPrice: event.eventTicketPrice,
+        eventDate: event.eventDate,
+        monument: {
+          MonumentName: monument.MonumentName,
+          MonumentNameTamil: typeof translatedName === "string" ? translatedName : translatedName.text, 
+          MonumentId: monument._id,
+          location: monument.location,
+          MonumentLogo: monument.MonumentLogo,
+        },
+      };
+    }));
+
+    res.json(eventWithMonuments);
   } catch (error) {
-    console.error("Error fetching student events:", error);
-    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Error fetching events", error: error.message });
   }
 });
+
+
+
+app.get("/fetchmuseumStudentevents", async (req, res) => {
+  try {
+    const events = await Event.aggregate([
+      { $match: { audience_type: { $in: ["student", "General","Solo"] } } },
+      { $sample: { size: 5 } },
+      { $sort: { ticketPrice: 1 } }
+    ]);
+    
+    const eventWithMonuments = await Promise.all(events.map(async (event) => {
+      const monument = await Agency.findById(event.MonumentId);
+      return {
+        eventName: event.eventName,
+        eventTicketPrice: event.eventTicketPrice,
+        eventDate: event.eventDate,
+        monument: {
+          MonumentName: monument.MonumentName,
+          MonumentId: monument._id,
+          location: monument.location,
+          MonumentLogo: monument.MonumentLogo,
+        },
+      };
+    }));
+
+    res.json(eventWithMonuments);
+  } catch (error) {
+    console.error("Error fetching student events:", error);
+    res.status(500).json({ message: "Error fetching events" }); 
+  }
+});
+app.get("/fetchmuseumStudenteventstamil", async (req, res) => {
+  try {
+    const events = await Event.aggregate([
+      { $match: { audience_type: { $in: ["student", "General", "Solo"] } } },
+      { $sample: { size: 5 } },
+      { $sort: { ticketPrice: 1 } },
+    ]);
+
+    const eventWithMonuments = await Promise.all(
+      events.map(async (event) => {
+        const monument = await Agency.findById(event.MonumentId);
+
+        
+        const translatedName = await translate(monument.MonumentName, {
+          to: "ta",
+        });
+
+        return {
+          eventName: event.eventName,
+          eventTicketPrice: event.eventTicketPrice,
+          eventDate: event.eventDate,
+          monument: {
+            MonumentName: monument.MonumentName, 
+            MonumentNameTamil: typeof translatedName === "string" ? translatedName : translatedName.text, 
+            MonumentId: monument._id,
+            location: monument.location,
+            MonumentLogo: monument.MonumentLogo,
+          },
+        };
+      })
+    );
+
+    console.log(eventWithMonuments);
+    res.json(eventWithMonuments);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Error fetching events", error: error.message });
+  }
+});
+app.get("/fetchmuseumcheapplacetamil", async (req, res) => {
+  try {
+    const events = await Event.aggregate([
+      { $match: { audience_type: { $in: ["student", "General", "Solo","children","family"] } } },
+      { $sample: { size: 5 } },
+      { $sort: { ticketPrice: 1 } },
+    ]);
+
+    const eventWithMonuments = await Promise.all(
+      events.map(async (event) => {
+        const monument = await Agency.findById(event.MonumentId);
+
+        
+        const translatedName = await translate(monument.MonumentName, {
+          to: "ta",
+        });
+
+        return {
+          eventName: event.eventName,
+          eventTicketPrice: event.eventTicketPrice,
+          eventDate: event.eventDate,
+          monument: {
+            MonumentName: monument.MonumentName, 
+            MonumentNameTamil: typeof translatedName === "string" ? translatedName : translatedName.text, 
+            MonumentId: monument._id,
+            location: monument.location,
+            MonumentLogo: monument.MonumentLogo,
+          },
+        };
+      })
+    );
+
+    console.log(eventWithMonuments);
+    res.json(eventWithMonuments);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Error fetching events", error: error.message });
+  }
+});
+
 app.get("/fetchmuseumSoloevents", async (req, res) => {
   try {
-    const results = await Agency.aggregate([
-      { $sample: { size: 5 } },  // Randomly selects 2 documents
-      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    const events = await Event.aggregate([
+      { $match: { audience_type: { $in: ["student", "General","Solo"] } } },
+      { $sample: { size: 5 } },
+      { $sort: { ticketPrice: 1 } }
     ]);
-    console.log(results);
-    res.json(results); // Send the results as JSON
+    
+    const eventWithMonuments = await Promise.all(events.map(async (event) => {
+      const monument = await Agency.findById(event.MonumentId);
+      return {
+        eventName: event.eventName,
+        eventTicketPrice: event.eventTicketPrice,
+        eventDate: event.eventDate,
+        monument: {
+          MonumentName: monument.MonumentName,
+          MonumentId: monument._id,
+          location: monument.location,
+          MonumentLogo: monument.MonumentLogo,
+        },
+      };
+    }));
+
+    res.json(eventWithMonuments);
   } catch (error) {
     console.error("Error fetching student events:", error);
     res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
   }
 });
 app.get("/fetchmuseumDefault", async (req, res) => {
+  try {
+    const results = await Agency.aggregate([
+      { $sample: { size: 2 } },  // Randomly selects 2 documents
+      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    ]);
+    
+    console.log(results);    
+    res.json(results); // Send the results as JSON
+  } catch (error) {
+    console.error("Error fetching student events:", error);
+    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+  }
+});
+app.get("/fetchmuseumlowtohigh", async (req, res) => {
   try {
     const results = await Agency.aggregate([
       { $sample: { size: 2 } },  // Randomly selects 2 documents

@@ -38,17 +38,19 @@ export default function Chatbot() {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
-    setTimeout(() => {
-      setIsOpen(true);
-    }, 3000);
     if (isOpen && messages.length === 0) {
-      addBotMessage('Welcome to TicketSpot! How can I assist you today?');
+      addBotMessage('Welcome to MuseumTix! How can I assist you today?');
     }
   }, [isOpen]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+  useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true)
+    }, 3000);
+  }, [])
 
   const addBotMessage = (text) => {
     setMessages((prev) => {
@@ -71,7 +73,7 @@ export default function Chatbot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZBYPNaktUWbE-Pk0nYjCqhRlK4vLqL9ggtNhTvdwnwtxHSmn9rLf1D-ZTGIjljXzulIorFxWJZZ8KphrW2csI6Ucu5JEGL-JYM006UO-KVyW8x6ZsjDsr3w3IgW2unhBhhiiHFIx3LSUcm3sKRL12j_knsMhIDl3bxGxCfmFSA9WflzbwNK0OzigM_d9VJHtZrMj-ULgU2Zf2tLRu6Am-pvS_Gk1IhXKy_XbADmHvL1_bLpj3yfuE88uGbQ_YLTf1e3_HR4GqSoQpJl-fNs9yzNYmf1RzHo17on5ykKHvEC8zqCPOcefJGMNBLXvKrfxRk5DVzCrkgSyfLdySkp4YijB9Pl3axu7i8z4vf7tLNNhjPQBWJ-vcJ0FJUXyN6hv1JPxa4X0vPtkdBOdd4k3GOfL1ttI-8J3C3750IBaCgYKAQUSARMSFQHGX2MiUNTnpYsP-NuydYCTGG_y4Q0435`,
+          Authorization: `Bearer ya29.a0AeDClZCcs78pOvDkDp2yFplfrhG9_l3-Cap5GpkZomdtuz2AhcPnn5alyyEBlwuhgBHoBaXa7fvYx-zG0NEFRWrIEEYeuWi1RICZ07wnMQqAvc_jfxvZH8eWgNy3XmCPcSWTm1-xcAwB3DWL5zq6nLNtOSPo2QfK-Rt9SfgT3g24a2tWIZrCLW4sF2MtKYJ_MtF3W_oEJATpc8nj2l9DjVw5JOfymY0Rl6U7xLWN6AtOkRPwVlXNImKMW5xQqp-KZIFE_6YVtEQ9JO7iUjV8bmjVw7Kh_WbWy6scYSygne6JmGzk9uBuvCpE5ucn7upXc9P-Bx8EiDKWVhvqlsNCUsDyxWXoUI02udDOzS33mne4bjLL7lC_YanBw20ISvRfwYZNDQTmjWS3CRXdVb8p-jrE6aHvKSqcFvgTzudLqRAPeQaCgYKARASARMSFQHGX2MiPgy68-XWGJyCUspJKXANRg0437`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -88,7 +90,7 @@ export default function Chatbot() {
       });
       const data = await response.json();
 
-      setMessages((prev) => prev.slice(0, -1)); // Remove typing indicator
+      setMessages((prev) => prev.slice(0, -1));
 
       if (data.queryResult) {
         const Intent = data.queryResult.intent.displayName;
@@ -96,22 +98,18 @@ export default function Chatbot() {
 
         switch (Intent) {
           case "greeting":
-          
-          break;
+
+            break;
 
           case "family_events":
             try {
               const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
               console.log("Res", res);
-          
-              // Iterate through the fetched data and add a button for each monument
               res.data.forEach((event) => {
-                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
-          
-                // Create a button for each monument with the MonumentName and _id in the URL
+                const { MonumentName, MonumentId } = event.monument;
                 addBotMessage(
                   <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    onClick={() => window.location.href = `http://localhost:3000/${MonumentId}`}
                     className="redirect-button"
                   >
                     Visit {MonumentName}
@@ -123,22 +121,39 @@ export default function Chatbot() {
               addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
             }
             break;
-          case "student_event":
+          case "family_events_tamil":
             try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumStudentevents");
+              const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
               console.log("Res", res);
-          
-              // Iterate through the fetched data and add a button for each monument
               res.data.forEach((event) => {
-                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
-          
-                // Create a button for each monument with the MonumentName and _id in the URL
+                const { MonumentNameTamil, MonumentId } = event.monument;
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${MonumentId}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentNameTamil}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching family events:", error);
+              addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+            }
+            break;
+          case "cheap_places_tamil":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumcheapplacetamil");
+              console.log("Res", res);
+              res.data.forEach((event) => {
+                const { MonumentNameTamil, _id } = event.monument;
+
                 addBotMessage(
                   <button
                     onClick={() => window.location.href = `http://localhost:3000/${_id}`}
                     className="redirect-button"
                   >
-                    Visit {MonumentName}
+                    Visit {MonumentNameTamil}
                   </button>
                 );
               });
@@ -146,17 +161,13 @@ export default function Chatbot() {
               console.error("Error fetching Student events:", error);
               addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
             }
-  break;
+            break;
           case "solotravel":
             try {
               const res = await axios.get("http://localhost:5000/fetchmuseumSoloevents");
               console.log("Res", res);
-          
-              // Iterate through the fetched data and add a button for each monument
               res.data.forEach((event) => {
-                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
-          
-                // Create a button for each monument with the MonumentName and _id in the URL
+                const { MonumentName, _id } = event.monument;
                 addBotMessage(
                   <button
                     onClick={() => window.location.href = `http://localhost:3000/${_id}`}
@@ -170,69 +181,81 @@ export default function Chatbot() {
               console.error("Error fetching solo events:", error);
               addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
             }
-  break;
-  case "PlaceToVisitIntent":
-    const Place = data.queryResult.parameters.place;
-    console.log("Place",Place)
-      try {
-        const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
-        console.log("Res", res);
-    
-        // Iterate through the fetched data and add a button for each monument
-        res.data.forEach((event) => {
-          const { MonumentName, _id } = event; // Destructure the MonumentName and _id
-    
-          // Create a button for each monument with the MonumentName and _id in the URL
-          addBotMessage(
-            <button
-              onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-              className="redirect-button"
-            >
-              Visit {MonumentName}
-            </button>
-          );
-        });
-      } catch (error) {
-        console.error("Error fetching solo events:", error);
-        addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
-      }
-break;
-  case "DefaultFallbackIntent":
-      try {
-        
-        console.log("Hello world");
-        const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
-        console.log("Res", res);
-        // Iterate through the fetched data and add a button for each monument
-        res.data.forEach((event) => {
-          const { MonumentName, _id } = event; // Destructure the MonumentName and _id
-    
-          // Create a button for each monument with the MonumentName and _id in the URL
-          addBotMessage(
-            <button
-              onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-              className="redirect-button"
-            >
-              Visit {MonumentName}
-            </button>
-          );
-        });
-      } catch (error) {
-        console.error("Error fetching  events:", error);
-        addBotMessage("Sorry, I couldn't fetch the events at the moment.");
-      }
-break;
-        default:
-          addBotMessage('Sorry, I could not understand that.');
-      }
+            break;
+          case "PlaceToVisitIntent":
+            const Place = data.queryResult.parameters.place;
+            console.log("Place", Place)
+            try {
+              const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
+              console.log("Res", res);
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event;
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching solo events:", error);
+              addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+            }
+            break;
+          case "DefaultFallbackIntent":
+            try {
 
-      if (data.queryResult.fulfillmentText) {
-        addBotMessage(data.queryResult.fulfillmentText);
+              console.log("Hello world");
+              const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
+              console.log("Res", res);
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event;
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching  events:", error);
+              addBotMessage("Sorry, I couldn't fetch the events at the moment.");
+            }
+            break;
+          case "student_event_tamil":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumStudenteventstamil");
+              console.log("Res", res);
+              res.data.forEach((event) => {
+                const { MonumentNameTamil, _id } = event.monument;
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentNameTamil}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching Student events:", error);
+              addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+            }
+            break;
+          default:
+        }
+
+        if (data.queryResult.fulfillmentText) {
+          addBotMessage(data.queryResult.fulfillmentText);
+        }
+      } else {
+        addBotMessage('Sorry, I could not understand that.');
       }
-    } else {
-      addBotMessage('Sorry, I could not understand that.');
-    }
-  }catch (error) {
+    } catch (error) {
       console.error('Error fetching API response:', error);
       addBotMessage('I apologize, but there seems to be a technical issue. Please try again later.');
     }
@@ -288,16 +311,16 @@ break;
 
   return (
     <>
-      {!isOpen && (
-        <motion.div
-          className="chatbot-icon"
-          onClick={() => setIsOpen(true)}
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <BotIcon size={24} />
-        </motion.div>
-      )}
+
+      <motion.div
+        className="chatbot-icon"
+        onClick={() => setIsOpen(true)}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
+      >
+        <BotIcon size={24} />
+      </motion.div>
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
@@ -309,7 +332,7 @@ break;
             <div className="chatbot-header">
               <div className="chatbot-header-title">
                 <BotIcon size={24} className="bot-icon" />
-                <h3>TicketSpot Assistant</h3>
+                <h3>MuseumTix Assistant</h3>
               </div>
               <button onClick={() => setIsOpen(false)}>
                 <X size={20} />

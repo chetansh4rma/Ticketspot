@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Grid, Typography, IconButton, TextField, Button } from '@mui/material';
+import { Box, Container, Grid, Typography, IconButton } from '@mui/material';
 import { Link } from 'react-router-dom';
 import InstagramIcon from '@mui/icons-material/Instagram';
 import YouTubeIcon from '@mui/icons-material/YouTube';
@@ -18,6 +18,13 @@ const companyMenu = [
   { label: 'Terms & Conditions', path: '/terms' },
   { label: 'FAQ', path: '/faq' },
   { label: 'Support', path: '/support' },
+];
+
+const exploreMenu = [
+  { label: 'Upcoming Events', path: '/events' },
+  { label: 'Blogs', path: '/blogs' },
+  { label: 'Gallery', path: '/gallery' },
+  { label: 'Gift Cards', path: '/gift-cards' },
 ];
 
 const socialLinks = [
@@ -39,8 +46,8 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={4}>
+        <Grid container spacing={4} sx={{ justifyContent: 'space-around' }}>
+          <Grid item xs={12} md={3}>
             <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
               Monument Ticket Booking
             </Typography>
@@ -96,7 +103,22 @@ const Footer = () => {
               </Link>
             ))}
           </Grid>
-      
+          <Grid item xs={12} md={2}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
+              Explore More
+            </Typography>
+            {exploreMenu.map((item) => (
+              <Link
+                key={item.label}
+                to={item.path}
+                style={{ color: 'inherit', textDecoration: 'none', display: 'block', marginBottom: '0.5rem' }}
+              >
+                <Typography sx={{ '&:hover': { color: 'var(--secondary-color)' } }}>
+                  {item.label}
+                </Typography>
+              </Link>
+            ))}
+          </Grid>
         </Grid>
         <Box mt={5}>
           <Typography variant="body2" align="center" sx={{ color: 'var(--text-color)' }}>
@@ -109,4 +131,3 @@ const Footer = () => {
 };
 
 export default Footer;
-

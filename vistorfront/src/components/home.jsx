@@ -13,7 +13,6 @@ import experienceImg from './assets/experience.png';
 import Subtitle from '../shared/subtitle.jsx';
 import { Container, Row, Col } from 'reactstrap';
 import Testimonials from './Testimonial/Testimonials';
-
 import placeholderImg1 from './assets/museum1.jpg';
 import placeholderImg2 from './assets/museum2.jpg';
 import placeholderImg3 from './assets/museum3.jpg';
@@ -84,20 +83,19 @@ const Home = () => {
         <div className="container">
           <div className="row">
             <div className="col-lg-6">
-              <div className="hero__content">
-                <div className="hero__subtitle d-flex align-items-center">
-                <Subtitle subtitle={'Know Before You Go'} />
-                  <img src={worldImg} alt="" />
-                </div>
-                <h1>
-                  Traveling opens the door to creating 
-                  <span className='highlight'> memories</span>
-                </h1>
-                <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Ullam ipsum nobis asperiores soluta voluptas quas voluptates.
-                </p>
-              </div>
+            <div className="hero__content">
+  <div className="hero__subtitle d-flex align-items-center">
+    <Subtitle subtitle={'Explore Iconic Monuments'} />
+    <img src={worldImg} alt="Monuments" />
+  </div>
+  <h1>
+    Discover and book tickets to <span className='highlight'>historical landmarks</span> around the world
+  </h1>
+  <p>
+    Explore a wide range of monuments and museums, learn their stories, and secure your tickets for a memorable experience.
+  </p>
+</div>
+
             </div>
             <div className="col-lg-2">
               <div className="hero__img-box">
@@ -119,54 +117,67 @@ const Home = () => {
       </section>
 
 
-      {/* Must Visit Places Carousel */}
-<div className="carousel-wrapper">
-  <div className="carousel-container">
-    <Carousel fade>
-      {!loading &&
-        recommendedPlaces.slice(0, 3).map((place, index) => (
-          <Carousel.Item
-            key={place.id}
-            interval={index === 0 ? 1000 : 500}
-            onClick={() => handlePlaceClick(place)}
-          >
-            <img
-              className="d-block w-100 carousel-image"
-              src={place.MonumentImage} // Use MonumentImage from response
-              alt={place.MonumentName} // Use MonumentName from response
-            />
-            <Carousel.Caption>
-              <h3>{place.MonumentName}</h3>
-              <p>{place.address}</p> {/* Use address or similar field */}
-            </Carousel.Caption>
-          </Carousel.Item>
-        ))}
-    </Carousel>
-  </div>
-</div>
+      <section className="recommended-places">
+        <Container>
+          <Row>
+            <Col lg="12" className="mb-5">
+              <Subtitle subtitle={'Explore'} />
+              <h2 className="featured__tour-title">Must Visit Places</h2>
+            </Col>
+            <Col lg="12">
+              <div className="carousel-wrapper">
+                <Carousel fade>
+                  {!loading &&
+                    recommendedPlaces.slice(0, 3).map((place, index) => (
+                      <Carousel.Item
+                        key={place.id}
+                        interval={index === 0 ? 1000 : 500}
+                        onClick={() => handlePlaceClick(place)}
+                      >
+                        <img
+                          className="d-block w-100 carousel-image"
+                          src={place.MonumentImage}
+                          alt={place.MonumentName}
+                        />
+                        <Carousel.Caption>
+                          <h3>{place.MonumentName}</h3>
+                          <p>{place.address}</p>
+                        </Carousel.Caption>
+                      </Carousel.Item>
+                    ))}
+                </Carousel>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </section>
 
+      {/* Small Boxes Section */}
+      <section className="featured-places">
+        <Container>
+          <Row>
+            <Col lg="12" className="mb-5">
+              <Subtitle subtitle={'Discover'} />
+              <h2 className="featured__tour-title">Featured Places</h2>
+            </Col>
+            {!loading &&
+              recommendedPlaces.slice(3, 6).map((place) => (
+                <Col lg="4" md="6" sm="6" className="mb-4" key={place.id}>
+                  <div className="tour__card" onClick={() => handlePlaceClick(place)}>
+                    <div className="tour__img">
+                      <img src={place.MonumentImage} alt={place.MonumentName} />
+                    </div>
+                    <div className="card__info">
+                      <h4 className="tour__title">{place.MonumentName}</h4>
+                      <p>{place.address}</p>
+                    </div>
+                  </div>
+                </Col>
+              ))}
+          </Row>
+        </Container>
+      </section>
 
-     {/* Small Boxes Section */}
-<div className="small-boxes-section">
-  <div className="small-boxes-container">
-    {!loading &&
-      recommendedPlaces.slice(3, 6).map((place) => (
-        <div
-          className="small-box"
-          key={place.id}
-          onClick={() => handlePlaceClick(place)}
-        >
-          <img
-            src={place.MonumentImage}
-            alt={place.MonumentName}
-            className="small-box-image"
-          />
-          <h4>{place.MonumentName}</h4>
-          <p>{place.address}</p> {/* Use address or similar field */}
-        </div>
-      ))}
-  </div>
-</div>
 
 
       {/* Experience Section */}

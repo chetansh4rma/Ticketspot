@@ -1,277 +1,385 @@
-import React, { useEffect, useState,useRef } from "react";
-import axios from 'axios';
-import "./css/Chatbot.css"; // Import the CSS file for styling
-import { PDFDocument, rgb } from 'pdf-lib';
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { BotIcon, X, Send, Home, Info, Calendar, Users, User, Mic } from 'lucide-react';
+import axios from "axios";
+import './css/chatbot.css';
 
-const Chatbot = ({ placeData ,handleCloseChatbot}) => {
-    const messagesEndRef = useRef(null); 
+const buttonColors = ['#4CAF50', '#2196F3', '#FFC107', '#E91E63', '#9C27B0'];
+
+const IconButton = ({ icon: Icon, label, onClick }) => (
+  <motion.button
+    className="icon-button"
+    onClick={onClick}
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+  >
+    <Icon size={20} />
+    <span>{label}</span>
+  </motion.button>
+);
+
+const LoadMoreButton = ({ onClick }) => (
+  <motion.button
+    className="load-more-button"
+    onClick={onClick}
+    whileHover={{ scale: 1.05 }}
+    whileTap={{ scale: 0.95 }}
+  >
+    Load More
+  </motion.button>
+);
+
+export default function Chatbot() {
+  const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
-  const [step, setStep] = useState(0);
-  const [selectedDate, setSelectedDate] = useState(""); // Track selected date
-  const [selectedPersons, setSelectedPersons] = useState(0); // Track number of persons
-  const [events, setEvents] = useState([]); // Store events from the backend
-  const [selectedEvent, setSelectedEvent] = useState(null); // Store selected event for showing price
-  const [eventId,setEventId]=useState(null)
-  const [tickets,setTickets]=useState(null)
-  useEffect(() => {
-    getEventDetails(placeData.id);
-    handleResponse();
-  }, []);
+  const [input, setInput] = useState('');
+  const [error, setError] = useState('');
+  const messagesEndRef = useRef(null);
+  const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
-    if (messagesEndRef.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+    if (isOpen && messages.length === 0) {
+      addBotMessage('Welcome to MuseumTix! How can I assist you today?');
     }
+  }, [isOpen]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-
-
-  const createTicketPDF = async (ticket) => {
-    console.log(ticket,"hello")
-    // Create a new PDF document
-    const pdfDoc = await PDFDocument.create();
-    
-    // Add a blank page
-    const page = pdfDoc.addPage([600, 400]);
-    
-    // Draw a rectangle for the ticket background
-    page.drawRectangle({
-      x: 50,
-      y: 50,
-      width: 500,
-      height: 300,
-      color: rgb(0.9, 0.9, 0.9), // Light grey background
+  const addBotMessage = (text) => {
+    setMessages((prev) => {
+      const newMessage = { text, sender: 'bot' };
+      if (typeof text === 'object' && text.type === 'button') {
+        newMessage.buttons = text.buttons;
+      }
+      return [...prev, newMessage];
     });
-    
-    // Set the font size and color
-    const fontSize = 20;
-    
-    // Add ticket details to the PDF
-    page.drawText(`Monument Name: ${placeData.name}`, { x: 60, y: 370, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Ticket No: ${ticket.ticketNo}`, { x: 60, y: 320, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Event ID: ${ticket.eventId}`, { x: 60, y: 290, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`User ID: ${ticket.userId}`, { x: 60, y: 260, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Price: Rs.${ticket.price}`, { x: 60, y: 230, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Purchased At: ${ticket.purchasedAt.toLocaleString()}`, { x: 60, y: 200, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Expiration Date: ${ticket.ExpirationDate.toLocaleString()}`, { x: 60, y: 170, size: fontSize, color: rgb(0, 0, 0) });
-    page.drawText(`Selected Date: ${ticket.selectedDate.toLocaleString()}`, { x: 60, y: 140, size: fontSize, color: rgb(0, 0, 0) });
-    
-    // Serialize the PDFDocument to bytes (a Uint8Array)
-    const pdfBytes = await pdfDoc.save();
-    
-    // Create a Blob from the PDF bytes
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    
-    // Create a link element to download the PDF
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `ticket_${ticket.ticketNo}.pdf`;
-    
-    // Append link to the body and click it to trigger the download
-    document.body.appendChild(link);
-    link.click();
-    
-    // Clean up the link element
-    document.body.removeChild(link);
   };
-  
 
-  // Fetch event details from the backend
-  const getEventDetails = async (eventId) => {
-    console.log(eventId)
+  const addUserMessage = (text) => {
+    setMessages((prev) => [...prev, { text, sender: 'user' }]);
+  };
+
+  const fetchApiResponse = async (input) => {
+    addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACK_URL}/api/auth/events-detail`,
-        {
-          MonumentId: "67080ee591a7b888d4c864d0", // Event ID
+      const response = await fetch('https://dialogflow.googleapis.com/v2/projects/ticketspot-omya/agent/sessions/57a7df7e-9458-c675-313b-38d6a2351168:detectIntent', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ya29.a0AeDClZBYPNaktUWbE-Pk0nYjCqhRlK4vLqL9ggtNhTvdwnwtxHSmn9rLf1D-ZTGIjljXzulIorFxWJZZ8KphrW2csI6Ucu5JEGL-JYM006UO-KVyW8x6ZsjDsr3w3IgW2unhBhhiiHFIx3LSUcm3sKRL12j_knsMhIDl3bxGxCfmFSA9WflzbwNK0OzigM_d9VJHtZrMj-ULgU2Zf2tLRu6Am-pvS_Gk1IhXKy_XbADmHvL1_bLpj3yfuE88uGbQ_YLTf1e3_HR4GqSoQpJl-fNs9yzNYmf1RzHo17on5ykKHvEC8zqCPOcefJGMNBLXvKrfxRk5DVzCrkgSyfLdySkp4YijB9Pl3axu7i8z4vf7tLNNhjPQBWJ-vcJ0FJUXyN6hv1JPxa4X0vPtkdBOdd4k3GOfL1ttI-8J3C3750IBaCgYKAQUSARMSFQHGX2MiUNTnpYsP-NuydYCTGG_y4Q0435`,
         },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true, // If cookies are needed
-        }
-      );
-      const eventDetails = response.data.events;
-      console.log('Event Details:', eventDetails);
-      setEvents(eventDetails); // Set events in state
-    } catch (error) {
-      console.error('Error fetching event details:', error.message);
-    }
-  };
-
-  // Handle user response logic
-  const handleResponse = (response) => {
-    if(response=='no')
-    {
-      handleCloseChatbot()
-    }
-    const newMessages = [...messages, { sender: "user", text: response }];
-    setMessages(newMessages);
-
-    let botResponse = "";
-
-    if (step === 0) {
-      botResponse = `Welcome! You're interested in visiting ${placeData.name}. Would you like to book a ticket?`;
-      setStep(1);
-    } else if (step === 1) {
-      if (response.toLowerCase() === "yes") {
-        botResponse = "Great! Please select a date for your visit:";
-        setStep(2);
-      } else {
-        botResponse = "Alright, if you change your mind, feel free to ask again!";
-        setStep(5); // End step
-      }
-    } else if (step === 2) {
-      setSelectedDate(response); // Set selected date
-      const matchingEvent = events.find(event => {
-        const eventDate = new Date(event.eventDate).toLocaleDateString("en-US");
-        return eventDate === response;
+        body: JSON.stringify({
+          queryInput: {
+            text: {
+              text: input,
+              languageCode: 'en',
+            },
+          },
+          queryParams: {
+            source: 'DIALOGFLOW_CONSOLE',
+            timeZone: 'Asia/Calcutta',
+          },
+        }),
       });
+      const data = await response.json();
 
-      if (matchingEvent) {
-        setSelectedEvent(matchingEvent);
-        setEventId(matchingEvent._id)
-        botResponse = `You selected ${response}. The ticket price is Rs.${matchingEvent.ticketPrice}. How many persons are visiting? (1-4)`;
-      } else {
-        console.log(events,"he",events[0])
-        botResponse = `You selected ${response}. The ticket price is Rs.${events[0].ticketPrice}. How many persons are visiting? (1-4)`;
-        setSelectedEvent(events[0]); // Default to first event if none matches
-        setEventId(events[0]._id)
+      setMessages((prev) => prev.slice(0, -1)); // Remove typing indicator
+
+      if (data.queryResult) {
+        const Intent = data.queryResult.intent.displayName;
+        console.log(Intent);
+
+        switch (Intent) {
+          case "greeting":
+          
+          break;
+
+          case "family_events":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
+              console.log("Res", res);
+          
+              // Iterate through the fetched data and add a button for each monument
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+          
+                // Create a button for each monument with the MonumentName and _id in the URL
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching family events:", error);
+              addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+            }
+            break;
+          case "student_event":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumStudentevents");
+              console.log("Res", res);
+          
+              // Iterate through the fetched data and add a button for each monument
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+          
+                // Create a button for each monument with the MonumentName and _id in the URL
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching Student events:", error);
+              addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+            }
+  break;
+          case "solotravel":
+            try {
+              const res = await axios.get("http://localhost:5000/fetchmuseumSoloevents");
+              console.log("Res", res);
+          
+              // Iterate through the fetched data and add a button for each monument
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+          
+                // Create a button for each monument with the MonumentName and _id in the URL
+                addBotMessage(
+                  <button
+                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching solo events:", error);
+              addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+            }
+  break;
+  case "PlaceToVisitIntent":
+    const Place = data.queryResult.parameters.place;
+    console.log("Place",Place)
+      try {
+        const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
+        console.log("Res", res);
+    
+        // Iterate through the fetched data and add a button for each monument
+        res.data.forEach((event) => {
+          const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+    
+          // Create a button for each monument with the MonumentName and _id in the URL
+          addBotMessage(
+            <button
+              onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+              className="redirect-button"
+            >
+              Visit {MonumentName}
+            </button>
+          );
+        });
+      } catch (error) {
+        console.error("Error fetching solo events:", error);
+        addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+      }
+break;
+  case "DefaultFallbackIntent":
+      try {
+        
+        console.log("Hello world");
+        const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
+        console.log("Res", res);
+        // Iterate through the fetched data and add a button for each monument
+        res.data.forEach((event) => {
+          const { MonumentName, _id } = event; // Destructure the MonumentName and _id
+    
+          // Create a button for each monument with the MonumentName and _id in the URL
+          addBotMessage(
+            <button
+              onClick={() => window.location.href = `http://localhost:3000/${_id}`}
+              className="redirect-button"
+            >
+              Visit {MonumentName}
+            </button>
+          );
+        });
+      } catch (error) {
+        console.error("Error fetching  events:", error);
+        addBotMessage("Sorry, I couldn't fetch the events at the moment.");
+      }
+break;
+        default:
+          addBotMessage('Sorry, I could not understand that.');
       }
 
-      setStep(3);
-    } else if (step === 3) {
-      const numberOfPersons = parseInt(response, 10);
-      if (!isNaN(numberOfPersons) && numberOfPersons > 0 && numberOfPersons <= 4) {
-        setSelectedPersons(numberOfPersons); // Set number of persons
-        botResponse = "Thank you for booking! Your tickets are confirmed.";
-        sendDataToServer(placeData.name, selectedDate, numberOfPersons); // Send booking data
-        setStep(5); // End step
-      } else {
-        botResponse = "Please select a valid number of persons (1-4).";
+      if (data.queryResult.fulfillmentText) {
+        addBotMessage(data.queryResult.fulfillmentText);
       }
+    } else {
+      addBotMessage('Sorry, I could not understand that.');
     }
-
-    // Display bot response
-    if (botResponse) {
-      setTimeout(() => {
-        setMessages((prevMessages) => [
-          ...prevMessages,
-          { sender: "bot", text: botResponse },
-        ]);
-      }, 500);
+  }catch (error) {
+      console.error('Error fetching API response:', error);
+      addBotMessage('I apologize, but there seems to be a technical issue. Please try again later.');
     }
   };
 
-  // Send booking data to the server
-  const sendDataToServer = async (place, date, persons) => {
-    try {
-      console.log(date,
-        place,
-        eventId ,
-         persons,
-        )
-      const response = await axios.post(
-        `${process.env.REACT_APP_BACK_URL}/api/auth/buy-ticket`,
-        {
-          date,
-          place,
-          eventid:eventId ,
-          selectedPersons: persons,
-          selectedDate: new Date(date).getTime(),
-        },
-        {
-          headers: { 'Content-Type': 'application/json' },
-          withCredentials: true,
-        }
-      );
-      console.log('Booking confirmed:', response.data.tickets);
-      setTickets(response.data.tickets)
-      
-      
-
-      response.data.tickets.forEach((ticket) => {
-        createTicketPDF(ticket); // Generate PDF for each ticket
-      });
-
-      handleCloseChatbot()
-    } catch (error) {
-      console.error('Error booking ticket:', error.message);
+  const handleInputSubmit = () => {
+    if (!input.trim()) {
+      setError('Please enter a message.');
+      return;
     }
+    setError('');
+    addUserMessage(input);
+    fetchApiResponse(input);
+    setInput('');
   };
 
-  // Render buttons for booking, date selection, and persons
-  const renderBookingButtons = () => (
-    <div className="button-container">
-      <button style={{borderRadius:'10px'}} onClick={() => handleResponse("yes")}>Yes</button>
-      <button  style={{borderRadius:'10px'}} onClick={() => handleResponse("no")}>No</button>
-    </div>
-  );
-
-  const renderDateButtons = () => {
-    const today = new Date();
-    const dateButtons = [];
-
-    for (let i = 0; i < 5; i++) {
-      const futureDate = new Date(today);
-      futureDate.setDate(today.getDate() + i);
-      const formattedDate = futureDate.toLocaleDateString("en-US", {
-        month: "2-digit",
-        day: "2-digit",
-        year: "numeric",
-      });
-      dateButtons.push(
-        <button key={i} style={{borderRadius:'10px'}} onClick={() => handleResponse(formattedDate)}>
-          {formattedDate}
-        </button>
-      );
-    }
-
-    return <div className="button-container">{dateButtons}</div>;
+  const handleIconClick = (intent) => {
+    fetchApiResponse(intent);
   };
 
-  const renderPersonsButtons = () => (
-    <div className="button-container">
-      {[1, 2, 3, 4].map((number) => (
-        <button key={number} style={{borderRadius:'10px'}} onClick={() => handleResponse(number.toString())}>
-          {number}
-        </button>
-      ))}
-    </div>
-  );
+  const handleVoiceInput = () => {
+    if ('webkitSpeechRecognition' in window) {
+      const recognition = new window.webkitSpeechRecognition();
+      recognition.continuous = false;
+      recognition.interimResults = false;
+      recognition.lang = 'en-US';
 
-  const fx=()=>{
-    console.log("hello")
-  }
+      recognition.onstart = () => {
+        setIsListening(true);
+      };
+
+      recognition.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        setInput(transcript);
+        setIsListening(false);
+      };
+
+      recognition.onerror = (event) => {
+        console.error('Speech recognition error', event.error);
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognition.start();
+    } else {
+      console.error('Speech recognition not supported');
+      addBotMessage('Speech recognition is not supported in your browser.');
+    }
+  };
 
   return (
-    <div className="overlay1" onClick={fx}>
-    <div className="chatbot">
-      <div className="btn-close">
-           <button className="btn-close-ch" onClick={()=>{handleCloseChatbot()}}>Close</button>
-       </div>
-      <div className="chatbox">
-
-       
-
-        <div className="messages">
-        {messages.map((msg, index) => (
-            <div key={index} className={msg.sender}>
-              {msg.text}
+    <>
+      {!isOpen && (
+        <motion.div
+          className="chatbot-icon"
+          onClick={() => setIsOpen(true)}
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+        >
+          <BotIcon size={24} />
+        </motion.div>
+      )}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            className="chatbot-container"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 20 }}
+          >
+            <div className="chatbot-header">
+              <div className="chatbot-header-title">
+                <BotIcon size={24} className="bot-icon" />
+                <h3>MuseumTix Assistant</h3>
+              </div>
+              <button onClick={() => setIsOpen(false)}>
+                <X size={20} />
+              </button>
             </div>
-          ))}
-          {/* This empty div will act as a scroll target */}
-          <div ref={messagesEndRef} />
-        </div>
-        <div className="button-container" >
-          {step === 0 }
-          {step === 1 && renderBookingButtons()}
-          {step === 2 && renderDateButtons()}
-          {step === 3 && renderPersonsButtons()}
-        </div>
-      </div>
-    </div>
-    </div>
+            <div className="chatbot-icons">
+              <IconButton icon={Home} label="Home" onClick={() => handleIconClick("greeting")} />
+              <IconButton icon={Info} label="Info" onClick={() => handleIconClick("info")} />
+              <IconButton icon={Calendar} label="Events" onClick={() => handleIconClick("events")} />
+              <IconButton icon={Users} label="Family" onClick={() => handleIconClick("family_events")} />
+              <IconButton icon={User} label="Solo" onClick={() => handleIconClick("solotravel")} />
+            </div>
+            <div className="chatbot-messages">
+              <AnimatePresence>
+                {messages.map((message, index) => (
+                  <motion.div
+                    key={index}
+                    className={`message ${message.sender}`}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                  >
+                    {message.text}
+                    {message.buttons && (
+                      <div className="button-container">
+                        {message.buttons.map((button, buttonIndex) => (
+                          <motion.button
+                            key={buttonIndex}
+                            className="redirect-button"
+                            onClick={button.onClick}
+                            whileHover={{ scale: 1.05 }}
+                            whileTap={{ scale: 0.95 }}
+                            style={{ backgroundColor: buttonColors[buttonIndex % buttonColors.length] }}
+                          >
+                            {button.label}
+                          </motion.button>
+                        ))}
+                      </div>
+                    )}
+                  </motion.div>
+                ))}
+              </AnimatePresence>
+              <div ref={messagesEndRef} />
+            </div>
+            <div className="chatbot-input">
+              <input
+                type="text"
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleInputSubmit()}
+                placeholder="Type your message here..."
+              />
+              <motion.button
+                onClick={handleVoiceInput}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className={`voice-input-button ${isListening ? 'listening' : ''}`}
+              >
+                <Mic size={20} />
+              </motion.button>
+              <motion.button
+                onClick={handleInputSubmit}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Send size={20} />
+              </motion.button>
+            </div>
+            {error && <p className="error">{error}</p>}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </>
   );
-};
+}
 
-export default Chatbot;

@@ -86,9 +86,10 @@ function authenticateToken(req, res, next) {
 }
 app.get("/fetchmuseumfamilyevents", async(req,res)=>{
   try{
-   const results = await Agency.find({
-      Category:"family_events", // Ensure ticketPrice is less than or equal to the budget
-     });
+   const results = await Agency.aggregate([
+      { $sample: { size: 5 } },  // Randomly selects 2 documents
+      { $sort: { ticketPrice: 1 } } ,
+    ]);
 res.json(results);
   }
   catch{
@@ -97,9 +98,10 @@ res.json("error");
 })
 app.get("/fetchmuseumStudentevents", async (req, res) => {
   try {
-    const results = await Agency.find({
-      // Category: "student_event"  // Filter by category
-    }).sort({ ticketPrice: 1 }); // Sort by eventTicketPrice in ascending order (low to high)
+    const results = await Agency.aggregate([
+      { $sample: { size: 5 } },  // Randomly selects 2 documents
+      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    ]);
     console.log(results);
     res.json(results); // Send the results as JSON
   } catch (error) {
@@ -109,10 +111,25 @@ app.get("/fetchmuseumStudentevents", async (req, res) => {
 });
 app.get("/fetchmuseumSoloevents", async (req, res) => {
   try {
-    const results = await Agency.find({
-      // Category: "student_event"  // Filter by category
-    }).sort({ ticketPrice: 1 }); // Sort by eventTicketPrice in ascending order (low to high)
+    const results = await Agency.aggregate([
+      { $sample: { size: 5 } },  // Randomly selects 2 documents
+      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    ]);
     console.log(results);
+    res.json(results); // Send the results as JSON
+  } catch (error) {
+    console.error("Error fetching student events:", error);
+    res.status(500).json({ message: "Error fetching events" }); // Return an error message if something goes wrong
+  }
+});
+app.get("/fetchmuseumDefault", async (req, res) => {
+  try {
+    const results = await Agency.aggregate([
+      { $sample: { size: 2 } },  // Randomly selects 2 documents
+      { $sort: { ticketPrice: 1 } }  // Sorts by ticketPrice in ascending order
+    ]);
+    
+    console.log(results);    
     res.json(results); // Send the results as JSON
   } catch (error) {
     console.error("Error fetching student events:", error);

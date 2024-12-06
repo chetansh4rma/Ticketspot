@@ -21,7 +21,7 @@ function App() {
   return (
     <Routes>
       {/* Private route for Home, only accessible if authenticated */}
-      <Route path="/" element={<PrivateRoute element={ToggleComponent} />} />
+      <Route path="/" element={<ToggleComponent/>} />
       <Route path="/feedback" element={<PrivateRoute element={Feedback} />} />
      <Route path="/event-show" element={<PrivateRoute element={EventShow} />} /> 
       {/*<Route path="/event-creation" element={<PrivateRoute element={EventCreation} />} />

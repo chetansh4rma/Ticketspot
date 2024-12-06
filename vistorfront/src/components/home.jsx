@@ -8,6 +8,7 @@ import axios from 'axios';
 import worldImg from './assets/world.png';
 import heroImg from './assets/museum1.jpg';
 import heroImg02 from './assets/hero-img02.jpg';
+import Chatbot from "./chatbot.js"
 import heroVideo from './assets/hero-video.mp4';
 import experienceImg from './assets/experience.png';
 import Subtitle from '../shared/subtitle.jsx';
@@ -118,17 +119,6 @@ const Home = () => {
         </div>
       </section>
 
-      {/* Search Bar */}
-      <div className="search-bar-container" style={{ width: '65%', margin: '1rem 3rem', textAlign: 'left',}}>
-        <input
-          type="text"
-          placeholder="Search monuments, locations..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <button className="search-button" onClick={handleSearch}>Search</button>
-      </div>
 
       {/* Must Visit Places Carousel */}
 <div className="carousel-wrapper">
@@ -184,27 +174,27 @@ const Home = () => {
       <section>
         <Container>
           <Row>
-            <Col lg='6'>
+          <Col lg='6'>
               <div className="experience__content">
-                <Subtitle subtitle={'Experience'} />
-                <h2>With our all experience <br /> we will serve you</h2>
+                <Subtitle subtitle={'Immersive Experience'} />
+                <h2>Discover Centuries of Art and Culture</h2>
                 <p>
-                  Lorem ipsum dolor sit amet consectetur, adipisicing elit.
-                  Quas aliquam, hic tempora inventore suscipit unde.
+                  Step into a world of wonder and history at our museums. From ancient artifacts to contemporary masterpieces, 
+                  our curated collections offer a journey through time and human creativity.
                 </p>
               </div>
               <div className="counter__wrapper d-flex align-items-center gap-5">
                 <div className="counter__box">
-                  <span>12k+</span>
-                  <h6>Successful trip</h6>
+                  <span>500k+</span>
+                  <h6>Visitors Annually</h6>
                 </div>
                 <div className="counter__box">
-                  <span>2k+</span>
-                  <h6>Regular clients</h6>
+                  <span>100+</span>
+                  <h6>Exhibitions</h6>
                 </div>
                 <div className="counter__box">
-                  <span>15</span>
-                  <h6>Year experience</h6>
+                  <span>50+</span>
+                  <h6>Years of Excellence</h6>
                 </div>
               </div>
             </Col>
@@ -236,12 +226,7 @@ const Home = () => {
 </div>
 
 {/* Chatbot */}
-{toggle && <iframe
-    allow="microphone;"
-    width="350"
-    height="430"
-    src="https://console.dialogflow.com/api-client/demo/embedded/5b278664-b6fc-4452-a5b8-b0cce2703720">
-</iframe>}
+<Chatbot/>
 {/* <iframe height="430" width="350" src="https://bot.dialogflow.com/58e6c49e-6838-4a54-a952-d2b348115aff"></iframe> */}
       <Footer />
     </>

@@ -20,7 +20,7 @@ function App() {
   return (
     <Routes>
       {/* Private route for Home, only accessible if authenticated */}
-      <Route path="/" element={<PrivateRoute element={Home} />} />
+      <Route path="/" element={<Home/>}/>
       <Route path="/get-location" element={!isLoactionExist && authenticated ? <LocationForm/> : <Navigate to="/" /> } />
       <Route path="/search" element={<PrivateRoute element={Search} />}  />
       <Route path="/myticket" element={<Myticket/>} />

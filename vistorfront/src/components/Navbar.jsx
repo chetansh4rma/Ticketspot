@@ -1,195 +1,139 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
+  AppBar,
   Box,
+  Toolbar,
   IconButton,
-  Link,
-  Menu,
-  MenuItem,
   Typography,
+  Menu,
+  Container,
+  Button,
+  Tooltip,
+  MenuItem,
+  useScrollTrigger,
+  Slide,
 } from '@mui/material';
-import Logo from './assets/logo.jpg';
-import { Menu as MenuIcon, Close, AccountCircle } from '@mui/icons-material';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import { useTheme } from '@mui/material/styles';
-import { useNavigate, useLocation } from 'react-router-dom';
-import './css/navbar.css'; // Updated CSS file
+import HomeIcon from '@mui/icons-material/Home';
+import InfoIcon from '@mui/icons-material/Info';
+import ExploreIcon from '@mui/icons-material/Explore';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import Logo from './assets/LogoTicketspott.png';
+import './css/navbar.css';
 
-const navigations = [
-  { label: 'Home', path: '/' },
-  { label: 'About', path: '/about' },
-  { label: 'Explore', path: '/explore' },
+const pages = [
+  { label: 'Home', path: '/', icon: <HomeIcon /> },
+  { label: 'About', path: '/about', icon: <InfoIcon /> },
+  { label: 'Explore', path: '/explore', icon: <ExploreIcon /> },
 ];
 
+const settings = ['My Tickets', 'My Profile', 'Settings', 'Logout'];
+
+function HideOnScroll(props) {
+  const { children } = props;
+  const trigger = useScrollTrigger();
+
+  return (
+    <Slide appear={false} direction="down" in={!trigger}>
+      {children}
+    </Slide>
+  );
+}
+
 const Navbar = () => {
-  const [visibleMenu, setVisibleMenu] = useState(false);
-  const [isSticky, setIsSticky] = useState(false);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const isProfileMenuOpen = Boolean(anchorEl);
-  const theme = useTheme();
-  const matchMobileView = useMediaQuery(theme.breakpoints.down('md'));
+  const [anchorElUser, setAnchorElUser] = useState(null);
   const navigate = useNavigate();
-  const location = useLocation(); // Use location hook
-  const menuRef = useRef();
+  const location = useLocation();
 
-  // Sticky header functionality
-  useEffect(() => {
-    const handleScroll = () => {
-      setIsSticky(window.scrollY > 80);
-    };
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
-
-  // Toggle mobile menu
-  const toggleMenu = () => setVisibleMenu(!visibleMenu);
-
-  const handleProfileMenuClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const handleOpenUserMenu = (event) => {
+    setAnchorElUser(event.currentTarget);
   };
 
-  const handleProfileMenuClose = () => {
-    setAnchorEl(null);
+  const handleCloseUserMenu = () => {
+    setAnchorElUser(null);
   };
 
   const handleLogout = () => {
-    // Remove the 'token' cookie by setting its expiration to a past date
     document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-    
-    // Navigate to the login page after logout
     navigate('/login');
   };
 
   return (
-    <header className={`header ${isSticky ? 'sticky__header' : ''}`}>
-      <Box
-        className="nav__wrapper"
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          padding: '0 2rem',
-          height: '80px',
-          backgroundColor: 'background.paper',
-        }}
-      >
-        {/* Logo */}
-        <div className="logo" onClick={() => navigate('/')}>
-          <img
-            src={Logo}
-            alt="Logo"
-            className="logo-img"
-          />
-        </div>
+    <HideOnScroll>
+      <AppBar position="static" className="header" sx={{ boxShadow: 'none', backgroundColor: 'transparent' }}>
+        <Container maxWidth="xl">
+          <Toolbar disableGutters className="nav__wrapper">
+            <Typography
+              variant="h6"
+              noWrap
+              component={Link}
+              to="/"
+              sx={{
+                flexGrow: 1,
+                display: 'flex',
+                alignItems: 'center',
+                textDecoration: 'none',
+                color: 'var(--heading-color)',
+              }}
+            >
+              <img src={Logo} alt="Logo" className="logo-img" />
+            </Typography>
 
-        {/* Navigation Links */}
-        <nav
-          ref={menuRef}
-          className={`navigation ${visibleMenu ? 'show__menu' : ''}`}
-        >
-          <ul className="menu d-flex align-items-center gap-5">
-            {navigations.map((nav, index) => (
-              <li className="nav__item" key={index}>
-                <Link
-                  href={nav.path}
-                  className={`nav__item a ${location.pathname === nav.path ? 'active__link' : ''}`} // Check if path matches
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              {pages.map((page) => (
+                <Button
+                  key={page.label}
+                  component={Link}
+                  to={page.path}
+                  className={`nav__item ${location.pathname === page.path ? 'active__link' : ''}`}
+                  sx={{
+                    my: 2,
+                    color: 'var(--heading-color)',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
                 >
-                  {nav.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        {/* Profile and Mobile Menu */}
-        <div className="nav__right d-flex align-items-center gap-4">
-          {/* Profile Menu */}
-          <div className="profile-menu">
-            <IconButton
-              size="large"
-              edge="end"
-              color="inherit"
-              onClick={handleProfileMenuClick}
-            >
-              <AccountCircle sx={{ color: '#000000' }} fontSize="large" />
-            </IconButton>
-            <Menu
-              anchorEl={anchorEl}
-              open={isProfileMenuOpen}
-              onClose={handleProfileMenuClose}
-            >
-              <MenuItem onClick={handleProfileMenuClose}>
-                <Link href="/myticket" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  My Tickets
-                </Link>
-              </MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>
-                <Link href="/my-profile" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  My Profile
-                </Link>
-              </MenuItem>
-              <MenuItem onClick={handleProfileMenuClose}>
-                <Link href="/settings" sx={{ textDecoration: 'none', color: 'inherit' }}>
-                  Settings
-                </Link>
-              </MenuItem>
-              <MenuItem onClick={handleLogout}>
-                Logout
-              </MenuItem>
-            </Menu>
-          </div>
-
-          {/* Mobile Menu Toggle */}
-          {matchMobileView && (
-            <span className="mobile__menu" onClick={toggleMenu}>
-              {visibleMenu ? (
-                <Close sx={{ color: '#faa935' }} />
-              ) : (
-                <MenuIcon sx={{ color: '#faa935' }} />
-              )}
-            </span>
-          )}
-        </div>
-      </Box>
-
-      {/* Mobile Menu Content */}
-      {visibleMenu && matchMobileView && (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            backgroundColor: 'background.paper',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100vh',
-            zIndex: 1300,
-            py: 2,
-          }}
-        >
-          <nav>
-            <ul className="menu d-flex flex-column align-items-start">
-              {navigations.map((nav, index) => (
-                <li className="nav__item" key={index}>
-                  <Link
-                    href={nav.path}
-                    className={`nav__item a ${location.pathname === nav.path ? 'active__link' : ''}`} // Check if path matches
-                    onClick={() => setVisibleMenu(false)} // Close menu after clicking
-                  >
-                    {nav.label}
-                  </Link>
-                </li>
+                  {page.icon}
+                  <Typography sx={{ ml: 1, display: { xs: 'none', md: 'block' } }}>{page.label}</Typography>
+                </Button>
               ))}
-            </ul>
-          </nav>
-        </Box>
-      )}
-    </header>
+
+              <Box sx={{ flexGrow: 0, ml: 2 }}>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <AccountCircleIcon sx={{ color: 'var(--secondary-color)', fontSize: 40 }} />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: '45px' }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right',
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  {settings.map((setting) => (
+                    <MenuItem key={setting} onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}>
+                      <Typography textAlign="center">{setting}</Typography>
+                    </MenuItem>
+                  ))}
+                </Menu>
+              </Box>
+            </Box>
+          </Toolbar>
+        </Container>
+      </AppBar>
+    </HideOnScroll>
   );
 };
 
 export default Navbar;
+

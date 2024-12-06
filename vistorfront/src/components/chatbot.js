@@ -38,8 +38,11 @@ export default function Chatbot() {
   const [isListening, setIsListening] = useState(false);
 
   useEffect(() => {
+    setTimeout(() => {
+      setIsOpen(true);
+    }, 3000);
     if (isOpen && messages.length === 0) {
-      addBotMessage('Welcome to MuseumTix! How can I assist you today?');
+      addBotMessage('Welcome to TicketSpot! How can I assist you today?');
     }
   }, [isOpen]);
 
@@ -306,7 +309,7 @@ break;
             <div className="chatbot-header">
               <div className="chatbot-header-title">
                 <BotIcon size={24} className="bot-icon" />
-                <h3>MuseumTix Assistant</h3>
+                <h3>TicketSpot Assistant</h3>
               </div>
               <button onClick={() => setIsOpen(false)}>
                 <X size={20} />

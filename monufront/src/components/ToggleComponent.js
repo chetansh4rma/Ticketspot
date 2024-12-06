@@ -4,7 +4,7 @@ import EventCreation from "./EventCreation"
 import Home from "./Home"
 import ShowCompete from "./ShowCompete"
 import NavBar from "./Navbar";
-import  Chatbot  from "./chatbot";
+// import  Chatbot  from "./";
 import Setting from "./Setting";
 
 
@@ -30,7 +30,7 @@ const ToggleComponent = () => {
     <div>
     <NavBar/>
     <div className="toggle-container">
-    <Chatbot/>
+    {/* <Chatbot/> */}
       <div className="toggle-buttons">
         <button
           className={`toggle-button ${activeTab === "Monuments" ? "active" : ""}`}

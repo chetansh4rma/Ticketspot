@@ -122,6 +122,6 @@ MonumentSchema.methods.incrementBookingCount = function(dateString, count) {
   return this.save(); // Save the updated document
 };
 
-const Agency = mongoose.model('Monument1', MonumentSchema);
+const Agency = mongoose.model('Monument', MonumentSchema);
 
 module.exports = Agency;

@@ -72,7 +72,7 @@ router.post(
     try {
      
 
-        const { ticketPrice, availableTickets, description, museumName,timing } = req.body ;
+        const { ticketPrice, availableTickets, description, museumName,timing,iframe } = req.body ;
        
 
       // Get the uploaded logo and images URLs
@@ -98,6 +98,10 @@ console.log(imagesUrls)
       {
         return res.status(400).json({ error: 'Valid timing is required' });
       }
+      if(iframe &&( iframe==='' ||iframe=='iframe src is required'))
+        {
+          return res.status(400).json({ error: 'Valid timing is required' });
+        }
       if (availableTickets && (isNaN(availableTickets) || availableTickets <= 0)) {
         return res.status(400).json({ error: 'Valid number of available tickets is required' });
       }
@@ -173,7 +177,7 @@ router.get('/get-setting-detail', authenticateToken, async (req, res) => {
   try {
     // Only select the specific fields that are required
     const user = await Agency.findById(req.agency.agencyId)
-      .select('MonumentName MonumentLogo timing imageUrl ticketPrice totalAvailableTicket desc');
+      .select('MonumentName MonumentLogo timing imageUrl ticketPrice totalAvailableTicket desc iframe');
     //  console.log(user)
     if (!user) {
       return res.status(404).json({ msg: 'Agency not found' });
@@ -190,6 +194,8 @@ router.get('/get-setting-detail', authenticateToken, async (req, res) => {
      requiredFields.ticketPrice =!user.ticketPrice? 'Ticket Price is required':user.ticketPrice;
     requiredFields.totalAvailableTicket =!user.totalAvailableTicket? 'Available Tickets is required':user.totalAvailableTicket;
     requiredFields.imageUrl =(!user.imageUrl || user.imageUrl.length === 0)? 'At least one image is required':user.imageUrl;
+    requiredFields.iframe = !user.iframe?'iframe src is required':user.iframe;
+
 
     // If any required field is missing, return it in the response
     if (Object.keys(requiredFields).length > 0) {
@@ -329,6 +335,7 @@ router.post('/verify-otp', async (req, res) => {
 
 // Login Route
 router.post('/login', async (req, res) => {
+  console.log('')
   const { email, password } = req.body;
 
   try {
@@ -371,6 +378,7 @@ function authenticateToken(req, res, next) {
    
   jwt.verify(token, process.env.JWT_SECRET, (err, agency) => {
     if (err) return res.sendStatus(403); // Forbidden
+    console.log(agency)
     req.agency = agency;
     next();
   });
@@ -378,6 +386,7 @@ function authenticateToken(req, res, next) {
 
 router.get('/agencydetails', authenticateToken, async (req, res) => {
   try {
+    console.log("hello agency",req.agency.agencyId)
     const user = await Agency.findById(req.agency.agencyId).select('-password'); // Exclude password
     if (!user) return res.status(404).json({ msg: 'User not found' });
     const monument = await Agency.findById(req.agency.agencyId);
@@ -405,7 +414,7 @@ router.get('/agencydetails', authenticateToken, async (req, res) => {
 
     
 
-    res.json(user);
+    res.status(200).json(user);
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -441,8 +450,8 @@ router.get('/fetch-bookings',authenticateToken, async (req, res) => {
 router.post('/event-creation',authenticateToken, async (req, res) => {
      
     const monumentId = req.agency.agencyId; // Extract the monument ID from the URL
-    const { eventName, totalTicketsAvailable, eventDate, eventTime, ticketPrice, description} = req.body;
-    console.log(req.agency)
+    const { eventName, totalTicketsAvailable, eventDate, eventTime, ticketPrice, description,audienceType,category} = req.body;
+   
     try {
       // Find the agency (monument) by ID
       const monument = await Agency.findOne({_id:monumentId});
@@ -458,9 +467,11 @@ router.post('/event-creation',authenticateToken, async (req, res) => {
         eventDate,
         eventTime,
         eventTicketPrice: ticketPrice,
-        description
+        description,
+        audience_type:audienceType,
+        category
       });
-  
+  console.log(audienceType)
       // Save the event to the database
       const savedEvent = await newEvent.save();
   

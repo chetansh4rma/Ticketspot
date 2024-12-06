@@ -98,7 +98,10 @@ timing:{
       type:String
     }
   ],
-  guides:[]
+  guides:[],
+  iframe:{
+    type:String
+  }
 });
 
 // Create a method to increment the booking count for a specific month
@@ -122,6 +125,6 @@ MonumentSchema.methods.incrementBookingCount = function(dateString, count) {
   return this.save(); // Save the updated document
 };
 
-const Agency = mongoose.model('Monument', MonumentSchema);
+const Agency = mongoose.model('Monument1', MonumentSchema);
 
 module.exports = Agency;

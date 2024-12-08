@@ -12,6 +12,7 @@ import LocationForm from './components/LocationForm';
 import useStore from './components/utils/store';
 import Myticket from "./components/myticket"
 import ProductPage from './components/productpage'
+import Profile from './components/profile'
 
 function App() {
   const { isLoactionExist} = useStore()

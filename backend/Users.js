@@ -57,7 +57,7 @@ console.log(req.body);
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
@@ -94,7 +94,7 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
@@ -126,7 +126,7 @@ console.log(req.body)
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
@@ -145,7 +145,6 @@ console.log(req.body)
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  console.log(req,"  ys ",token)
   if (token == null) return res.sendStatus(401); // Unauthorized
   
   
@@ -270,7 +269,7 @@ router.post('/forget-pass', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
@@ -471,7 +470,7 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
   }
 });
 router.get('/mytickets', async (req, res) => {
-  const userId ="6708ab5cef2fed484e6addbd" ; // Assuming req.user is populated by your verifyToken middleware
+  const userId =req.user.userId ; // Assuming req.user is populated by your verifyToken middleware
   try {
     console.log("User ID:", userId); // Log user ID for debugging
     // Find tickets for the logged-in user
@@ -630,11 +629,41 @@ router.get('/show-review', authenticateToken, async (req, res) => {
     res.json({
       reviews: feedbacks,
       total: totalFeedbacks,
+      userId:userId
     });
   } catch (error) {
     res.status(500).json({ message: 'Error fetching feedback data.' });
   }
 });
+
+router.delete('/delete-review', authenticateToken, async (req, res) => {
+  const userId  = req.user.userId; // Feedback ID from URL
+  // const agencyId = req.agency.agencyId; 
+  const  feedId= req.query.feedId
+  try {
+    // Find and delete the feedback
+    const feedback = await Feedback.findOneAndDelete({
+      _id: feedId, // Match the feedback ID
+      userId, // Ensure the feedback belongs to the user
+    });
+
+    if (!feedback) {
+      return res.status(404).json({ error: 'Feedback not found or does not belong to the user' });
+    }
+
+    res.status(200).json({ message: 'Feedback deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting feedback:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+
+
+
+
+// pred Chatbot
 
 
 

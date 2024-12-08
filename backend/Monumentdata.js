@@ -312,7 +312,7 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { agencyId: agency._id,agencyName: agency.agencyName};
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
@@ -352,7 +352,7 @@ router.post('/login', async (req, res) => {
     }
 
     const payload = { agencyId: agency._id,agencyName: agency.agencyName};
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie

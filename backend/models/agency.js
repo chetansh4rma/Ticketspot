@@ -104,26 +104,67 @@ timing:{
   }
 });
 
-// Create a method to increment the booking count for a specific month
-MonumentSchema.methods.incrementBookingCount = function(dateString, count) {
-  // Extract year and month from the date string
-  const date = new Date(dateString);
-  const month = date.toLocaleString('default', { month: 'long' }); // e.g., "October"
-  const year = date.getFullYear(); // e.g., 2024
+// // Create a method to increment the booking count for a specific month
+// MonumentSchema.methods.incrementBookingCount = function(dateString, count) {
+//   // Extract year and month from the date string
+//   const date = new Date(dateString);
+//   const month = date.toLocaleString('default', { month: 'long' }); // e.g., "October"
+//   const year = date.getFullYear(); // e.g., 2024
   
-  // Create the month string in "Month Year" format
-  const monthYear = `${month} ${year}`;
+//   // Create the month string in "Month Year" format
+//   const monthYear = `${month} ${year}`;
 
+//   const existingBooking = this.bookings.find(booking => booking.month === monthYear);
+  
+//   if (existingBooking) {
+//     existingBooking.count += count; // Increment the count by the specified number
+//   } else {
+//     this.bookings.push({ month: monthYear, count }); // Add a new entry for the month with the specified count
+//   }
+  
+//   return this.save(); // Save the updated document
+// };
+
+
+
+MonumentSchema.methods.updateRevenueAndBookings = async function (
+  selectedDate,
+  totalPersons,
+  ticketPrice
+) {
+  // Parse the selected date to "YYYY-MM" format
+  // const date = new Date(selectedDate);
+  // if (isNaN(date)) throw new Error('Invalid date format');
+  // const monthYear = date.toISOString().slice(0, 7); // Extracts "YYYY-MM"
+
+  const [day, month, year] = selectedDate.split('/');
+  const monthYear=`${year}-${month}`;
+
+  // Calculate revenue for this transaction
+  const revenue = totalPersons * ticketPrice;
+
+  // Update total revenue
+  this.totalRevenue += revenue;
+
+  // Check if the month already exists in bookings
   const existingBooking = this.bookings.find(booking => booking.month === monthYear);
-  
   if (existingBooking) {
-    existingBooking.count += count; // Increment the count by the specified number
+    // Increment count and monthlyRevenue
+    existingBooking.count += totalPersons;
+    existingBooking.monthlyRevenue += revenue;
   } else {
-    this.bookings.push({ month: monthYear, count }); // Add a new entry for the month with the specified count
+    // Create a new entry for this month
+    this.bookings.push({
+      month: monthYear,
+      count: totalPersons,
+      monthlyRevenue: revenue,
+    });
   }
-  
-  return this.save(); // Save the updated document
+
+  // Save the updated document
+  await this.save();
 };
+
 
 const Agency = mongoose.model('Monument1', MonumentSchema);
 

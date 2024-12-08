@@ -101,5 +101,13 @@
     color: #999; /* Lighter color for date text */
   }
   
+  .feed-text-trash-cont{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+  }
 
-
+.ev-show-del{
+  cursor:pointer;
+}

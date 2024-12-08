@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser } from '@fortawesome/free-solid-svg-icons';
+import { faUser,faTrash } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import './css/Feedback.css';
 
@@ -23,7 +23,7 @@ const Feedback = ({id}) => {
       
       // If the current page is 1, reset the feedback data; otherwise, append the new feedbacks
       setFeedbackData((prevData) => (page === 1 ? response.data.reviews : [...prevData, ...response.data.reviews]));
-      
+      setMyId(response.data.userId)
       setTotalFeedbacks(response.data.total); // Total feedbacks count from response
       setVisibleComments((prev) => [...prev, ...Array(response.data.reviews.length).fill(false)]); // Initialize visibility state
       setHasMore((page * limit) < response.data.total); // Check if there are more feedbacks
@@ -48,6 +48,21 @@ const Feedback = ({id}) => {
     fetchFeedbackData(); // Fetch feedback data when component mounts or page changes
   }, [currentPage]); // Remove loadCount from dependencies
 
+  const handleDelete = async (feedId) => {
+    console.log(feedId)
+    const confirmed = window.confirm("Are you sure you want to delete this event?");
+    if (confirmed) {
+      try {
+        await axios.delete(`${process.env.REACT_APP_BACK_URL}/api/auth/delete-review?feedId=${feedId}`,{withCredentials:true}); // Adjust the API endpoint for deletion
+        setFeedbackData(feedbackData.filter(feed => feed._id !== feedId));
+
+        alert("Reveiw deleted successfully");
+      } catch (error) {
+        console.error("Error deleting event", error);
+      }
+    }
+  };
+
   return (
     <div>
     <div className="feedback-list">
@@ -64,7 +79,7 @@ const Feedback = ({id}) => {
           <div className="feed-pro-cont">
              <FontAwesomeIcon icon={faUser} />
           </div>
-            <h5>{userName}</h5>
+            <h5>{userName}{myId===feedback.userId?'(Me)':''}</h5>
             </div>
 
               <div className='feed-rating'>
@@ -80,7 +95,12 @@ const Feedback = ({id}) => {
                 {showFullComment ? 'Show Less' : 'Show More'}
               </button>
               <div className='feed-line'></div>
+              <div className='feed-text-trash-cont'>
               <p className="feed-text-muted ">Created At: {new Date(createdAt).toLocaleDateString()}</p>
+              {myId===feedback.userId &&<div className="ev-show-del" onClick={()=>{handleDelete(feedback._id)}}>
+                 <FontAwesomeIcon icon={faTrash} size="lg"  className='trash'/>
+              </div>}
+              </div>
             </div>
           </div>
         );

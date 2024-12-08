@@ -12,6 +12,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import EventCreation from './components/EventCreation';
 import EventShow from './components/EventShow';
 import ToggleComponent from './components/ToggleComponent';
+import QRScanner from './components/scanTicket/QRScanner';
 
 function App() {
   const { isLoactionExist} = useStore()
@@ -28,7 +29,7 @@ function App() {
       <Route path="/show-competitor" element={<PrivateRoute element={ShowCompete} />} />
        */}
        
-      
+       <Route path="/ticket-scan" element={<PrivateRoute element={QRScanner} />} />
 
       
       {/* Public routes for Login and Register, but hide them if authenticated */}

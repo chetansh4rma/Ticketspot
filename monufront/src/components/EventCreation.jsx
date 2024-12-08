@@ -240,8 +240,8 @@ const EventCreation = () => {
 
   return (
     <div className="create-event-container">
-      <h1>Manage Monument</h1>
-      <p>Add Monument in the System</p>
+      <h1>Manage Museum</h1>
+      <p>Add Museum in the System</p>
       <form onSubmit={handleSubmit} className="event-creation-form">
         {/* Event Name */}
         <div className="event-creation-form-group">

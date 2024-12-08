@@ -81,7 +81,7 @@
 
 import React, { useState } from "react";
 import axios from "axios";
-import Logo from './assets/logo.jpg'
+import Logo from './assets/LogoTicketspott.png';
 import { useNavigate, Link } from "react-router-dom";
 import OTPInput from "./OTPInput";
 

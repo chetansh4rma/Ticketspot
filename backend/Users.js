@@ -8,12 +8,15 @@ const {User,Otp} = require('./models/user');
 const router = express.Router();
 const cors=require("cors")
 const nodemailer=require('nodemailer')
+const mongoose = require('mongoose');
+
 const dotenv = require('dotenv');
 const Event=require("./models/event");
 const Ticket=require("./models/tickets");
 const Monument=require("./models/agency")
 const Feedback=require("./models/feedback")
 const axios=require("axios");
+const Agency = require('./models/agency');
 
 dotenv.config();
 
@@ -377,89 +380,62 @@ router.post('/buy-ticket',authenticateToken, async (req, res) => {
 
 /// Search Monument by Name
 router.get('/search-monuments/:name', async (req, res) => {
+  console.log("hello world");
   const { name } = req.params; // Get the name from the request parameters
   const { region, priceRange, category } = req.query; // Get additional filters from query parameters
-console.log(req.query);
+  console.log(req.query);
   console.log(`Searching for monuments with name starting with: ${name}`);
-  
+
   try {
     // Create a regex pattern that matches the input as a prefix
     const regex = new RegExp('^' + name, 'i'); // Starts with the input, case-insensitive
 
-    // Build the query for filtering
+    // Build the query for filtering based only on the regex and provided query parameters
     const query = {
-      MonumentName: { $regex: regex },
+      MonumentName: { $regex: regex }
     };
 
-    // Add region filter if provided
-    if (region) {
-      query['region'] = region; // Assuming 'region' is a field in your Monument model
-    }
+    // Fetch monuments based only on the query
+    const monuments = await Monument.find(query);
 
-    // Add category filter if provided
-    if (category) {
-      query['category'] = category; // Assuming 'category' is a field in your Monument model
-    }
-
-    // Fetch monuments based on the built query
-    let monuments = await Monument.find(query);
-
-    if (monuments.length === 0) {
-      return res.status(404).json({ msg: 'No monuments found for the specified name' });
-    }
-
-    // Implement price filtering if priceRange is provided
-    if (priceRange) {
-      const maxPrice = parseInt(priceRange, 10);
-      monuments = monuments.filter(monument => monument.price <= maxPrice); // Assuming 'price' is a field in your Monument model
-    }
-
-    // Get the category of the first monument found
-    const categoryResults = monuments.length > 0 ? monuments[0].category : null;
-
-    // Find other monuments from the same category if applicable
-    if (categoryResults) {
-      const monumentsByCategory = await Monument.find({ category: categoryResults });
-      // Combine the original search results with the category-based results
-      monuments = [...monuments, ...monumentsByCategory];
-    }
-
-    res.status(200).json({ success: true, total: monuments });
+    // Respond directly with the found monuments
+    res.status(200).json({ monuments });
   } catch (err) {
     console.error(err.message);
     res.status(500).json({ msg: 'Server error' });
   }
 });
-// Existing imports and setup...
+
 router.get('/Recommend', authenticateToken, async (req, res) => {
   const userId = req.user.userId; // Get userId from decoded token
-
+  console.log("mytoken", userId);
+  
   try {
-    const tickets = await Ticket.find({ userId }).populate('eventId', 'MonumentName'); // Assuming eventId contains the MonumentName
-    // Fetch tickets for the user
-
-    // Check if any tickets were found
+    const tickets = await Ticket.find({ userId }).populate("_id", 'MonumentName'); 
+    console.log("tickets",tickets);
+    // // Check if any tickets were found
     if (tickets.length === 0) {
       // Fetch random 6 monuments when no tickets are found
-      const randomMonuments = await Monument.aggregate([{ $sample: { size: 6 } }]);
+      const randomMonuments = await Agency.aggregate([{ $sample: { size: 6 } }]);
       return res.json(randomMonuments); // Send the random monuments back to the client
     }
 
     // Extract the first monument name from tickets
-    const firstMonumentName = tickets[0].eventId.MonumentName || "Golden Temple"; // Get the first ticket's monument name or set default
-    console.log("first", firstMonumentName);
-
-    // Send data to the recommendation API with the first monument name
+    const ticketsdata = tickets[0].MonumentId // Use MonumentName from populated data
+    const place = await Agency.findById(ticketsdata);
+    userplace=place._id;
+    // // Send data to the recommendation API with the first monument name
     const response = await axios.post('http://127.0.0.1:5000/recommend', {
       user_id: userId,
-      place: firstMonumentName // Pass the first monument name
+      place: userplace 
     });
+    console.log("response",response)
 
     // Get the recommendations from the response
     const recommendations = response.data.recommendations; // Assuming this structure
 
     // Fetch monument details based on the recommendations
-    const monumentDetails = await Monument.find({ _id: { $in: recommendations } });
+    const monumentDetails = await Agency.find({ _id: { $in: recommendations } });
 
     // Send the monument details back to the client
     console.log(monumentDetails);
@@ -469,6 +445,7 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Error fetching user tickets' });
   }
 });
+
 router.get('/mytickets', async (req, res) => {
   const userId =req.user.userId ; // Assuming req.user is populated by your verifyToken middleware
   try {

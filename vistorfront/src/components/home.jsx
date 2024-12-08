@@ -8,6 +8,7 @@ import axios from 'axios';
 import worldImg from './assets/world.png';
 import heroImg from './assets/museum1.jpg';
 import heroImg02 from './assets/hero-img02.jpg';
+import Chatbot from "./chatbot.js"
 import heroVideo from './assets/hero-video.mp4';
 import experienceImg from './assets/experience.png';
 import Subtitle from '../shared/subtitle.jsx';
@@ -19,7 +20,7 @@ import placeholderImg3 from './assets/museum3.jpg';
 import placeholderImg4 from './assets/museum4.jpg';
 import placeholderImg5 from './assets/museum5.jpg';
 import placeholderImg6 from './assets/museum6.jpeg';
-import Chatbot from './chatbot.js';
+
 const Home = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
@@ -44,6 +45,7 @@ const Home = () => {
         const response = await axios.get(`http://localhost:5000/api/auth/Recommend/`, {
           withCredentials: true
         });
+        console.log(response);
         setRecommendedPlaces(response.data.length > 0 ? response.data : placeholderData);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -117,7 +119,7 @@ const Home = () => {
       </section>
 
 
-      <section className="recommended-places">
+    <section className="recommended-places">
         <Container>
           <Row>
             <Col lg="12" className="mb-5">

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BotIcon, X, Send, Home, Info, Calendar, Users, User, Mic } from 'lucide-react';
+import { BotIcon, X, Send, Home, Info, Calendar, Users, User, Mic, MapPin, Clock, Ticket } from 'lucide-react';
 import axios from "axios";
 import './css/Chatbot.css';
 
@@ -18,16 +18,73 @@ const IconButton = ({ icon: Icon, label, onClick }) => (
   </motion.button>
 );
 
-const LoadMoreButton = ({ onClick }) => (
-  <motion.button
-    className="load-more-button"
-    onClick={onClick}
-    whileHover={{ scale: 1.05 }}
-    whileTap={{ scale: 0.95 }}
-  >
-    Load More
-  </motion.button>
-);
+
+const EventCard = ({ event }) => {
+  const handleCardClick = () => {
+    window.open(`${window.location.origin}/product/${event.MonumentId}`, '_blank');
+  };
+
+  return (
+    <div className="event-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="event-card-header">
+        <h2>{event.eventName}</h2>
+        <span className="event-price">₹{event.eventTicketPrice}</span>
+      </div>
+      <div className="event-card-content">
+        <p className="event-description">{event.description}</p>
+        <div className="event-details">
+          <div className="event-detail">
+            <Ticket size={16} />
+            <span>{event.eventTotalTicketsAvailable} available</span>
+          </div>
+        </div>
+      </div>
+      <div className="event-card-footer">
+        <div className="event-date-time">
+          <Calendar size={16} />
+          <span>{new Date(event.eventDate).toLocaleDateString()}</span>
+        </div>
+        <div className="event-date-time">
+          <Clock size={16} />
+          <span>{event.eventTime}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
+const EventCardTamil = ({ event }) => {
+  const handleCardClick = () => {
+    window.open(`${window.location.origin}/product/${event.MonumentId}`, '_blank');
+  };
+
+  return (
+    <div className="event-card" onClick={handleCardClick} style={{ cursor: 'pointer' }}>
+      <div className="event-card-header">
+        <h2>{event.eventName.text}</h2>
+        <span className="event-price">₹{event.eventTicketPrice}</span>
+      </div>
+      <div className="event-card-content">
+        <p className="event-description">{event.description.text}</p>
+        <div className="event-details">
+          <div className="event-detail">
+            <Ticket size={16} />
+            <span>{event.eventTotalTicketsAvailable} available</span>
+          </div>
+        </div>
+      </div>
+  <div className="event-card-footer">
+  <div className="event-date-time" style={{ display: 'flex', alignItems: 'center' }}>
+    <Calendar size={16} />
+    <span style={{ marginLeft: '8px' }}>{new Date(event.eventDate).toLocaleDateString()}</span>
+  </div>
+        <div className="event-date-time">
+          <Clock size={16} />
+          <span>{event.eventTime.text}</span>
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +103,7 @@ export default function Chatbot() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
   useEffect(() => {
     setTimeout(() => {
       setIsOpen(true)
@@ -65,7 +123,23 @@ export default function Chatbot() {
   const addUserMessage = (text) => {
     setMessages((prev) => [...prev, { text, sender: 'user' }]);
   };
-
+const Soloevents=async()=>{
+  try {
+    addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>)
+    const res = await axios.get("http://localhost:5000/fetchmuseumSoloevents");
+    if (res.data && res.data.length > 0) {
+      addBotMessage("Here are the upcoming events:");
+      res.data.forEach((event) => {
+        addBotMessage(<EventCard event={event} />);
+      });
+    } else {
+      addBotMessage("Sorry, I couldn't find any events at the moment.");
+    }
+  } catch (error) {
+    console.error("Error fetching solo events:", error);
+    addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+  }
+}
   const fetchApiResponse = async (input) => {
     addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
     try {
@@ -73,7 +147,7 @@ export default function Chatbot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZCcs78pOvDkDp2yFplfrhG9_l3-Cap5GpkZomdtuz2AhcPnn5alyyEBlwuhgBHoBaXa7fvYx-zG0NEFRWrIEEYeuWi1RICZ07wnMQqAvc_jfxvZH8eWgNy3XmCPcSWTm1-xcAwB3DWL5zq6nLNtOSPo2QfK-Rt9SfgT3g24a2tWIZrCLW4sF2MtKYJ_MtF3W_oEJATpc8nj2l9DjVw5JOfymY0Rl6U7xLWN6AtOkRPwVlXNImKMW5xQqp-KZIFE_6YVtEQ9JO7iUjV8bmjVw7Kh_WbWy6scYSygne6JmGzk9uBuvCpE5ucn7upXc9P-Bx8EiDKWVhvqlsNCUsDyxWXoUI02udDOzS33mne4bjLL7lC_YanBw20ISvRfwYZNDQTmjWS3CRXdVb8p-jrE6aHvKSqcFvgTzudLqRAPeQaCgYKARASARMSFQHGX2MiPgy68-XWGJyCUspJKXANRg0437`,
+          Authorization: `Bearer ya29.a0AeDClZCH1fDqnKfHCMcNQoByyh-2iXH6A_R8HHK4smOUL6On-0VuXd3Yh4hIYPidPF7Hq03Lae-AmYSrtTCKgWcmwSGvofm0OaEoQF925xhrYY-Txw0CTFXtL6Ca1p3ljbpuvJYYDMsU20-PfL8Gjnx0xWb1R-it0ECYwNNHEVIu7ALQfhyEbI3nSAmKaxelz90REoIzVpU2NhIacYJYHMdUPIIuQsdjRYhuVBTwGs_HEoNu6NkWwCteEXRvl0SdkklCejJcUS8uTy9_s3tbkUHMO00EJ75tFSGVF-JWutLUfMSsRlj8SjaQk-ahFxEN5UEyffR5X52E80lQ5K6I-tQYivB6eMStdkCnSQLnhSG2lvesdnqa3l3XdnmEvEVlChfqC3noalXoGARHaJIQ4kKriqt2ckhF2QWkXaT1PfS0aCgYKAU8SARMSFQHGX2Mi47WcdjSGHAhWzuzqNpX2Cw0435`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -99,165 +173,173 @@ export default function Chatbot() {
         switch (Intent) {
           case "greeting":
 
-            break;
+          break;
 
-          case "family_events":
-            try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentName, MonumentId } = event.monument;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${MonumentId}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentName}
-                  </button>
-                );
+        case "family_events":
+          familyevents();
+          break;
+        case "family_events_tamil":
+          try {
+            addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>)
+            const res = await axios.get("http://localhost:5000/fetchmuseumfamilyeventstamil");
+            console.log(res.data[0]);
+            if (res.data && res.data.length > 0) {
+              addBotMessage("Here are the upcoming events:");
+              res.data.map((event) => {
+                console.log(event);
+                addBotMessage(<EventCardTamil event={event} />);
               });
-            } catch (error) {
-              console.error("Error fetching family events:", error);
-              addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+            } else {
+              addBotMessage("Sorry, I couldn't find any events at the moment.");
             }
-            break;
-          case "family_events_tamil":
-            try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentNameTamil, MonumentId } = event.monument;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${MonumentId}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentNameTamil}
-                  </button>
-                );
+          } catch (error) {
+            console.error("Error fetching family events:", error);
+            addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+          }
+          break;
+        case "cheap_places_tamil":
+          try {
+            addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+            const res = await axios.get("http://localhost:5000/fetchmuseumcheapplacetamil");
+            console.log("Res", res);
+            if (res.data && res.data.length > 0) {
+              addBotMessage("Here are the upcoming events:");
+              res.data.map((event) => {
+                console.log(event);
+                addBotMessage(<EventCardTamil event={event} />);
               });
-            } catch (error) {
-              console.error("Error fetching family events:", error);
-              addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+            } else {
+              addBotMessage("Sorry, I couldn't find any events at the moment.");
             }
-            break;
-          case "cheap_places_tamil":
-            try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumcheapplacetamil");
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentNameTamil, _id } = event.monument;
-
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentNameTamil}
-                  </button>
-                );
+          } catch (error) {
+            console.error("Error fetching Student events:", error);
+            addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+          }
+          break;
+        case "solotravel":
+          Soloevents();
+          break;
+        case "PlaceToVisitIntent":
+          addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+          const Place = data.queryResult.parameters.place;
+          console.log("Place", Place)
+          try {
+            addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+            const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
+            console.log("Res", res);
+            res.data.forEach((event) => {
+              const { MonumentName, _id } = event;
+              addBotMessage(
+                <button
+                onClick={() => window.open(`http://localhost:3000/${_id}`, '_blank')}
+                  className="redirect-button"
+                >
+                  Visit {MonumentName}
+                </button>
+              );
+            });
+          } catch (error) {
+            console.error("Error fetching solo events:", error);
+            addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+          }
+          break;
+        case "DefaultFallbackIntent":
+          try {
+            addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+            console.log("Hello world");
+            const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
+            if (res.data && res.data.length > 0) {
+              addBotMessage("Here are the upcoming events:");
+              res.data.map((event) => {
+                console.log(event);
+                addBotMessage(<EventCard event={event} />);
               });
-            } catch (error) {
-              console.error("Error fetching Student events:", error);
-              addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+            } else {
+              addBotMessage("Sorry, I couldn't find any events at the moment.");
             }
-            break;
-          case "solotravel":
-            try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumSoloevents");
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event.monument;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentName}
-                  </button>
-                );
+          } catch (error) {
+            console.error("Error fetching  events:", error);
+            addBotMessage("Sorry, I couldn't fetch the events at the moment.");
+          }
+          break;
+        case "student_event_tamil":
+          try {
+            addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+            const res = await axios.get("http://localhost:5000/fetchmuseumStudenteventstamil");
+            console.log("Res", res);
+            if (res.data && res.data.length > 0) {
+              addBotMessage("Here are the upcoming events:");
+              res.data.map((event) => {
+                console.log(event);
+                addBotMessage(<EventCardTamil event={event} />);
               });
-            } catch (error) {
-              console.error("Error fetching solo events:", error);
-              addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
+            } else {
+              addBotMessage("Sorry, I couldn't find any events at the moment.");
             }
-            break;
-          case "PlaceToVisitIntent":
-            const Place = data.queryResult.parameters.place;
-            console.log("Place", Place)
-            try {
-              const res = await axios.get(`http://localhost:5000/fetchmuseumfromplace/${Place}`);
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentName}
-                  </button>
-                );
-              });
-            } catch (error) {
-              console.error("Error fetching solo events:", error);
-              addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
-            }
-            break;
-          case "DefaultFallbackIntent":
-            try {
-
-              console.log("Hello world");
-              const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentName}
-                  </button>
-                );
-              });
-            } catch (error) {
-              console.error("Error fetching  events:", error);
-              addBotMessage("Sorry, I couldn't fetch the events at the moment.");
-            }
-            break;
-          case "student_event_tamil":
-            try {
-              const res = await axios.get("http://localhost:5000/fetchmuseumStudenteventstamil");
-              console.log("Res", res);
-              res.data.forEach((event) => {
-                const { MonumentNameTamil, _id } = event.monument;
-                addBotMessage(
-                  <button
-                    onClick={() => window.location.href = `http://localhost:3000/${_id}`}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentNameTamil}
-                  </button>
-                );
-              });
-            } catch (error) {
-              console.error("Error fetching Student events:", error);
-              addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
-            }
-            break;
-          default:
-        }
-
-        if (data.queryResult.fulfillmentText) {
-          addBotMessage(data.queryResult.fulfillmentText);
-        }
-      } else {
-        addBotMessage('Sorry, I could not understand that.');
+          } catch (error) {
+            console.error("Error fetching Student events:", error);
+            addBotMessage("Sorry, I couldn't fetch the Student events at the moment.");
+          }
+          break;
+        default:
       }
-    } catch (error) {
+
+      if (data.queryResult.fulfillmentText) {
+        addBotMessage(data.queryResult.fulfillmentText);
+      }
+    } else {
+      addBotMessage('Sorry, I could not understand that.');
+    }
+  }catch (error) {
       console.error('Error fetching API response:', error);
       addBotMessage('I apologize, but there seems to be a technical issue. Please try again later.');
+    }
+  };
+const familyevents=async()=>{
+  try {
+    addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+    const res = await axios.get("http://localhost:5000/fetchmuseumfamilyevents");
+    if (res.data && res.data.length > 0) {
+      addBotMessage("Here are the upcoming events:");
+      res.data.forEach((event) => {
+        addBotMessage(<EventCard event={event} />);
+      });
+    } else {
+      addBotMessage("Sorry, I couldn't find any events at the moment.");
+    }
+  } catch (error) {
+    console.error("Error fetching family events:", error);
+    addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
+  }
+}
+const Infos=()=>{
+  const termsAndConditions = `
+  Terms and Conditions for Ticketspot Booking:
+
+  1. Tickets are valid only for the selected date and are non-refundable.
+  2. Visitors are responsible for their safety; TicketSpot is not liable for accidents.
+  3. Minors must be accompanied by an adult at all times.
+  4. Adhere to museum rules; misconduct may lead to expulsion.
+  5. Changes in schedules due to unforeseen events are beyond our control.
+`;
+addBotMessage(termsAndConditions);
+}
+  const handleEvents = async () => {
+    try {
+      addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
+      const res = await axios.post("http://localhost:5000/events");
+      console.log("Events:", res.data);
+      if (res.data && res.data.length > 0) {
+        addBotMessage("Here are the upcoming events:");
+        res.data.forEach((event) => {
+          addBotMessage(<EventCard event={event} />);
+        });
+      } else {
+        addBotMessage("Sorry, I couldn't find any events at the moment.");
+      }
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      addBotMessage("Sorry, I couldn't fetch the events at the moment.");
     }
   };
 
@@ -311,7 +393,6 @@ export default function Chatbot() {
 
   return (
     <>
-
       <motion.div
         className="chatbot-icon"
         onClick={() => setIsOpen(true)}
@@ -340,10 +421,10 @@ export default function Chatbot() {
             </div>
             <div className="chatbot-icons">
               <IconButton icon={Home} label="Home" onClick={() => handleIconClick("greeting")} />
-              <IconButton icon={Info} label="Info" onClick={() => handleIconClick("info")} />
-              <IconButton icon={Calendar} label="Events" onClick={() => handleIconClick("events")} />
-              <IconButton icon={Users} label="Family" onClick={() => handleIconClick("family_events")} />
-              <IconButton icon={User} label="Solo" onClick={() => handleIconClick("solotravel")} />
+              <IconButton icon={Info} label="Info" onClick={() => Infos()} />
+              <IconButton icon={Calendar} label="Events" onClick={() => handleEvents()} />
+              <IconButton icon={Users} label="Family" onClick={() => familyevents()} />
+              <IconButton icon={User} label="Solo" onClick={() => Soloevents() }/>
             </div>
             <div className="chatbot-messages">
               <AnimatePresence>
@@ -408,3 +489,4 @@ export default function Chatbot() {
     </>
   );
 }
+

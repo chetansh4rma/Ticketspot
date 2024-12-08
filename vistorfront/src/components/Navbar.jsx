@@ -1,21 +1,11 @@
-import React, { useState } from 'react';
-import {
-  AppBar,
-  Box,
-  Toolbar,
-  IconButton,
-  Typography,
-  Container,
-  Button,
-  Tooltip,
-  useScrollTrigger,
-  Slide,
-} from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
+import axios from 'axios';
 import HomeIcon from '@mui/icons-material/Home';
 import InfoIcon from '@mui/icons-material/Info';
 import ExploreIcon from '@mui/icons-material/Explore';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
+import SearchIcon from '@mui/icons-material/Search';
 import Logo from './assets/LogoTicketspott.png';
 import './css/navbar.css';
 
@@ -25,77 +15,107 @@ const pages = [
   { label: 'Explore', path: '/explore', icon: <ExploreIcon /> },
 ];
 
-function HideOnScroll(props) {
-  const { children } = props;
-  const trigger = useScrollTrigger();
-
-  return (
-    <Slide appear={false} direction="down" in={!trigger}>
-      {children}
-    </Slide>
-  );
-}
-
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [autocompleteResults, setAutocompleteResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
-  const handleProfileClick = () => {
-    navigate('/profile');
+  useEffect(() => {
+    const fetchAutocomplete = async () => {
+      if (searchQuery.trim().length === 0) {
+        setAutocompleteResults([]);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const response = await axios.get(`${process.env.REACT_APP_BACK_URL}/api/auth/search-monuments/${searchQuery}`);
+        setAutocompleteResults(response.data.monuments || []);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error fetching autocomplete results:', error);
+        setLoading(false);
+      }
+    };
+
+    const debounceTimer = setTimeout(() => fetchAutocomplete(), 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
+
+  const handleSearchChange = (e) => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleAutocompleteSelect = (monument) => {
+    navigate(`/search?search=${encodeURIComponent(monument.MonumentName)}`);
+    setSearchQuery('');
+    setAutocompleteResults([]);
+  };
+  
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/museums?search=${encodeURIComponent(searchQuery)}`);
+    }
   };
 
   return (
-    <HideOnScroll>
-      <AppBar position="static" className="header" sx={{ boxShadow: 'none', backgroundColor: 'transparent' }}>
-        <Container maxWidth="xl">
-          <Toolbar disableGutters className="nav__wrapper">
-            <Typography
-              variant="h6"
-              noWrap
-              component={Link}
-              to="/"
-              sx={{
-                flexGrow: 1,
-                display: 'flex',
-                alignItems: 'center',
-                textDecoration: 'none',
-                color: 'var(--heading-color)',
-              }}
+    <header className="navbar">
+      <div className="navbar-container">
+        <Link to="/" className="navbar-logo">
+          <img src={Logo} alt="Logo" className="logo-img" />
+        </Link>
+
+        <form onSubmit={handleSearchSubmit} className="navbar-search">
+          <div className="navbar-search-container">
+            <input
+              type="text"
+              placeholder="Search museums..."
+              value={searchQuery}
+              onChange={handleSearchChange}
+              className="navbar-search-input"
+            />
+            {loading && <div className="loading-indicator">Loading...</div>}
+            {autocompleteResults.length > 0 && (
+              <ul className="navbar-autocomplete-results">
+                {autocompleteResults.map((monument) => (
+                  <li
+                    key={monument._id}
+                    onClick={() => handleAutocompleteSelect(monument)}
+                    className="navbar-autocomplete-item"
+                  >
+                    {monument.MonumentName}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          <button type="submit" className="navbar-search-button">
+            <SearchIcon />
+          </button>
+        </form>
+
+        <nav className="navbar-menu">
+          {pages.map((page) => (
+            <Link
+              key={page.label}
+              to={page.path}
+              className={`navbar-item ${location.pathname === page.path ? 'navbar-item-active' : ''}`}
             >
-              <img src={Logo} alt="Logo" className="logo-img" />
-            </Typography>
+              {page.icon}
+              <span className="navbar-item-label">{page.label}</span>
+            </Link>
+          ))}
 
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              {pages.map((page) => (
-                <Button
-                  key={page.label}
-                  component={Link}
-                  to={page.path}
-                  className={`nav__item ${location.pathname === page.path ? 'active__link' : ''}`}
-                  sx={{
-                    my: 2,
-                    color: 'var(--heading-color)',
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  {page.icon}
-                  <Typography sx={{ ml: 1, display: { md: 'block' } }}>{page.label}</Typography>
-                </Button>
-              ))}
-
-              <Box sx={{ flexGrow: 0, ml: 2 }}>
-                <Tooltip title="Go to Profile">
-                  <IconButton onClick={handleProfileClick} sx={{ p: 0 }}>
-                    <AccountCircleIcon sx={{ color: 'var(--secondary-color)', fontSize: 40 }} />
-                  </IconButton>
-                </Tooltip>
-              </Box>
-            </Box>
-          </Toolbar>
-        </Container>
-      </AppBar>
-    </HideOnScroll>
+          <button onClick={() => navigate('/profile')} className="navbar-profile">
+            <AccountCircleIcon />
+          </button>
+        </nav>
+      </div>
+    </header>
   );
 };
 

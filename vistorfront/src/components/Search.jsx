@@ -1,123 +1,89 @@
-import React, { useState } from 'react';
-import axios from 'axios'; // Import axios
-import './css/search.css'; // Assuming you have a CSS file for styling
-import { useNavigate } from 'react-router-dom';
-import Chatbot from "./chatbot";
-const SearchPage = () => {
+import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
+import Navbar from "./Navbar";
+import Footer from "./footer";
+import { useNavigate, Link } from 'react-router-dom';
+import axios from 'axios';
+import './css/search.css';
+
+const Museums = () => {
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const searchQuery = searchParams.get('search');
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [priceRange, setPriceRange] = useState('');
-  const [region, setRegion] = useState('');
-  const [results, setResults] = useState([]); // Store search results
-  const [error, setError] = useState(''); // Store errors
-  const [showBot, setShowBot] = useState(false); // State to control bot visibility
-  const [placeData, setPlaceData] = useState({ name: '', id: null }); // State to hold place data
-  const [toggle, setToggle] = useState(false);
-  const punjabCities = [
-    "Amritsar",
-    "Ludhiana",
-    "Chandigarh",
-    "Jalandhar",
-    "Patiala",
-    "Mohali",
-    "Bathinda",
-    "Hoshiarpur",
-    "Ferozepur",
-    "Moga",
-    "Nawanshahr",
-    "Rupnagar",
-    "Faridkot",
-    "Fatehgarh Sahib",
-    "Sangrur",
-    "Kapurthala",
-    "Barnala",
-    "Tarn Taran",
-    "Pathankot",
-    "Gurdaspur",
-    "Zira"
-  ];
+  const [monuments, setMonuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [filters, setFilters] = useState({
+    region: '',
+    priceRange: '',
+    category: ''
+  });
 
-  const handleSearch = async () => {
-    try {
-      setError(''); // Clear previous errors
-      console.log(`Searching for: ${searchTerm} in ${region} with price up to ${priceRange}`);
+  useEffect(() => {
+    const fetchMonuments = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${process.env.REACT_APP_BACK_URL}/api/auth/search-monuments/${searchQuery}`, {
+          params: filters
+        });
+        setMonuments(response.data.monuments);
+        setLoading(false);
+      } catch (err) {
+        setError(err.response?.data?.msg || 'Failed to fetch monuments. Please try again.');
+        setLoading(false);
+      }
+    };
 
-      // Correctly pass query parameters
-      const { data } = await axios.get(`http://localhost:5000/api/auth/search-monuments/${searchTerm}`, {
-        params: { region, priceRange }, // Send region and priceRange as query parameters
-      });
-
-      setResults(data.total); // Assuming the response has a 'total' array
-      console.log(data); // Check the structure of the response in the console
-    } catch (error) {
-      console.error('Error fetching search results:', error);
-      setError('Failed to fetch search results. Please try again.'); // Display an error message to the user
+    if (searchQuery) {
+      fetchMonuments();
     }
+  }, [searchQuery, filters]);
+
+  const Book=(MonumentId)=>{
+    navigate(`/product/${MonumentId}`);
+  }
+  const handleFilterChange = (e) => {
+    setFilters({ ...filters, [e.target.name]: e.target.value });
   };
-  const handlePlaceClick = (place) => {
-    setPlaceData({ name: place.MonumentName, id: place._id });  // Set place data
-    setToggle(true);  // Show the chatbot
-  };
-  const handleCloseChatbot = () => {
-    setToggle(false);  // Hide the chatbot
-    setPlaceData({ name: '', id: null });
-    console.log("hello")
-  };
-  const handleResultClick = () => {
-    setShowBot(!showBot); // Show the bot when a result is clicked
-  };
+
+  if (loading) {
+    return <div className="museums-loading">Loading...</div>;
+  }
+
+  if (error) {
+    return <div className="museums-error">{error}</div>;
+  }
 
   return (
-    <div className="search-page">
-      <div className="filters">
-       <br></br>
-        <input
-          type="text"
-          placeholder="Search..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="search-input"
-        />
-        <button onClick={handleSearch} className="search-button">Search</button>
-        
-        <select value={priceRange} onChange={(e) => setPriceRange(e.target.value)} className="filter-select">
-          <option value="">Price Range</option>
-          <option value="100">Up to $100</option>
-          <option value="200">Up to $200</option>
-          <option value="300">Up to $300</option>
-        </select>
-
-        <select value={region} onChange={(e) => setRegion(e.target.value)} className="filter-select">
-          <option value="">Select City</option>
-          {punjabCities.map((city) => (
-            <option key={city} value={city}>{city}</option>
-          ))}
-        </select>
-      </div>
-
-      {/* Iframe for Dialogflow Bot */}
-      {toggle && <Chatbot placeData={placeData} handleCloseChatbot={handleCloseChatbot}/>} 
-
-      <div className={`results-container ${showBot ? 'blur' : ''}`}>
-        {error && <p className="error-message">{error}</p>} {/* Display error message if there's an error */}  
-        {results.length > 0 ? (
-          results.map(item => (
-            <button key={item._id} className="result" onClick={()=>{handlePlaceClick(item)}}>
-              <img src={item.MonumentImage} alt={item.MonumentName} className="result-image" />
-              <div className="result-description">
-                <h4>{item.MonumentName}</h4>
-                <p>Address: {item.address.street}, {item.address.city}, {item.address.state}, {item.address.zipCode}</p>
-                <p>Contact: {item.contactNumber}</p>
-                <p>Email: {item.email}</p>
+    <>
+    <Navbar/>
+    <div className="museums-container">
+      <h3 className="museums-title">Search Results for "{searchQuery}"</h3>
+      {monuments.length === 0 ? (
+        <div className="no-results">No monuments found for the specified criteria.</div>
+      ) : (
+        <div className="museums-grid">
+          {monuments.map((monument) => (
+            <div key={monument._id} className="museum-card">
+              <img src={monument.imageUrl[0]} alt={monument.MonumentName} className="museum-image" />
+              <div className="museum-info">
+                <h2 className="museum-name">{monument.MonumentName}</h2>
+                <p className="museum-location">{`${monument.location.city}, ${monument.location.state}`}</p>
+                <p className="museum-timing">{monument.timing}</p>
+                <p className="museum-price">Ticket Price: ₹{monument.ticketPrice}</p>
+                <p className="museum-availability">Available Tickets: {monument.totalAvailableTicket}</p>
+                <p className="museum-category">Category: {monument.category}</p>
+                <button className="book-button" onClick={()=>Book(monument._id)}>Book Now</button>
               </div>
-            </button>
-          ))
-        ) : (
-          <p>No results found</p>
-        )}
-      </div>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+    <Footer/>
+    </>
   );
 };
 
-export default SearchPage;
+export default Museums;

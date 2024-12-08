@@ -29,57 +29,26 @@ const UserSchema = new mongoose.Schema({
 
 myTickets: [{
   type: mongoose.Schema.Types.ObjectId,
-  ref: 'Ticket' // Reference to the Ticket model
+  ref: 'Ticket' 
 }],
-  // myTickets: [{ // Field to store user's tickets
-  //   ticketId: { // Assuming tickets have a unique identifier
-  //     type: String, // or you can change it to ObjectId if you want
-  //     required: true,
-  //     unique: true, // Ensures each ticketId is unique
-  //   },
-  //   ticketNo: { // Assuming tickets have a unique identifier
-  //     type: String, // or you can change it to ObjectId if you want
-  //     required: true,
-  //     unique: true, // Ensures each ticketId is unique
-  //   },
-  //   purchasedAt: {
-  //     type: Date,
-  //     default: Date.now, // Timestamp of when the ticket was purchased
-  //   },
-  //   price:{
-  //     type: Number,
-  //     default:0
-  //   },
-  //   ExpirationDate:{
-  //     type:Date,
-  //     required:true
-  //   }
-  // }],
-  location: { // Field to store user address details
+  location: { 
     street: {
       type: String,
-      // required: true, // Assuming street is required
     },
     city: {
       type: String,
-      // required: true, // Assuming city is required
     },
     state: {
       type: String,
-      // required: true, // Assuming state is required
     },
     zipCode: {
       type: String,
-      // required: true, // Assuming zip code is required
     },
     country: {
       type: String,
-      // required: true, // Assuming country is required
     },
   },
 });
-
-// Hash password before saving
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -88,12 +57,10 @@ UserSchema.pre('save', async function (next) {
 });
 
 const User = mongoose.model('User', UserSchema);
-
-// OTP schema definition
 const OtpSchema = new mongoose.Schema({
   email: { type: String, required: true },
   otp: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now(), expires: 300 }, // It will expire in 5 min
+  createdAt: { type: Date, default: Date.now(), expires: 300 }, 
 });
 
 const Otp = mongoose.model('Otp', OtpSchema);

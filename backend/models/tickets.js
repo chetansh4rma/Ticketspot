@@ -12,6 +12,11 @@ const TicketSchema = new mongoose.Schema({
     ref: 'Monument',
     required: true,
   },
+  eventId: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Event',
+    // required: true,
+  },
   userId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User', // Reference to the User model
@@ -22,16 +27,16 @@ const TicketSchema = new mongoose.Schema({
     required: true,
   },
   purchasedAt: {
-    type: Date,
-    default: Date.now, // Timestamp of when the ticket was purchased
-},
-ExpirationDate:{
-    type:Date
-    // default: Date.now, // Timestamp of when the ticket was purchased
+    type: Number, // Store timestamp as Number (in milliseconds)
+    default: () => Date.now(), // Default to current timestamp in milliseconds
   },
-  selectedDate:{
-     type:Date
-  }
+  ExpirationDate: {
+    type: Number, // Store timestamp as Number (in milliseconds)
+    required: true, // Or set a default value here if needed
+  },
+  selectedDate: {
+    type: Number, // Store timestamp as Number (in milliseconds)
+  },
 });
 
 // Exporting the Ticket model

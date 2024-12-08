@@ -16,7 +16,9 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 import "swiper/css/zoom";
-
+import Footer from './footer'
+import Navbar from './Navbar'
+import Chatbot from './Chatbot1'
 // import "swiper/css/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -172,6 +174,8 @@ useEffect(() => {
 
 
   return (
+    <>
+    <Navbar/>
     
     <div className="prodP-Supreme">
 
@@ -417,7 +421,12 @@ useEffect(() => {
 
                   <Feedback id={id}/>
          
+         
     </div>
+    {productData && productData!==null && <Chatbot productData={productData}/>}
+       <Footer/>
+    </>
+
   );
 };       
 

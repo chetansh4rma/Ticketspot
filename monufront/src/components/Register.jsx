@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import OTPInput from './OTPInput';
-import Logo from './assets/logo.jpg'; // Assume this is your logo file
+import Logo from './assets/LogoTicketspott.png' // Assume this is your logo file
 
 
 const Register = () => {

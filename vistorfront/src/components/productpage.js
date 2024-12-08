@@ -18,7 +18,7 @@ import "swiper/css/pagination";
 import "swiper/css/zoom";
 import Footer from './footer'
 import Navbar from './Navbar'
-import Chatbot from './Chatbot1'
+import Booking from './booking.js'
 // import "swiper/css/navigation";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -423,7 +423,7 @@ useEffect(() => {
          
          
     </div>
-    {productData && productData!==null && <Chatbot productData={productData}/>}
+    {productData && productData!==null && <Booking productData={productData}/>}
        <Footer/>
     </>
 

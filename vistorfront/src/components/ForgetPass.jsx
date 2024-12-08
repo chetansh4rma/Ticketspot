@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import Logo from './assets/logo.jpg'
+import Logo from './assets/LogoTicketspott.png';
 import { useNavigate, Link } from "react-router-dom";
 import axios from 'axios'
 import OTPInput from "./OTPInput";

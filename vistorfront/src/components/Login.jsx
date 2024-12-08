@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
-import Logo from './assets/logo.jpg';
+import Logo from './assets/LogoTicketspott.png';
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -35,6 +35,7 @@ const Login = () => {
       <div className="w-full max-w-md bg-white rounded-lg shadow-xl overflow-hidden">
         <div className="bg-[#faa935] p-6 flex items-center justify-center">
           <img src={Logo} alt="Logo" className="w-16 h-16 rounded-full border-2 border-white shadow-lg object-cover" />
+          
           <h2 className="text-2xl font-bold text-white ml-4">Welcome Back</h2>
         </div>
         

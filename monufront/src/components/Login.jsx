@@ -69,7 +69,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation
 // import "../css/login.css"; // Your custom CSS
-import Logo from './assets/logo.jpg'
+import Logo from './assets/LogoTicketspott.png'
 
 const Login = () => {
   const [email, setEmail] = useState("");

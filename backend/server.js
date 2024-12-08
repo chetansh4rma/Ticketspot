@@ -1,4 +1,4 @@
-// server.js
+
 const dotenv = require('dotenv');
 const express = require('express');
 const functions = require('@google-cloud/functions-framework');
@@ -777,15 +777,94 @@ app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
       { new: true }
     );
 
-    await handleIncrementRevenue(selectedDate, persons, agency.ticketPrice, monuId);
-    console.log(agency.timing, user.name)
+      await handleIncrementRevenue(selectedDate,persons,agency.ticketPrice,monuId);
+      console.log(agency.timing,user.name)
+  
+      res.status(201).json({ msg: `${persons} tickets purchased successfully`, tickets: tick,time:agency.timing,name:user.name });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: 'Server error' });
+    }
+  });
+  
 
-    res.status(201).json({ msg: `${persons} tickets purchased successfully`, tickets: tick, time: agency.timing, name: user.name });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: 'Server error' });
-  }
-});
+
+  // app.post('/gateway/payForTicket', createOrder);
+
+  const Razorpay = require('razorpay');
+
+  app.post('/gateway/orders',authenticateToken, async(req, res) => {
+    try {
+    const userId=req.user.userId;
+    const razorpay = new Razorpay({
+    key_id: process.env.RAZORPAY_ID_KEY,
+    key_secret: process.env.RAZORPAY_SECRET_KEY
+    })
+
+    const {amount,Currency,id}=req.body;
+    console.log(amount," ",typeof amount)
+    const options = {
+        amount: amount,
+        currency: 'INR',
+        receipt: `order_rcptid_${new Date().getTime()}`,
+        payment_capture: 1
+    }
+
+        let user = await User.findOne({ _id:userId });
+        let monu=await Agency.findOne({ _id:id });
+
+    
+        let prod_name=`${monu.MonumentName} ticket`
+      
+      
+        const response = await razorpay.orders.create(options)
+
+        res.json({
+            order_id: response.id,
+            currency: response.currency,
+            amount: response.amount,
+            success: true,
+            msg: 'Ticket Created',
+            
+            key_id: process.env.RAZORPAY_ID_KEY,
+            product_name: prod_name,
+            description: monu.desc,
+            name: user.name,
+            email: user.email
+        })
+    } catch (error) {
+      console.log(error)
+        res.status(500).send("Internal server error")
+    }
+})
+
+app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
+    const {paymentId} = req.params;
+
+    const razorpay = new Razorpay({
+         key_id: process.env.RAZORPAY_ID_KEY,
+         key_secret: process.env.RAZORPAY_SECRET_KEY
+    })
+    
+    try {
+        const payment = await razorpay.payments.fetch(paymentId)
+
+        if (!payment){
+            return res.status(500).json("Error at razorpay loading")
+        }
+
+        res.json({
+            status: payment.status,
+            method: payment.method,
+            amount: payment.amount,
+            currency: payment.currency
+        })
+    } catch(error) {
+      console.log(error)
+        res.status(500).json("failed to fetch")
+    }
+})
+
 
 app.use('/api/auth', authRoutes);
 app.use('/api/agency', Monument);

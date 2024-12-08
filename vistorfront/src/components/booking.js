@@ -32,7 +32,38 @@ const LoadMoreButton = ({ onClick }) => (
   </motion.button>
 );
 
-export default function Chatbot1({productData}) {
+export default function Booking({productData}) {
+
+  const [responseId, setResponseId] = React.useState("");
+  const [responseState, setResponseState] = React.useState([]);
+
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+
+      script.src = src;
+
+      script.onload = () => {
+        resolve(true)
+      }
+      script.onerror = () => {
+        resolve(false)
+      }
+
+      document.body.appendChild(script);
+    })
+  }
+
+  
+
+
+
+
+
+
+
+
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
@@ -480,14 +511,15 @@ const handleTicketResponse=(cnt,className)=>{
 const stepFour=async()=>{
   let totalCost=ticketCount*ticketPrice;
   addBotMessage(await handleTranslation(`You want to book ${ticketCount} tickets. The total price is ₹${totalCost}.`));
-  addBotMessage(await handleTranslation(`Please confirm your booking by choosing "confirm" or "cancel" button`))
+  addBotMessage(await handleTranslation(`Please confirm your booking by choosing "Pay Now" or "cancel" button`))
   addBotMessage({
     type: 'button',
     buttons: [
       {
-        label: await handleTranslation('confirm'),
+        label: await handleTranslation('Pay Now'),
         className: 'confirm-book-button',
-        onClick: () => handleConfirmationResponse('confirm','proceed-button'),
+        // onClick: () => handlePayment(),
+        onClick:()=>createRazorpayOrder()
       },
       {
         label:await handleTranslation('cancel'),
@@ -497,6 +529,159 @@ const stepFour=async()=>{
     ],
   });
 }
+
+const createRazorpayOrder = () => {
+ 
+  
+  let totalCost=ticketCount*ticketPrice;
+  let data = JSON.stringify({
+    amount: totalCost * 100,
+    currency: "INR",
+    id:productData._id
+  })
+
+  let config = {
+    method: "post",
+    maxBodyLength: Infinity,
+    url: `${process.env.REACT_APP_BACK_URL}/gateway/orders`,
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    data: data,
+    withCredentials: true 
+  }
+
+  axios.request(config)
+  .then((response) => {
+    console.log(JSON.stringify(response.data))
+    if(response.data.success)
+    {
+    handleRazorpayScreen(response)
+    }else{
+      handleCloseChatbot()
+    }
+  })
+  .catch((error) => {
+    console.log("error at", error)
+  })
+}
+
+const handleRazorpayScreen = async(response) => {
+  const { key_id, amount, product_name, description, order_id, name, email } = response.data;
+  const res = await loadScript("https:/checkout.razorpay.com/v1/checkout.js")
+
+  if (!res) {
+    alert("Some error at razorpay screen loading")
+    return;
+  }
+
+  const options = {
+    key: key_id,
+    amount: amount,
+    currency: 'INR',
+    name: product_name,
+    description: `payment to ${productData.MonumentName}`,
+    image:`${productData.MonumentLogo}`,
+    handler: function (response){
+      setResponseId(response.razorpay_payment_id)
+      disablePrevButtons('proceed-button')
+      paymentFetch(response.razorpay_payment_id)
+    },
+    prefill: {
+      name: "TicketSpot",
+      email: "codex.2420@gmail.com"
+    },
+    theme: {
+      color: "#F4C430"
+    }
+  }
+
+  const paymentObject = new window.Razorpay(options)
+  paymentObject.open()
+}
+
+const paymentFetch = (data) => {
+  // e.preventDefault();
+
+  const paymentId =data;
+  console.log(data)
+
+  axios.get(`${process.env.REACT_APP_BACK_URL}/gateway/payment/${paymentId}`,{withCredentials: true })
+  .then((response) => {
+    console.log(response.data);
+    setResponseState(response.data)
+    if(response.status)
+    {
+      handleConfirmationResponse()
+    }else{
+      handleCloseChatbot()
+    }
+  })
+  .catch((error) => {
+    console.log("error occures", error)
+  })
+}
+
+
+// const handlePayment = async () => {
+//   disablePrevButtons('proceed-button')
+//   let totalCost=ticketCount*ticketPrice;
+//   try {
+//     // Call the API to create the order
+//     const response = await axios.post(`${process.env.REACT_APP_BACK_URL}/gateway/payForTicket`, {
+//       amount: totalCost,
+//       id:productData._id
+//       // name: product.name,
+//       // description: product.description
+//     },{withCredentials:true});
+
+//     if (response.data.success) {
+//       const { key_id, amount, product_name, description, order_id, name, email } = response.data;
+//       console.log(amount," ",typeof amount,key_id)
+//       // Razorpay checkout options
+
+//       const options = {
+//         key: key_id,
+//         amount: amount,
+//         currency: 'INR',
+//         name: product_name,
+//         description: description,
+//         order_id: order_id,
+//         handler: function (response) {
+//           alert('Payment Successful');
+//           handleConfirmationResponse()
+//           // Redirect or update UI after successful payment
+//         },
+//         prefill: {
+//           // contact: "1234567891",
+//           name: name,
+//           email: email
+//         },
+//         notes: {
+//           description: description
+//         },
+//         theme: {
+//           color: '#2300a3'
+//         }
+//       };
+
+//       // Open Razorpay payment window
+//       const razorpayObject = new window.Razorpay(options);
+//       razorpayObject.open();
+      
+//       razorpayObject.on('payment.failed', function (response) {
+//         alert('Payment Failed');
+//         handleCloseChatbot()
+//       });
+//     } else {
+//       alert(response.data.msg);
+//     }
+//   } catch (error) {
+//     console.error(error);
+//     alert('Payment API call failed');
+//     handleCloseChatbot()
+//   }
+// };
 
 
 const  handleConfirmationResponse=async()=>{

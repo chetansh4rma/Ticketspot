@@ -37,6 +37,10 @@ const TicketSchema = new mongoose.Schema({
   selectedDate: {
     type: Number, // Store timestamp as Number (in milliseconds)
   },
+  isActive:{
+    type:Boolean,
+    default:true
+  }
 });
 
 // Exporting the Ticket model

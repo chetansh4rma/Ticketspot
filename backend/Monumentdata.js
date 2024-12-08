@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const multer = require('multer');
 const path = require('path');
 const Feedback =require('./models/feedback')
+const Ticket =require('./models/tickets')
 
 dotenv.config(); // Load environment variables
 
@@ -708,6 +709,35 @@ router.get('/fetch-revenue', authenticateToken, async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 });
+
+router.post('/ticketScan', authenticateToken, async (req, res) => {
+  const monuId = req.agency.agencyId;
+  const { ticketId} = req.body;
+
+  try {
+    const agency = await Agency.findOne({ _id: monuId });
+    if (!agency) return res.status(404).json({ msg: 'Event not found' });
+    const ticket = await Ticket.findOne({ _id: ticketId ,MonumentId:monuId});
+    if(!ticket) return res.status(404).json({ msg: 'Ticket not found' });
+
+    if(!(ticket.isActive))
+    {
+      return res.status(404).json({ msg: 'Ticket is already used' });
+    }
+    
+    // Update the field `isActive` to false
+     ticket.isActive = false;
+
+     // Save the updated document
+       await ticket.save();
+
+   
+      res.status(201).json({ msg: "You are verified , now you can enjoy your visit , have a great day!"});
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: 'Server error' });
+    }
+  });
 
 
   

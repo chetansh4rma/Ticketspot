@@ -518,7 +518,7 @@ const stepFour=async()=>{
       {
         label: await handleTranslation('Pay Now'),
         className: 'confirm-book-button',
-        // onClick: () => handlePayment(),
+        // onClick: () => handleConfirmationResponse(),
         onClick:()=>createRazorpayOrder()
       },
       {
@@ -778,7 +778,7 @@ const createTicketPDF = async (ticketData,t,n) => {
   const { width, height } = page.getSize();
 
   // Generate the QR code as a data URL (base64 image string) with black color
-  const qrCodeDataUrl = await QRCode.toDataURL(`Id: ${ticketData._id}`, {
+  const qrCodeDataUrl = await QRCode.toDataURL(`${ticketData._id}`, {
     color: {
       dark: '#000000', // Black color for QR code foreground
       light: '#e8c37c', // White background

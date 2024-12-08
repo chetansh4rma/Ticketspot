@@ -9,11 +9,11 @@ import Setting from "./Setting";
 
 
 const ToggleComponent = () => {
-  const [activeTab, setActiveTab] = useState("Monuments");
+  const [activeTab, setActiveTab] = useState("Museum");
 
   const renderContent = () => {
     switch (activeTab) {
-      case "Monuments":
+      case "Museum":
         return <EventCreation/>;
       case "Analytics":
         return <Home/>;
@@ -32,8 +32,8 @@ const ToggleComponent = () => {
     <div className="toggle-container">
       <div className="toggle-buttons">
         <button
-          className={`toggle-button ${activeTab === "Monuments" ? "active" : ""}`}
-          onClick={() => setActiveTab("Monuments")}
+          className={`toggle-button ${activeTab === "Museum" ? "active" : ""}`}
+          onClick={() => setActiveTab("Museum")}
         >
           Monuments
         </button>

@@ -35,9 +35,11 @@ const socialLinks = [
 ];
 
 const Footer = () => {
+  
   return (
     <Box
       component="footer"
+      
       sx={{
         backgroundColor: '#f5f5f5',
         color: 'var(--text-color)',

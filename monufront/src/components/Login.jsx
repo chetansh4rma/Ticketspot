@@ -70,6 +70,7 @@ import axios from "axios";
 import { useNavigate, Link } from "react-router-dom"; // Import Link for navigation
 // import "../css/login.css"; // Your custom CSS
 import Logo from './assets/LogoTicketspott.png'
+import { showSuccessToast, showInfoToast, showErrorToast } from '../components/utils/toastUtils'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -89,10 +90,14 @@ const Login = () => {
       console.log(result);
       setEmail('');
       setPassword('');
+      // if(result.status===201){
+        // showSuccessToast(result.data.msg)
+      
 
       // Navigate to the home page on successful login
       navigate("/");
       window.location.reload();
+      // }
     } catch (error) {
       console.error("There was an error!", error);
       // Optionally handle error, e.g., show an error message

@@ -651,7 +651,7 @@ const dateToTimestamp = (dateString) => {
 
 app.post('/api/buy-ticket-Event', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
-  const { eventid, selectedPersons, selectedDate, monuId } = req.body;
+  const { eventid, selectedPersons, selectedDate, monuId,couponId } = req.body;
 
   console.log(selectedDate);
   try {
@@ -697,7 +697,15 @@ app.post('/api/buy-ticket-Event', authenticateToken, async (req, res) => {
       { $push: { tickets: { $each: tickets } } }
     );
 
+    // const user = await User.findOne({ _id: userId })
     const user = await User.findOne({ _id: userId })
+
+    if(couponId){
+        // Add the coupon ID to the user's coupons array
+         user.coupon = user.coupon || []; // Ensure the array is initialized
+         user.coupon.push(couponId);
+         await user.save();
+    }
 
     await Event.findByIdAndUpdate(
       eventid,
@@ -730,7 +738,9 @@ const handleIncrementRevenue = async (selectedDate, totalPersons, ticketPrice, m
 
 app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
-  const { selectedPersons, selectedDate, monuId } = req.body;
+  const { selectedPersons, selectedDate, monuId,couponId,discount } = req.body;
+
+  
 
   console.log(selectedPersons, selectedDate);
 
@@ -780,6 +790,13 @@ app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
     );
 
     const user = await User.findOne({ _id: userId })
+
+    if(couponId){
+        // Add the coupon ID to the user's coupons array
+         user.coupon = user.coupon || []; // Ensure the array is initialized
+         user.coupon.push(couponId);
+         await user.save();
+    }
     await Agency.findByIdAndUpdate(
       monuId,
       { $inc: { totalAvailableTicket: -persons } },
@@ -849,6 +866,7 @@ app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
 
 app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
     const {paymentId} = req.params;
+    
 
     const razorpay = new Razorpay({
          key_id: process.env.RAZORPAY_ID_KEY,
@@ -862,6 +880,8 @@ app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
             return res.status(500).json("Error at razorpay loading")
         }
 
+        
+
         res.json({
             status: payment.status,
             method: payment.method,
@@ -873,6 +893,96 @@ app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
         res.status(500).json("failed to fetch")
     }
 })
+
+
+const Coupon =require('./models/coupon')
+
+// Helper function to generate a coupon code from the name
+const generateCouponCode = (name) => {
+  return name.toUpperCase().replace(/\s+/g, ''); // Convert to uppercase and remove whitespace
+};
+
+// API to add a new coupon
+app.post('/add-coupon', async (req, res) => {
+  const { name, discountPrice } = req.body; // Extract name and discountPrice from the request body
+
+  try {
+    if (!name || !discountPrice) {
+      return res.status(400).json({ error: 'Name and discount price are required.' });
+    }
+
+    // Generate a coupon code based on the name
+    const couponCode = generateCouponCode(name);
+
+    // Check if a coupon with the same name or code already exists
+    const existingCoupon = await Coupon.findOne({
+      $or: [{ name }, { couponCode }],
+    });
+
+    if (existingCoupon) {
+      return res.status(400).json({
+        error: 'A coupon with this name or coupon code already exists.',
+      });
+    }
+
+    // Create a new coupon
+    const newCoupon = new Coupon({
+      name,
+      discountPrice,
+      couponCode,
+    });
+
+    // Save the coupon to the database
+    const savedCoupon = await newCoupon.save();
+
+    res.status(201).json({
+      message: 'Coupon added successfully.',
+      coupon: savedCoupon,
+    });
+  } catch (error) {
+    console.error('Error adding coupon:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+
+// // API to add a new coupon
+// app.post('/add-coupon', async (req, res) => {
+//   const { name, discountPrice } = req.body; // Extract name and discountPrice from the request body
+
+//   try {
+//     if (!name || !discountPrice) {
+//       return res.status(400).json({ error: 'Name and discount price are required.' });
+//     }
+
+//     // Check if a coupon with the same name already exists
+//     const existingCoupon = await Coupon.findOne({ name });
+//     if (existingCoupon) {
+//       return res.status(400).json({ error: 'A coupon with this name already exists.' });
+//     }
+
+//     // Generate a unique coupon code
+//     const couponCode = await generateCouponCode();
+
+//     // Create a new coupon
+//     const newCoupon = new Coupon({
+//       name,
+//       discountPrice,
+//       couponCode,
+//     });
+
+//     // Save the coupon to the database
+//     const savedCoupon = await newCoupon.save();
+
+//     res.status(201).json({
+//       message: 'Coupon added successfully.',
+//       coupon: savedCoupon,
+//     });
+//   } catch (error) {
+//     console.error('Error adding coupon:', error);
+//     res.status(500).json({ error: 'Server error' });
+//   }
+// });
 
 
 app.use('/api/auth', authRoutes);

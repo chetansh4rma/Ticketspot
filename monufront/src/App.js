@@ -13,6 +13,8 @@ import EventCreation from './components/EventCreation';
 import EventShow from './components/EventShow';
 import ToggleComponent from './components/ToggleComponent';
 import QRScanner from './components/scanTicket/QRScanner';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 function App() {
   const { isLoactionExist} = useStore()
@@ -20,7 +22,10 @@ function App() {
 
 
   return (
+    <>
+    <ToastContainer />
     <Routes>
+       
       {/* Private route for Home, only accessible if authenticated */}
       <Route path="/" element={<PrivateRoute element={ToggleComponent}/>} />
       <Route path="/feedback" element={<PrivateRoute element={Feedback} />} />
@@ -40,6 +45,7 @@ function App() {
       {/* Redirect any unknown routes to Home */}
       <Route path="*" element={<Navigate to="/" />} />
     </Routes>
+    </>
   );
 }
 

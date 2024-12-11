@@ -191,8 +191,14 @@ export default function Booking({productData}) {
            stepThree();
           break;
       case 4:
-            stepFour();
-           break;     
+           stepBeforeCoupon();
+           break;  
+      case 5:
+           stepToGetCoupon();
+           break;
+      case 6:
+            stepSix()
+            break;
       default:
           console.log('Unknown action');
   }
@@ -506,10 +512,146 @@ const handleTicketResponse=(cnt,className)=>{
    setStep((prevVal)=>prevVal+1)
 }
 
+
+const stepBeforeCoupon=async()=>{
+  let totalCost=ticketCount*ticketPrice;
+  addBotMessage(await handleTranslation(`You want to book ${ticketCount} tickets. The total price is ₹${totalCost}.`));
+  addBotMessage(await handleTranslation(`Do you want to apply a coupon if yes then hit yes else no`))
+  addBotMessage({
+    type: 'button',
+    buttons: [
+      {
+        label: await handleTranslation('Yes'),
+        className: 'confirm-Coupon-button',
+        onClick: () => handleBeforeCoupon('Yes','confirm-Coupon-button'),
+        // onClick:()=>createRazorpayOrder()
+      },
+      {
+        label:await handleTranslation('cancel'),
+        className: 'confirm-Coupon-button',
+        onClick: () => handleBeforeCoupon('No','confirm-Coupon-button'),
+      },
+    ],
+  });
+}
+
+const handleBeforeCoupon = async(data,className) => {
+  addUserMessage( await handleTranslation(data))
+  if(data==='Yes')
+  {
+    setStep((prevVal)=>prevVal+1)
+    disablePrevButtons(className)
+  }else{
+    setStep(6)
+    disablePrevButtons(className)
+  }
+}
+
+const [coup,setCoup]=useState(false)
+const [discount,setDiscount]=useState(0)
+const [couponId,setCouponId]=useState(null)
+const stepToGetCoupon=async()=>{
+  setDisableInp(true)
+  setCoup(true)
+  // let totalCost=ticketCount*ticketPrice;
+  addBotMessage(await handleTranslation(`Please enter your coupon code`))
+//   const data={
+//     couponCode:input,
+//     totalCost:totalCost
+//   }
+//   try{
+//   const response = await axios.post(
+//     `${process.env.REACT_APP_BACK_URL}/api/auth/match-coupon`,
+//     data,
+//     {
+//       withCredentials: true, // Ensure cookies are sent with the request
+//     }
+//   );
+//   // Handle success response
+//   if(response.status===201){
+//   alert('Coupon applied successfully:');
+//   setDiscount(response.data.couponDiscountPrice)
+//   setCouponId(response.data.couponId);
+//   setDisableInp(false)
+//   setCoup(false)
+//   setStep((prevStep)=>prevStep+1)
+//   }
+// } catch (error) {
+//   // Handle error response
+//   // if (error.response) {
+//   //   // Server-side error (e.g., 400, 404, 500)
+//   //   console.error('Error from server:', error.response.data.error);
+//   // } else {
+//   //   // Client-side error or network issues
+//   //   console.error('Error connecting to server:', error.message);
+//   // }
+//   if(error.response.data.message){
+//   alert(error.response.data.message) 
+//   }
+//   setStep(4)
+// }
+}
+
+
 // step 4
 
-const stepFour=async()=>{
+const handleInputCouponSubmit = async(e) => {
+
+  if (e.key === 'Enter') {
+  console.log('handleInputCouponSubmit')
+  console.log(input ,'h')
+  // if (input!='') {
+  //   setError('Please enter a message.');
+  //   return;
+  // }
+  // setError('');
+  console.log(input ,'h')
+  addUserMessage(input);
+  // setStep((prevStep)=>prevStep+1)
   let totalCost=ticketCount*ticketPrice;
+  const data={
+    couponCode:input,
+    totalCost:totalCost
+  }
+  try{
+  const response = await axios.post(
+    `${process.env.REACT_APP_BACK_URL}/api/auth/match-coupon`,
+    data,
+    {
+      withCredentials: true, // Ensure cookies are sent with the request
+    }
+  );
+  // Handle success response
+  if(response.status===200){
+  alert('Coupon applied successfully:');
+  setDiscount(response.data.couponDiscountPrice)
+  setCouponId(response.data.couponId);
+  setDisableInp(false)
+  setCoup(false)
+  setStep((prevStep)=>prevStep+1)
+  }
+  console.log(response)
+} catch (error) {
+  // Handle error response
+  // if (error.response) {
+  //   // Server-side error (e.g., 400, 404, 500)
+  //   console.error('Error from server:', error.response.data.error);
+  // } else {
+  //   // Client-side error or network issues
+  //   console.error('Error connecting to server:', error.message);
+  // }
+  console.log(error)
+  if(error.response.data.message){
+  alert(error.response.data.message) 
+  }
+  setStep(4)
+}
+  }
+};
+
+const stepSix=async()=>{
+  
+  let totalCost=(ticketCount*ticketPrice)-discount;
   addBotMessage(await handleTranslation(`You want to book ${ticketCount} tickets. The total price is ₹${totalCost}.`));
   addBotMessage(await handleTranslation(`Please confirm your booking by choosing "Pay Now" or "cancel" button`))
   addBotMessage({
@@ -518,8 +660,8 @@ const stepFour=async()=>{
       {
         label: await handleTranslation('Pay Now'),
         className: 'confirm-book-button',
-        onClick: () => handleConfirmationResponse(),
-        // onClick:()=>createRazorpayOrder()
+        // onClick: () => handleConfirmationResponse(),
+        onClick:()=>createRazorpayOrder()
       },
       {
         label:await handleTranslation('cancel'),
@@ -533,7 +675,7 @@ const stepFour=async()=>{
 const createRazorpayOrder = () => {
  
   
-  let totalCost=ticketCount*ticketPrice;
+  let totalCost=(ticketCount*ticketPrice)-discount;
   let data = JSON.stringify({
     amount: totalCost * 100,
     currency: "INR",
@@ -704,7 +846,9 @@ const handleMonu=async()=>{
         place:productData.MonumentName,
         selectedPersons: ticketCount,
         selectedDate: selectDate,
-        monuId:productData._id
+        monuId:productData._id,
+        couponId:couponId
+
     },
     {
       headers: { 'Content-Type': 'application/json' },
@@ -735,7 +879,8 @@ const handleEvent=async()=>{
         eventid:lastId ,
         selectedPersons: ticketCount,
         selectedDate: selectDate,
-        monuId:productData._id
+        monuId:productData._id,
+        couponId:couponId
       },
       {
         headers: { 'Content-Type': 'application/json' },
@@ -1120,7 +1265,8 @@ const timestampToDate = (timestamp) => {
   };
 
   const handleInputSubmit = () => {
-    if (!input.trim()) {
+    console.log('handleinp')
+    if (input!=='') {
       setError('Please enter a message.');
       return;
     }
@@ -1128,6 +1274,7 @@ const timestampToDate = (timestamp) => {
     addUserMessage(input);
     fetchApiResponse(input);
     setInput('');
+   
   };
 
   const handleIconClick = (intent) => {
@@ -1271,16 +1418,18 @@ const timestampToDate = (timestamp) => {
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleInputSubmit()}
+                onKeyDown={(e) => (e.key === 'Enter' && coup) ? handleInputCouponSubmit(e): handleInputSubmit()}
                 placeholder="Type your message here..."
-                disabled={disableInp}
-              />
+                // disabled={(coup||disableInp)}
+              />        
+
+
               <motion.button
                 onClick={handleVoiceInput}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className={`voice-input-button ${isListening ? 'listening' : ''}`}
-                disabled={disableInp}
+                // disabled={coup||disableInp}
               >
                 <Mic size={20} />
               </motion.button>
@@ -1288,7 +1437,7 @@ const timestampToDate = (timestamp) => {
                 onClick={handleInputSubmit}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                disabled={disableInp}
+                // disabled={coup||disableInp}
               >
                 <Send size={20} />
               </motion.button>

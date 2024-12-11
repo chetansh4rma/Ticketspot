@@ -13,7 +13,8 @@ const Setting = () => {
     ticketPrice: "",
     availableTickets: "",
     description: "",
-    iframe:""
+    iframe:"",
+    category:""
   });
   const [initialData, setInitialData] = useState({});
   const [editFields, setEditFields] = useState({
@@ -24,7 +25,8 @@ const Setting = () => {
     ticketPrice: false,
     availableTickets: false,
     description: false,
-    iframe:false
+    iframe:false,
+    category:false
   });
   const [imagePreviews, setImagePreviews] = useState([]);
   const [logoPreview, setLogoPreview] = useState(null);
@@ -40,6 +42,7 @@ const Setting = () => {
         const data = response.data;
         setSettingData({
           museumName: data.requiredFields.MonumentName || "",
+          category:data.requiredFields.category || "",
           timing:data.requiredFields.timing || "",
           logo: null,
           images: [],
@@ -90,6 +93,7 @@ const Setting = () => {
   const validateFields = () => {
     const formErrors = {};
     if (!settingData.museumName.trim()) formErrors.museumName = "Museum Name is required";
+    if (!settingData.category.trim()) formErrors.category = "Category is required";
     if (!settingData.timing.trim()) formErrors.timing = "Timing is required";
     if (!settingData.logo && !initialData.MonumentLogo) formErrors.logo = "Logo is required";
     if (
@@ -119,6 +123,9 @@ const Setting = () => {
     // // Only append fields that are modified by the user
     if (settingData.museumName !== initialData.MonumentName) {
       formData.append("museumName", settingData.museumName);
+    }
+    if (settingData.category !== initialData.category) {
+      formData.append("category", settingData.category);
     }
     if (settingData.timing !== initialData.timing) {
       formData.append("timing", settingData.timing);
@@ -212,7 +219,6 @@ const Setting = () => {
           />
           {errors.museumName && <span className="error-text">{errors.museumName}</span>}
         </div>
-
 
 
         {/* Timing */}
@@ -371,6 +377,28 @@ const Setting = () => {
             className="input-field"
           />
           {errors.availableTickets && <span className="error-text">{errors.availableTickets}</span>}
+        </div>
+
+
+         {/* category */}
+         <div className="setting-form-group">
+          <label>
+            Category
+            <FontAwesomeIcon
+              icon={faPenToSquare}
+              className="edit-icon"
+              onClick={() => toggleEdit("category")}
+            />
+          </label>
+          <input
+            type="text"
+            value={settingData.category}
+            onChange={handleChange}
+            disabled={!editFields.category}
+            name="category"
+            className="input-field"
+          />
+          {errors.category && <span className="error-text">{errors.category}</span>}
         </div>
 
         {/* Description */}

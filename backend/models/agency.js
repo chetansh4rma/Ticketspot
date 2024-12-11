@@ -101,6 +101,9 @@ timing:{
   guides:[],
   iframe:{
     type:String
+  },
+  category:{
+     type:String
   }
 });
 

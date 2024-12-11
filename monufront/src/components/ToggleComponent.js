@@ -35,7 +35,7 @@ const ToggleComponent = () => {
           className={`toggle-button ${activeTab === "Museum" ? "active" : ""}`}
           onClick={() => setActiveTab("Museum")}
         >
-          Monuments
+          Museum Event 
         </button>
         <button
           className={`toggle-button ${activeTab === "Analytics" ? "active" : ""}`}

@@ -48,7 +48,21 @@ myTickets: [{
       type: String,
     },
   },
+  coupon: [{
+  type: mongoose.Schema.Types.ObjectId,
+  ref: 'Coupon' 
+}]
 });
+
+// UserSchema.add({
+//   coupons: [
+//     {
+//       type: mongoose.Schema.Types.ObjectId,
+//       ref: 'Coupon',
+//     },
+//   ],
+// });
+
 UserSchema.pre('save', async function (next) {
   if (!this.isModified('password')) return next();
   const salt = await bcrypt.genSalt(10);
@@ -56,7 +70,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-const User = mongoose.model('User', UserSchema);
+const User = mongoose.model('User1', UserSchema);
 const OtpSchema = new mongoose.Schema({
   email: { type: String, required: true },
   otp: { type: String, required: true },

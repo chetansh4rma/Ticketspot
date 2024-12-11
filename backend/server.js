@@ -273,20 +273,85 @@ app.get("/fetchmuseumcheapplacetamil", async (req, res) => {
     res.status(500).json({ message: "Error fetching events", error: error.message });
   }
 });
-
-app.get("/fetchmuseumSoloevents", async (req, res) => {
+app.post("/fetchplace", authenticateToken, async (req, res) => {
   try {
-    const events = await Event.aggregate([
-      { $match: { audience_type: { $in: ["student", "General", "Solo"] } } },
-      { $sample: { size: 5 } },
-      { $sort: { eventTicketPrice: 1 } }
-    ]);
-    res.json(events);
+    console.log("User:", req.user);
+    const user = await User.findOne({ _id: req.user.userId });
+    const city=user.location.city;
+    const State=user.location.state;
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    console.log(city)
+    res.json({ city: city ,state:State});
   } catch (error) {
-    console.error("Error fetching student events:", error);
-    res.status(500).json({ message: "Error fetching events" });
+    console.error("Error fetching user data:", error);
+    res.status(500).json({ message: 'Error fetching user data' });
   }
 });
+
+app.post("/category", async (req, res) => {
+  try {
+    console.log("Fetching educational events...");
+
+    const { category, city, state } = req.body; 
+    console.log("Category:", category, "City:", city, "State:", state);
+    let monuments = await Agency.find({ 
+      category: category, 
+      "location.city": city 
+    });
+
+    let eventsFromMonuments = [];
+    if (monuments.length > 0) {
+      eventsFromMonuments = await Event.find({
+        monumentId: { $in: monuments.map((monument) => monument._id) },
+        category: category,
+      }).limit(5);
+    }
+
+    let eventsNeeded = 5 - eventsFromMonuments.length;
+
+    if (eventsNeeded > 0) {
+      const stateMonuments = await Agency.find({ 
+        category: category, 
+        "location.state": state,
+        _id: { $nin: monuments.map((monument) => monument._id) }, 
+      });
+
+      if (stateMonuments.length > 0) {
+        const stateEvents = await Event.find({
+          monumentId: { $in: stateMonuments.map((monument) => monument._id) },
+          category: category,
+        }).limit(eventsNeeded);
+
+        eventsFromMonuments.push(...stateEvents);
+        eventsNeeded = 5 - eventsFromMonuments.length;
+      }
+    }
+
+    let additionalEvents = [];
+    if (eventsNeeded > 0) {
+      const fetchedEventIds = eventsFromMonuments.map((event) => event._id);
+      additionalEvents = await Event.aggregate([
+        { 
+          $match: { 
+            _id: { $nin: fetchedEventIds }, 
+            category: category 
+          } 
+        },
+        { $sample: { size: eventsNeeded } }, 
+      ]);
+    }
+    const combinedEvents = [...eventsFromMonuments, ...additionalEvents];
+    console.log("Combined Events:", combinedEvents);
+    res.json(combinedEvents);
+  } catch (error) {
+    console.error("Error fetching educational events:", error);
+    res.status(500).json({ message: "Error fetching educational events" });
+  }
+});
+
+
 app.get("/fetchmuseumDefault", async (req, res) => {
   try {
     const events = await Event.aggregate([

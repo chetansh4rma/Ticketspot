@@ -1,16 +1,11 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-// User schema definition
 const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     required: true,
   },
-  // userId: { // Ensure this is a unique identifier for the user
-  //   type: mongoose.Schema.Types.ObjectId,
-  //   auto: true, // Automatically create ObjectId
-  // },
   email: {
     type: String,
     required: true,
@@ -40,6 +35,7 @@ myTickets: [{
     },
     state: {
       type: String,
+<<<<<<< Updated upstream
     },
     zipCode: {
       type: String,
@@ -52,6 +48,9 @@ myTickets: [{
   type: mongoose.Schema.Types.ObjectId,
   ref: 'Coupon' 
 }]
+=======
+    }}
+>>>>>>> Stashed changes
 });
 
 // UserSchema.add({

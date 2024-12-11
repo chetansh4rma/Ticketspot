@@ -89,7 +89,7 @@
 
   .logo-preview{
          width:100%;
-         object-fit: cover;
+/*          object-fit: cover; */
          aspect-ratio: 750 / 497;
   }
 

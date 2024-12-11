@@ -361,7 +361,7 @@ router.post('/login', async (req, res) => {
       sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
       maxAge: 3600000, // Cookie expiry time in milliseconds
     });
-    res.status(201).json({ msg: 'Agency registered successfully' });
+    res.status(201).json({ msg: 'Agency logged in successfully' });
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ error: 'Server error' });
@@ -738,6 +738,7 @@ router.post('/ticketScan', authenticateToken, async (req, res) => {
       res.status(500).json({ msg: 'Server error' });
     }
   });
+
 
 
   

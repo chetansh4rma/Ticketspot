@@ -17,6 +17,7 @@ const Monument=require("./models/agency")
 const Feedback=require("./models/feedback")
 const axios=require("axios");
 const Agency = require('./models/agency');
+const Coupon=require('./models/coupon')
 
 dotenv.config();
 
@@ -568,7 +569,53 @@ router.delete('/delete-review', authenticateToken, async (req, res) => {
   }
 });
 
+router.post('/match-coupon',authenticateToken, async (req, res) => {
+  const userId=req.user.userId;
+  const {  couponCode ,totalCost} = req.body; // Extract userId and couponCode from the request body
 
+  try {
+    if (!userId ) {
+      return res.status(400).json({ error: 'User ID  are required.' });
+    }
+
+    if (!couponCode) {
+      return res.status(400).json({ message: 'coupon code are required.' });
+    }
+
+    // Find the coupon by couponCode
+    const coupon = await Coupon.findOne({ couponCode });
+    if (!coupon) {
+      return res.status(404).json({ message: 'Coupon not found.' });
+    }
+
+    if((totalCost-coupon.discountPrice)<0)
+    {
+      return res.status(404).json({ message: 'Coupon cannot apply on this .' });
+    }
+
+    // Find the user by userId
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    // Check if the coupon has already been used by the user
+    if (user.coupon && user.coupon.includes(coupon._id)) {
+      return res.status(400).json({ message: 'Coupon already used.' });
+    }
+
+    
+
+    res.status(200).json({
+      message: 'Coupon applied successfully.',
+      couponId:coupon._id,
+      couponDiscountPrice:coupon.discountPrice
+    });
+  } catch (error) {
+    console.error('Error matching coupon:', error);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
 
 
 module.exports = router;

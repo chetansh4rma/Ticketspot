@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import BookingDetails from './BookingDetails';
 import Navbar from "./Navbar"
+import axios from "axios";
 import './css/profile.css';
 import Footer from "./footer.jsx"
 
@@ -55,7 +56,9 @@ const ProfilePage = () => {
       totalPrice: '€15'
     }
   ]);
-
+const mybookings=()=>{
+const response=axios.get("http://localhost:3000/mybookings}")
+}
   const handleTabClick = (tab) => {
     setActiveTab(tab);
   };

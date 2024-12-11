@@ -96,7 +96,7 @@ export default function Chatbot() {
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
-      addBotMessage('Welcome to MuseumTix! How can I assist you today?');
+      addBotMessage('Welcome to Ticketspot! How can I assist you today?');
     }
   }, [isOpen]);
 
@@ -147,7 +147,7 @@ const Soloevents=async()=>{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZBomOnfPJxYu5o5r5Iylzn2m5AV1McuHXNtFo3GzyQQEM5LjbLONGXNOpsVzGWVMMQCKryswPeDGoVMAgMG032Dk12o4Je_a37zOUJGFJP0VLjYQUOfBLIrlVcgPfbZ2Sjn6XnXOYwkQYgKkwddeC6oXEb8SIr9AV2KDwj-77s_B1anwlqXY_TBoS0kl-w7eWES34BpF9zcNZ2nxZbgvSXz11IeCWbOMJ386CRs_jgxPn6wYCwwScshyGOESFfaJgtHqbE5oEsShY3MH8H__xuX8RWQ51p97ATm2-RpwloIbtYeR6PFCHPB5RC9rztsJ8pRub33qt854pTPO4vquVlKqpkMtpTB5wtyy6LHQgWgRHD7S-nj3shgrCWvRsREDWRHyCsFsMwqyNIzwdWNGW0VQgCsmayI0K2lie--OwaCgYKATsSARMSFQHGX2Mi_hNbZjJ01SCXSejX1Cz_nA0437`,
+          Authorization: `Bearer ya29.a0AeDClZA0opIxkq2LKyFEHUfRmTmG1_Flt4C_GB5AAz3_ElQb2LYkSVkaPXMKaU7PrhySlLlMWUcTNthQpVUC7JnFgKLHHgduADYk8u-gosHkguj9fusmOlH76p4Hwh-wUG_WEoiX7_YhkETpkZtTIrrk5Iy8EWSySw1sjrP7Z9YDNv8IBpRWP-7jXwrRRTE93eLPsGOWMzxArkmWs94m3GD0RCFJeK8uxLzXJ_mPEEEzGTuyoHRiIW5hPUGPXNjpG_2TtlwlLmP-LqXlkBWVX5cpf3_DmbNdt14P0CPpwrWMGj_1InZzCI-Eu9ittLnfqGzYALDQxVzjRR3biSQCaBcecT-0WhgcEgb7udy592sdtMuanVo-keEtLyEnbl6M_XaSdNqHgk-UXAZ7str4jmD2GtilH3x5tWqqkb7tUW-53gaCgYKAeoSARMSFQHGX2MieAnVK8WH-Qn_mnSWAHGywQ0437`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -220,7 +220,6 @@ const Soloevents=async()=>{
           Soloevents();
           break;
         case "PlaceToVisitIntent":
-          addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
           const Place = data.queryResult.parameters.place;
           console.log("Place", Place)
           try {

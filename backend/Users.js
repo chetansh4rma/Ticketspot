@@ -377,17 +377,21 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
     const firstMonumentName = "Taj Mahal"; // Get the first ticket's monument name or set default
     console.log("first", firstMonumentName);
     // Send data to the recommendation API with the first monument name
-    const response = await axios.post('http://127.0.0.1:5000/recommend', {
-      user_id: userId,
-      place: firstMonumentName // Pass the first monument name
-    });
-    // Get the recommendations from the response
-    const recommendations = response.data.recommendations; // Assuming this structure
-    // Fetch monument details based on the recommendations
-    const monumentDetails = await Monument.find({ _id: { $in: recommendations } });
-    // Send the monument details back to the client
-    console.log(monumentDetails);
-    res.json(monumentDetails);
+    try{
+
+      const response = await fetch('http://127.0.0.1:8000/recommend', {
+        user_id: userId,
+        place: firstMonumentName // Pass the first monument name
+      });
+      
+      const recommendations = response.data.recommendations; // Assuming this structure
+      const monumentDetails = await Monument.find({ _id: { $in: recommendations } });
+      res.json(monumentDetails);
+    }
+    catch(fetchError){
+      const randomMonuments = await Monument.aggregate([{ $sample: { size: 6 } }]);
+      res.json(randomMonuments);
+}
   } catch (error) {
     console.error('Error fetching user tickets:', error);
     res.status(500).json({ message: 'Error fetching user tickets' });

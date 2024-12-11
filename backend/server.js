@@ -76,22 +76,102 @@ function authenticateToken(req, res, next) {
   });
 }
 
-app.get("/fetchmuseumfamilyevents", async (req, res) => {
+app.post("/fetchmuseumtechnological", async (req, res) => {
+  try {
+    console.log(req.body);
+    const Category = req.body.Category;
+    console.log("Fetching technological monuments...");
+
+    const { city, date } = req.body;
+    console.log("Category:", Category, "City:", city, "date:", date);
+
+    // Fetch monuments in the specified city
+    let monuments = await Agency.find({ 
+      category: Category, 
+      "location.city": city  
+    });
+
+    console.log("Monuments Found:", monuments);
+
+    // Return the monuments
+    res.json(monuments);
+  } catch (error) {
+    console.error("Error fetching technological monuments:", error);
+    res.status(500).json({ message: "Error fetching technological monuments" });
+  }
+});
+app.post("/cheapplaces", async (req, res) => {
+  try {
+    console.log(req.body);
+    console.log("Fetching technological monuments...");
+
+    const { city, date, budget } = req.body;
+    console.log("City:", city, "date:", date, "budget:", budget);
+    // Fetch monuments in the specified city and within the budget
+    let monuments = await Agency.find({ 
+      category: "Technological", 
+      "location.city": city,
+      price: { $lte: budget } // Ensure price is less than or equal to the budget
+    });
+
+    console.log("Monuments Found:", monuments);
+
+    // Return the monuments
+    res.json(monuments);
+  } catch (error) {
+    console.error("Error fetching technological monuments:", error);
+    res.status(500).json({ message: "Error fetching technological monuments" });
+  }
+});
+
+
+app.get("/fetchmuseumfamilyeventstamil", async (req, res) => {
   try {
     const events = await Event.aggregate([
       { $match: { audience_type: { $in: ["General", "family", "children"] } } },
       { $sample: { size: 5 } },
     ]);
-    res.json(events);
+
+    const translateObject = async (obj) => {
+      const translatedObj = {};
+      for (const key in obj) {
+        if (typeof obj[key] === "string") {
+          translatedObj[key] = await translate(obj[key], { to: "ta" });
+        } else if (typeof obj[key] === "object" && obj[key] !== null && !Array.isArray(obj[key])) {
+          translatedObj[key] = await translateObject(obj[key]);
+        } else if (Array.isArray(obj[key])) {
+          translatedObj[key] = await Promise.all(
+            obj[key].map(async (item) =>
+              typeof item === "object" ? await translateObject(item) : item
+            )
+          );
+        } else {
+          translatedObj[key] = obj[key];
+        }
+      }
+
+      return translatedObj;
+    };
+    const translatedEvents = await Promise.all(
+      events.map(async (event) => {
+        const translatedEvent = await translateObject(event);
+        translatedEvent.MonumentId = event.MonumentId;
+        translatedEvent.eventDate = event.eventDate;
+
+        return translatedEvent;
+      })
+    );
+
+    res.json(translatedEvents);
   } catch (error) {
-    console.error("Error fetching events:", error);
+    console.error("Error fetching and translating events:", error);
     res.status(500).json({ message: "Error fetching events", error: error.message });
   }
 });
-app.get("/fetchmuseumfamilyeventstamil", async (req, res) => {
+app.get("/fetchmuseumDefaultamil", async (req, res) => {
   try {
     const events = await Event.aggregate([
-      { $match: { audience_type: { $in: ["General", "family", "children"] } } },
+      { $match: { audience_type: { $in: ["General", "family", "children","solo","student"] } } },
       { $sample: { size: 5 } },
     ]);
 
@@ -716,7 +796,7 @@ const dateToTimestamp = (dateString) => {
 
 app.post('/api/buy-ticket-Event', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
-  const { eventid, selectedPersons, selectedDate, monuId,couponId } = req.body;
+  const { eventid, selectedPersons, selectedDate, monuId } = req.body;
 
   console.log(selectedDate);
   try {
@@ -762,15 +842,7 @@ app.post('/api/buy-ticket-Event', authenticateToken, async (req, res) => {
       { $push: { tickets: { $each: tickets } } }
     );
 
-    // const user = await User.findOne({ _id: userId })
     const user = await User.findOne({ _id: userId })
-
-    if(couponId){
-        // Add the coupon ID to the user's coupons array
-         user.coupon = user.coupon || []; // Ensure the array is initialized
-         user.coupon.push(couponId);
-         await user.save();
-    }
 
     await Event.findByIdAndUpdate(
       eventid,
@@ -803,9 +875,7 @@ const handleIncrementRevenue = async (selectedDate, totalPersons, ticketPrice, m
 
 app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
   const userId = req.user.userId;
-  const { selectedPersons, selectedDate, monuId,couponId,discount } = req.body;
-
-  
+  const { selectedPersons, selectedDate, monuId } = req.body;
 
   console.log(selectedPersons, selectedDate);
 
@@ -855,13 +925,6 @@ app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
     );
 
     const user = await User.findOne({ _id: userId })
-
-    if(couponId){
-        // Add the coupon ID to the user's coupons array
-         user.coupon = user.coupon || []; // Ensure the array is initialized
-         user.coupon.push(couponId);
-         await user.save();
-    }
     await Agency.findByIdAndUpdate(
       monuId,
       { $inc: { totalAvailableTicket: -persons } },
@@ -931,7 +994,6 @@ app.post('/api/buy-ticket-Regular', authenticateToken, async (req, res) => {
 
 app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
     const {paymentId} = req.params;
-    
 
     const razorpay = new Razorpay({
          key_id: process.env.RAZORPAY_ID_KEY,
@@ -945,8 +1007,6 @@ app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
             return res.status(500).json("Error at razorpay loading")
         }
 
-        
-
         res.json({
             status: payment.status,
             method: payment.method,
@@ -958,96 +1018,6 @@ app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
         res.status(500).json("failed to fetch")
     }
 })
-
-
-const Coupon =require('./models/coupon')
-
-// Helper function to generate a coupon code from the name
-const generateCouponCode = (name) => {
-  return name.toUpperCase().replace(/\s+/g, ''); // Convert to uppercase and remove whitespace
-};
-
-// API to add a new coupon
-app.post('/add-coupon', async (req, res) => {
-  const { name, discountPrice } = req.body; // Extract name and discountPrice from the request body
-
-  try {
-    if (!name || !discountPrice) {
-      return res.status(400).json({ error: 'Name and discount price are required.' });
-    }
-
-    // Generate a coupon code based on the name
-    const couponCode = generateCouponCode(name);
-
-    // Check if a coupon with the same name or code already exists
-    const existingCoupon = await Coupon.findOne({
-      $or: [{ name }, { couponCode }],
-    });
-
-    if (existingCoupon) {
-      return res.status(400).json({
-        error: 'A coupon with this name or coupon code already exists.',
-      });
-    }
-
-    // Create a new coupon
-    const newCoupon = new Coupon({
-      name,
-      discountPrice,
-      couponCode,
-    });
-
-    // Save the coupon to the database
-    const savedCoupon = await newCoupon.save();
-
-    res.status(201).json({
-      message: 'Coupon added successfully.',
-      coupon: savedCoupon,
-    });
-  } catch (error) {
-    console.error('Error adding coupon:', error);
-    res.status(500).json({ error: 'Server error' });
-  }
-});
-
-
-// // API to add a new coupon
-// app.post('/add-coupon', async (req, res) => {
-//   const { name, discountPrice } = req.body; // Extract name and discountPrice from the request body
-
-//   try {
-//     if (!name || !discountPrice) {
-//       return res.status(400).json({ error: 'Name and discount price are required.' });
-//     }
-
-//     // Check if a coupon with the same name already exists
-//     const existingCoupon = await Coupon.findOne({ name });
-//     if (existingCoupon) {
-//       return res.status(400).json({ error: 'A coupon with this name already exists.' });
-//     }
-
-//     // Generate a unique coupon code
-//     const couponCode = await generateCouponCode();
-
-//     // Create a new coupon
-//     const newCoupon = new Coupon({
-//       name,
-//       discountPrice,
-//       couponCode,
-//     });
-
-//     // Save the coupon to the database
-//     const savedCoupon = await newCoupon.save();
-
-//     res.status(201).json({
-//       message: 'Coupon added successfully.',
-//       coupon: savedCoupon,
-//     });
-//   } catch (error) {
-//     console.error('Error adding coupon:', error);
-//     res.status(500).json({ error: 'Server error' });
-//   }
-// });
 
 
 app.use('/api/auth', authRoutes);

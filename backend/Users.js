@@ -58,12 +58,13 @@ console.log(req.body);
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
-    res.cookie('token', token, {
-      httpOnly: false,   
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Strict', 
-      maxAge: 3600000, 
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const cookieName =  'visitor_token' ;
+    res.cookie(cookieName, token, {
+      httpOnly: false,   // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
+      maxAge: 3600000, // Cookie expiry time in milliseconds
     });
 
     res.status(201).json({ msg: 'Otp is sent to your mail' });
@@ -95,12 +96,13 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
-    res.cookie('token', token, {
-      httpOnly: false,   
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Strict', 
-      maxAge: 3600000, 
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const cookieName =  'visitor_token' ;
+    res.cookie(cookieName, token, {
+      httpOnly: false,   // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
+      maxAge: 3600000, // Cookie expiry time in milliseconds
     });
 
 
@@ -126,13 +128,13 @@ console.log(req.body)
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn:604800 });
-
-    res.cookie('token', token, {
-      httpOnly: false,   
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Strict', 
-      maxAge: 3600000, 
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const cookieName =  'visitor_token' ;
+    res.cookie(cookieName, token, {
+      httpOnly: false,   // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
+      maxAge: 3600000, // Cookie expiry time in milliseconds
     });
 
    
@@ -145,7 +147,10 @@ console.log(req.body)
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  if (token == null) return res.sendStatus(401); 
+  // console.log(token)
+  
+  
+  if (token == null) return res.sendStatus(401); // Unauthorized
   
   
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
@@ -265,12 +270,13 @@ router.post('/forget-pass', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
-    res.cookie('token', token, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production', 
-      sameSite: 'Strict', 
-      maxAge: 3600000, 
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const cookieName =  'visitor_token' ;
+    res.cookie(cookieName, token, {
+      httpOnly: false,   // Prevent JavaScript access to the cookie
+      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
+      maxAge: 3600000, // Cookie expiry time in milliseconds
     });
 
     res.status(201).json({ message: 'Password changed Successfully' });

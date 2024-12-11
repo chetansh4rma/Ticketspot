@@ -313,11 +313,12 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { agencyId: agency._id,agencyName: agency.agencyName};
-const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
-    res.cookie('token', token, {
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const cookieName = 'monu_token';
+    res.cookie(cookieName, token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
       maxAge: 3600000, // Cookie expiry time in milliseconds
     });
 
@@ -354,11 +355,11 @@ router.post('/login', async (req, res) => {
 
     const payload = { agencyId: agency._id,agencyName: agency.agencyName};
     const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
-
-    res.cookie('token', token, {
+    const cookieName = 'monu_token';
+    res.cookie(cookieName, token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
+      sameSite: 'None', // Controls whether cookies are sent with cross-site requests
       maxAge: 3600000, // Cookie expiry time in milliseconds
     });
     res.status(201).json({ msg: 'Agency registered successfully' });
@@ -373,7 +374,7 @@ router.post('/login', async (req, res) => {
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  // console.log(req, " ",token)
+  console.log(req, " ",token)
   if (token == null) return res.sendStatus(401); // Unauthorized
   
    

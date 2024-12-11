@@ -25,22 +25,31 @@ dotenv.config();
 const cors = require("cors");
 
 
-const allowedOrigins = [
-  `${process.env.FRONT_URL1}`,
-  `${process.env.FRONT_URL2}`
-];
+const corsOptions = {
+  origin:  [
+    `${process.env.FRONT_URL1}`,
+    `${process.env.FRONT_URL2}`
+  ], // Replace with your frontend origins
+  credentials: true, // Allow credentials (cookies)
+};
+app.use(cors(corsOptions));
 
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-    console.log('Request Origin:', origin)
-  },
-  credentials: true
-}));
+// const allowedOrigins = [
+//   `${process.env.FRONT_URL1}`,
+//   `${process.env.FRONT_URL2}`
+// ];
+
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     if (!origin || allowedOrigins.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//     console.log('Request Origin:', origin)
+//   },
+//   credentials: true
+// }));
 
 
 const authRoutes = require('./Users');

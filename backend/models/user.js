@@ -35,22 +35,7 @@ myTickets: [{
     },
     state: {
       type: String,
-<<<<<<< Updated upstream
-    },
-    zipCode: {
-      type: String,
-    },
-    country: {
-      type: String,
-    },
-  },
-  coupon: [{
-  type: mongoose.Schema.Types.ObjectId,
-  ref: 'Coupon' 
-}]
-=======
     }}
->>>>>>> Stashed changes
 });
 
 // UserSchema.add({
@@ -69,7 +54,7 @@ UserSchema.pre('save', async function (next) {
   next();
 });
 
-const User = mongoose.model('User1', UserSchema);
+const User = mongoose.model('User', UserSchema);
 const OtpSchema = new mongoose.Schema({
   email: { type: String, required: true },
   otp: { type: String, required: true },

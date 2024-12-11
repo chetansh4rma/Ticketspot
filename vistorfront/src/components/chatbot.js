@@ -157,7 +157,7 @@ export default function Chatbot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZBc6sZ4RWO1oVqcS3p3i-T6OQ7zXnk9n0kBQ_RStmIZWRc5q2-kf3puDQwy7MtyumyfljzTMip6SJmHdJbaAToJX7XIocQH5EbfrN9tUSwkgGizlX6UCU3StG_JnjwmtWJXTG010fI6U-LsziyvzqhnNRE17SFCJ4SM1Tpic89MgFgvmCFn_4eMWe5mFFM2gJiqs3EQHqg7ptSUbyZQkLEf64TaAupuW2_1UPwxzGILwz1ssdmn90tlozc2xa8B0XZCIk_aHRiPLs2y99fPSNI2z_WuCSHNbtGpcs8Kvho06_9c77WlDJngVETZAbFdD3ZVbdzvcJ0QhSrR8hpskAcMla8dN1K6pwH1WB_PF4ctYm3JrBRMqPrzmqKh2mC6lmtUlSuEWvwHMBohwWGVi2D6mIcek9VU1y3u_P8SuQaCgYKARESARMSFQHGX2MiYrwsWN71id1havZ1NB2z2Q0437`,
+          Authorization: `Bearer ya29.a0AeDClZB4ot1EWIrc-JWz6y-9gCCYuBNXXAUJjFI1DhQWynogE8qxM7sGX2dBIPUbdiIstspwz6PcqyLFa6y0Bgh9FG917UhmA_WvVGOSrF7VH5wxEFvgXbxvm4MUBL47ONzxgs4jmbjXEObw0best8bt2wZJtU_yFBsso2-7pRf7DQ_0y4JiJbD2GfS8SkqafTnrmfToPNkjR_GG5pKiV_NfRmxIHX7NbXgdW0hZbcI2EcXcrt-yPyW1A6kGAMMcxzWdE98Q4zgzerA-AdIC0BudRDX1Tu71R98G9QPxXYQFnNirfKp8dQLHS0uu_8uEx-L5Mw-4xSZ8qBUxVlJqFaAnN6laO93LSJSMyL_D1MPL88hTb0jNmIgTIYrki1_cvuiZixhyxekSd5CIKv1-uFqT24gePFTZbQdZQR5B5g7SaCgYKAVESARMSFQHGX2MifmOcFKE3Cnc2Zkup6rYXwA0435`,
         },
         body: JSON.stringify({
           queryInput: {

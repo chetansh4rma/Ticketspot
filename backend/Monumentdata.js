@@ -313,7 +313,7 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { agencyId: agency._id,agencyName: agency.agencyName};
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
     res.cookie('token', token, {
       httpOnly: false,   // Prevent JavaScript access to the cookie
       secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
@@ -713,7 +713,7 @@ router.get('/fetch-revenue', authenticateToken, async (req, res) => {
 router.post('/ticketScan', authenticateToken, async (req, res) => {
   const monuId = req.agency.agencyId;
   const { ticketId} = req.body;
-
+  console.log("ticketid:",ticketId);
   try {
     const agency = await Agency.findOne({ _id: monuId });
     if (!agency) return res.status(404).json({ msg: 'Event not found' });

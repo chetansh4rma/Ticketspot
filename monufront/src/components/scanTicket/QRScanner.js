@@ -36,10 +36,13 @@ const QRScanner = () => {
               withCredentials: true,
             }
           );
+          // alert("You are verified , now you can enjoy your visit , have a great day!")
           console.log(response.data);
-          if(response.data.status===201)
+          alert(response.data.msg)
+          if(response.status===201)
           {
-            alert(response.data.status)
+            // console.log(response.data.msg);
+            alert("You are verified , now you can enjoy your visit , have a great day!")
           }
           
         } catch (error) {

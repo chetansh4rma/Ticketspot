@@ -44,12 +44,10 @@ console.log(req.body);
     await user.save();
 
 
-    // generate otp
     const otpCode = crypto.randomInt(1000, 9999).toString();
     const otp = new Otp({ email, otp: otpCode });
     await otp.save();
 
-    // send mail
     await transporter.sendMail({
       from: process.env.EMAIL,
       to: email,
@@ -60,12 +58,12 @@ console.log(req.body);
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
     res.cookie('token', token, {
-      httpOnly: false,   // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
-      maxAge: 3600000, // Cookie expiry time in milliseconds
+      httpOnly: false,   
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Strict', 
+      maxAge: 3600000, 
     });
 
     res.status(201).json({ msg: 'Otp is sent to your mail' });
@@ -97,12 +95,12 @@ router.post('/verify-otp', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
     res.cookie('token', token, {
-      httpOnly: false,   // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
-      maxAge: 3600000, // Cookie expiry time in milliseconds
+      httpOnly: false,   
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Strict', 
+      maxAge: 3600000, 
     });
 
 
@@ -117,7 +115,6 @@ router.post('/verify-otp', async (req, res) => {
 
 
 
-// Login Route
 router.post('/login', async (req, res) => {
   const { email, password } = req.body;
 console.log(req.body)
@@ -129,13 +126,13 @@ console.log(req.body)
     if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn:604800 });
 
     res.cookie('token', token, {
-      httpOnly: false,   // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
-      maxAge: 3600000, // Cookie expiry time in milliseconds
+      httpOnly: false,   
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Strict', 
+      maxAge: 3600000, 
     });
 
    
@@ -148,11 +145,11 @@ console.log(req.body)
 function authenticateToken(req, res, next) {
 
   const token = req.cookies.token;
-  if (token == null) return res.sendStatus(401); // Unauthorized
+  if (token == null) return res.sendStatus(401); 
   
   
   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) return res.sendStatus(403); // Forbidden
+    if (err) return res.sendStatus(403); 
     req.user = user;
     next();
   });
@@ -162,9 +159,8 @@ function authenticateToken(req, res, next) {
 
 router.post('/userLocation', authenticateToken, async (req, res) => {
   try {
-    const { street, city, state, zipCode, country } = req.body; // Extract location data from the request body
+    const { street, city, state, zipCode, country } = req.body; 
 
-    // Find the user and update their location
     const user = await User.findByIdAndUpdate(
       req.user.userId,
       {
@@ -176,12 +172,12 @@ router.post('/userLocation', authenticateToken, async (req, res) => {
           country,
         },
       },
-      { new: true, runValidators: true } // return the updated document and run validators
-    ).select('-password'); // Exclude password
+      { new: true, runValidators: true } 
+    ).select('-password'); 
 
     if (!user) return res.status(404).json({ msg: 'User not found' });
 
-    res.json({success:true,message:"Location is stored in DB"}); // Respond with the updated user data
+    res.json({success:true,message:"Location is stored in DB"}); 
   } catch (err) {
     console.error(err.message);
     res.status(500).send('Server error');
@@ -191,7 +187,7 @@ router.post('/userLocation', authenticateToken, async (req, res) => {
 
 router.get('/userdetails', authenticateToken, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password'); // Exclude password
+    const user = await User.findById(req.user.userId).select('-password'); 
     if (!user) return res.status(404).json({ msg: 'User not found' });
     res.json(user);
   } catch (err) {
@@ -200,7 +196,6 @@ router.get('/userdetails', authenticateToken, async (req, res) => {
   }
 });
 
-// Forgot Password Route
 router.post('/sent-otp-forget',async(req,res)=>{
   const { email } = req.body;
 
@@ -208,12 +203,10 @@ router.post('/sent-otp-forget',async(req,res)=>{
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ msg: 'User not found' });
 
-     // generate otp
      const otpCode = crypto.randomInt(1000, 9999).toString();
      const otp = new Otp({ email, otp: otpCode });
      await otp.save();
  
-     // send mail
      await transporter.sendMail({
        from: process.env.EMAIL,
        to: email,
@@ -272,12 +265,12 @@ router.post('/forget-pass', async (req, res) => {
 
 
     const payload = { userId: user._id };
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '1d' });
+    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: 604800 });
     res.cookie('token', token, {
-      httpOnly: false,   // Prevent JavaScript access to the cookie
-      secure: process.env.NODE_ENV === 'production', // Set to true in production with HTTPS
-      sameSite: 'Strict', // Controls whether cookies are sent with cross-site requests
-      maxAge: 3600000, // Cookie expiry time in milliseconds
+      httpOnly: false,
+      secure: process.env.NODE_ENV === 'production', 
+      sameSite: 'Strict', 
+      maxAge: 3600000, 
     });
 
     res.status(201).json({ message: 'Password changed Successfully' });
@@ -287,38 +280,25 @@ router.post('/forget-pass', async (req, res) => {
   }
 });
 
-// Buy Ticket Route
-
 router.post('/buy-ticket',authenticateToken, async (req, res) => {
-  const userId = req.user.userId ||"6708ab76b8eb6b9f753613cc"; // Assuming a static user ID for now
-  const { eventid, selectedPersons, selectedDate } = req.body; // Extract data from the request body
+  const userId = req.user.userId ||"6708ab76b8eb6b9f753613cc"; 
+  const { eventid, selectedPersons, selectedDate } = req.body; 
   
   const chosenDate = new Date(selectedDate);
 
-
-
-  // console.log(req.body, userId);
-
   try {
-    // Convert selectedDate to a Date object
     
 
-    // Get current date and calculate the maximum allowed date
+
     const currentDate = new Date();
     const fiveDaysFromNow = new Date(currentDate);
     fiveDaysFromNow.setDate(currentDate.getDate() + 5);
 
-    // Validate the selected date
     if (chosenDate < currentDate || chosenDate > fiveDaysFromNow) {
       return res.status(400).json({ msg: 'Selected date must be within the next 5 days' });
     }
-
-    // Find the event by ID
     const event = await Event.findById(eventid);
     if (!event) return res.status(404).json({ msg: 'Event not found' });
-    // console.log(event)
-
-    // Validate number of persons
     const persons = parseInt(selectedPersons, 10);
     if (!persons || persons <= 0) {
       return res.status(400).json({ msg: 'Invalid number of persons' });
@@ -326,49 +306,33 @@ router.post('/buy-ticket',authenticateToken, async (req, res) => {
     if (event.totalTicketsAvailable < persons) {
       return res.status(400).json({ msg: 'Not enough tickets available' });
     }
-
-    // Create an array to hold the tickets
     const tickets = [];
 
     const tick=[];
     for (let i = 0; i < persons; i++) {
-      // Generate a unique hexadecimal ticket number
-      const ticketNo = crypto.randomBytes(16).toString('hex'); // Generates a unique 32-character hex string
-
-    
-
-      // Create a new ticket using the Ticket schema
+      const ticketNo = crypto.randomBytes(16).toString('hex'); 
       const ticket = new Ticket({
         ticketNo: ticketNo,
-        eventId: event._id, // Reference to the event
-        userId: userId, // Reference to the user
-        price: event.ticketPrice, // Fetching the price from the event
-        purchasedAt: Date.now(), // Timestamp of when the ticket was purchased
-        ExpirationDate: new Date(chosenDate.getTime() + 24 * 60 * 60 * 1000), // Ticket expiration is 24 hours later
-        selectedDate: chosenDate // Storing the selected date for the ticket
+        eventId: event._id, 
+        userId: userId, 
+        price: event.ticketPrice, 
+        purchasedAt: Date.now(), 
+        ExpirationDate: new Date(chosenDate.getTime() + 24 * 60 * 60 * 1000), 
+        selectedDate: chosenDate 
       });
-
-      // console.log(ticket," hello")
-
-      // Save the ticket to the database
       await ticket.save();
 
-      // Add the ticket to the array
       tickets.push(ticket._id);
       tick.push(ticket);
     }
-
-    // Update the user's myTickets array with all purchased tickets
     await User.updateOne(
       { _id: userId },
-      { $push: { myTickets: { $each: tickets } } } // Use $each to push an array of ticket IDs
+      { $push: { myTickets: { $each: tickets } } } 
     );
-
-    // Update the event to decrement the available tickets
     await Event.findByIdAndUpdate(
       eventid,
-      { $inc: { totalTicketsAvailable: -persons } }, // Decrement available tickets by number of persons
-      { new: true } // Return the updated document
+      { $inc: { totalTicketsAvailable: -persons } }, 
+      { new: true } 
     );
 
     res.status(201).json({ msg: `${persons} tickets purchased successfully`, tickets:tick });
@@ -378,27 +342,19 @@ router.post('/buy-ticket',authenticateToken, async (req, res) => {
   }
 });
 
-/// Search Monument by Name
 router.get('/search-monuments/:name', async (req, res) => {
   console.log("hello world");
-  const { name } = req.params; // Get the name from the request parameters
-  const { region, priceRange, category } = req.query; // Get additional filters from query parameters
+  const { name } = req.params; 
+  const { region, priceRange, category } = req.query; 
   console.log(req.query);
   console.log(`Searching for monuments with name starting with: ${name}`);
 
   try {
-    // Create a regex pattern that matches the input as a prefix
-    const regex = new RegExp('^' + name, 'i'); // Starts with the input, case-insensitive
-
-    // Build the query for filtering based only on the regex and provided query parameters
+    const regex = new RegExp('^' + name, 'i'); 
     const query = {
       MonumentName: { $regex: regex }
     };
-
-    // Fetch monuments based only on the query
     const monuments = await Monument.find(query);
-
-    // Respond directly with the found monuments
     res.status(200).json({ monuments });
   } catch (err) {
     console.error(err.message);
@@ -408,35 +364,27 @@ router.get('/search-monuments/:name', async (req, res) => {
 
 router.get('/Recommend', authenticateToken, async (req, res) => {
   const userId = req.user.userId; // Get userId from decoded token
-  console.log("mytoken", userId);
-  
   try {
-    const tickets = await Ticket.find({ userId }).populate("_id", 'MonumentName'); 
-    console.log("tickets",tickets);
-    // // Check if any tickets were found
+    const tickets = await Ticket.find({ userId }).populate('eventId', 'MonumentName'); // Assuming eventId contains the MonumentName
+    // Fetch tickets for the user
+    // Check if any tickets were found
     if (tickets.length === 0) {
       // Fetch random 6 monuments when no tickets are found
-      const randomMonuments = await Agency.aggregate([{ $sample: { size: 6 } }]);
+      const randomMonuments = await Monument.aggregate([{ $sample: { size: 6 } }]);
       return res.json(randomMonuments); // Send the random monuments back to the client
     }
-
     // Extract the first monument name from tickets
-    const ticketsdata = tickets[0].MonumentId // Use MonumentName from populated data
-    const place = await Agency.findById(ticketsdata);
-    userplace=place._id;
-    // // Send data to the recommendation API with the first monument name
+    const firstMonumentName = "Taj Mahal"; // Get the first ticket's monument name or set default
+    console.log("first", firstMonumentName);
+    // Send data to the recommendation API with the first monument name
     const response = await axios.post('http://127.0.0.1:5000/recommend', {
       user_id: userId,
-      place: userplace 
+      place: firstMonumentName // Pass the first monument name
     });
-    console.log("response",response)
-
     // Get the recommendations from the response
     const recommendations = response.data.recommendations; // Assuming this structure
-
     // Fetch monument details based on the recommendations
-    const monumentDetails = await Agency.find({ _id: { $in: recommendations } });
-
+    const monumentDetails = await Monument.find({ _id: { $in: recommendations } });
     // Send the monument details back to the client
     console.log(monumentDetails);
     res.json(monumentDetails);
@@ -447,11 +395,10 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
 });
 
 router.get('/mytickets', async (req, res) => {
-  const userId =req.user.userId ; // Assuming req.user is populated by your verifyToken middleware
+  const userId =req.user.userId ; 
   try {
-    console.log("User ID:", userId); // Log user ID for debugging
-    // Find tickets for the logged-in user
-    const tickets = await Ticket.find({ userId }); // Ensure that Ticket model has the userId field
+    console.log("User ID:", userId); 
+    const tickets = await Ticket.find({ userId });
     console.log(tickets);
     res.json(tickets);
   } catch (error) {
@@ -462,35 +409,27 @@ router.get('/mytickets', async (req, res) => {
 
 
 router.post('/events-detail', async (req, res) => {
-  const { MonumentId } = req.body; // Extract eventId from the request body
+  const { MonumentId } = req.body; 
  console
 
   try {
-    // Get the current date and the date for 5 days later
     const currentDate = new Date();
     console.log(MonumentId,currentDate)
     const fiveDaysFromNow = new Date(currentDate);
     fiveDaysFromNow.setDate(currentDate.getDate() + 5);
-
-    // Find the event by the provided event ID and make sure the event is within the date range
     let events = await Event.find({
       MonumentId: MonumentId,
-      eventDate: { $gt: currentDate, $lte: fiveDaysFromNow } // Event must be within the date range
     }).limit(5);
     console.log(events)
-    // If no event matches the criteria, get the first upcoming event in the collection
     if (!events || events.length==0) {
       events = await Event.find({ MonumentId: MonumentId }).sort({ eventDate: 1 }).limit(10);
     }
 
     console.log(events)
-
-    // If no event is found, return a message
     if (!events) {
       return res.status(404).json({ msg: 'No upcoming events found' });
     }
      console.log(events)
-    // Return the found event details
     return res.status(200).json({
       msg: 'Event details fetched successfully',
       events
@@ -511,7 +450,6 @@ router.get('/products/:id',authenticateToken, async (req, res) => {
   const { id } = req.params;
 
   try {
-    // Fetch the Monument document by ID while excluding certain fields
     const monument = await Monument.findById(id).select(
       '-tickets -bookings -guides -ticketPrice -totalAvailableTicket -totalRevenue -events -password'
     );
@@ -519,8 +457,6 @@ router.get('/products/:id',authenticateToken, async (req, res) => {
     if (!monument) {
       return res.status(404).json({ msg: 'Monument not found' });
     }
-
-    // Return the monument details
     res.status(200).json({
       msg: 'Monument details fetched successfully',
       monument,
@@ -533,10 +469,8 @@ router.get('/products/:id',authenticateToken, async (req, res) => {
 
 
 router.post('/reviews', authenticateToken, async (req, res) => {
-  const { text, rating, id } = req.body; // Extract data from the request body
-  const userId = req.user.userId; // Assuming `req.user` is set by authentication middleware
-
-  // Fetch the user's name from the User collection
+  const { text, rating, id } = req.body; 
+  const userId = req.user.userId; 
   let userName;
   try {
     const user = await User.findOne({ _id: userId }).select('name');
@@ -548,7 +482,6 @@ router.post('/reviews', authenticateToken, async (req, res) => {
     return res.status(500).json({ msg: 'Error fetching user details.' });
   }
 
-  // Validation
   if (!userId) {
     return res.status(401).json({ msg: 'User must be logged in to submit feedback.' });
   }
@@ -563,7 +496,6 @@ router.post('/reviews', authenticateToken, async (req, res) => {
   }
 
   try {
-    // Create a new feedback entry
     const feedback = new Feedback({
       userId,
       userName,
@@ -572,7 +504,6 @@ router.post('/reviews', authenticateToken, async (req, res) => {
       comment: text.trim(),
     });
 
-    // Save the feedback to the database
     await feedback.save();
 
     res.status(200).json({ msg: 'Feedback submitted successfully!', feedback });
@@ -583,25 +514,25 @@ router.post('/reviews', authenticateToken, async (req, res) => {
 });
 
 router.get('/show-review', authenticateToken, async (req, res) => {
-  const limit = parseInt(req.query.limit) || 3; // Default limit
-  const page = parseInt(req.query.page) || 1; // Default page
+  const limit = parseInt(req.query.limit) || 3; 
+  const page = parseInt(req.query.page) || 1; 
   const id=req.query.id;
 
   if(!id)
   {
     return res.status(401).json({ msg: 'Something Went Wrong' });
   }
-  const skip = (page - 1) * limit; // Calculate skip
+  const skip = (page - 1) * limit; 
   const MonumentId = id;
   const userId = req.user.userId;
   
 
   try {
-    const totalFeedbacks = await Feedback.countDocuments(); // Total number of feedbacks
+    const totalFeedbacks = await Feedback.countDocuments(); 
     const feedbacks = await Feedback.find({MonumentId:MonumentId})
       .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit).exec(); // Paginate with skip and limit
+      .limit(limit).exec(); 
     console.log(feedbacks)
     res.json({
       reviews: feedbacks,
@@ -614,14 +545,12 @@ router.get('/show-review', authenticateToken, async (req, res) => {
 });
 
 router.delete('/delete-review', authenticateToken, async (req, res) => {
-  const userId  = req.user.userId; // Feedback ID from URL
-  // const agencyId = req.agency.agencyId; 
+  const userId  = req.user.userId;  
   const  feedId= req.query.feedId
   try {
-    // Find and delete the feedback
     const feedback = await Feedback.findOneAndDelete({
-      _id: feedId, // Match the feedback ID
-      userId, // Ensure the feedback belongs to the user
+      _id: feedId, 
+      userId, 
     });
 
     if (!feedback) {
@@ -634,13 +563,6 @@ router.delete('/delete-review', authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
-
-
-
-
-
-
-// pred Chatbot
 
 
 

@@ -147,7 +147,7 @@ const Soloevents=async()=>{
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZCH1fDqnKfHCMcNQoByyh-2iXH6A_R8HHK4smOUL6On-0VuXd3Yh4hIYPidPF7Hq03Lae-AmYSrtTCKgWcmwSGvofm0OaEoQF925xhrYY-Txw0CTFXtL6Ca1p3ljbpuvJYYDMsU20-PfL8Gjnx0xWb1R-it0ECYwNNHEVIu7ALQfhyEbI3nSAmKaxelz90REoIzVpU2NhIacYJYHMdUPIIuQsdjRYhuVBTwGs_HEoNu6NkWwCteEXRvl0SdkklCejJcUS8uTy9_s3tbkUHMO00EJ75tFSGVF-JWutLUfMSsRlj8SjaQk-ahFxEN5UEyffR5X52E80lQ5K6I-tQYivB6eMStdkCnSQLnhSG2lvesdnqa3l3XdnmEvEVlChfqC3noalXoGARHaJIQ4kKriqt2ckhF2QWkXaT1PfS0aCgYKAU8SARMSFQHGX2Mi47WcdjSGHAhWzuzqNpX2Cw0435`,
+          Authorization: `Bearer ya29.a0AeDClZBomOnfPJxYu5o5r5Iylzn2m5AV1McuHXNtFo3GzyQQEM5LjbLONGXNOpsVzGWVMMQCKryswPeDGoVMAgMG032Dk12o4Je_a37zOUJGFJP0VLjYQUOfBLIrlVcgPfbZ2Sjn6XnXOYwkQYgKkwddeC6oXEb8SIr9AV2KDwj-77s_B1anwlqXY_TBoS0kl-w7eWES34BpF9zcNZ2nxZbgvSXz11IeCWbOMJ386CRs_jgxPn6wYCwwScshyGOESFfaJgtHqbE5oEsShY3MH8H__xuX8RWQ51p97ATm2-RpwloIbtYeR6PFCHPB5RC9rztsJ8pRub33qt854pTPO4vquVlKqpkMtpTB5wtyy6LHQgWgRHD7S-nj3shgrCWvRsREDWRHyCsFsMwqyNIzwdWNGW0VQgCsmayI0K2lie--OwaCgYKATsSARMSFQHGX2Mi_hNbZjJ01SCXSejX1Cz_nA0437`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -413,7 +413,7 @@ addBotMessage(termsAndConditions);
             <div className="chatbot-header">
               <div className="chatbot-header-title">
                 <BotIcon size={24} className="bot-icon" />
-                <h3>MuseumTix Assistant</h3>
+                <h3>Ticketspot Assistant</h3>
               </div>
               <button onClick={() => setIsOpen(false)}>
                 <X size={20} />

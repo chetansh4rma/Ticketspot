@@ -518,8 +518,8 @@ const stepFour=async()=>{
       {
         label: await handleTranslation('Pay Now'),
         className: 'confirm-book-button',
-        // onClick: () => handleConfirmationResponse(),
-        onClick:()=>createRazorpayOrder()
+        onClick: () => handleConfirmationResponse(),
+        // onClick:()=>createRazorpayOrder()
       },
       {
         label:await handleTranslation('cancel'),

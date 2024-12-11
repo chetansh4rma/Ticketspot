@@ -45,7 +45,7 @@ const Home = () => {
         const response = await axios.get(`http://localhost:5000/api/auth/Recommend/`, {
           withCredentials: true
         });
-        console.log(response);
+        console.log("data:",response.data[0].imageUrl[0]);
         setRecommendedPlaces(response.data.length > 0 ? response.data : placeholderData);
       } catch (error) {
         console.error("Error fetching recommendations:", error);
@@ -138,7 +138,7 @@ const Home = () => {
                       >
                         <img
                           className="d-block w-100 carousel-image"
-                          src={place.MonumentImage}
+                          src={place.imageUrl[0]}
                           alt={place.MonumentName}
                         />
                         <Carousel.Caption>
@@ -167,7 +167,7 @@ const Home = () => {
                 <Col lg="4" md="6" sm="6" className="mb-4" key={place.id}>
                   <div className="tour__card" onClick={() => handlePlaceClick(place)}>
                     <div className="tour__img">
-                      <img src={place.MonumentImage} alt={place.MonumentName} />
+                      <img src={place.imageUrl[0]} alt={place.MonumentName} />
                     </div>
                     <div className="card__info">
                       <h4 className="tour__title">{place.MonumentName}</h4>

@@ -1,14 +1,10 @@
-/* @import url("https://fonts.googleapis.com/css2?family=Island+Moments&display=swap");
-@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
-@import 'font-awesome/css/font-awesome.min.css'; */
-
 :root {
   --primary-color: #ff7e01;
   --secondary-color: #faa935;
   --heading-color: #0b2727;
   --text-color: #6e7074;
   --font-name: "Montserrat", sans-serif;
-  --subtitle-font-name: "Island Moments", cursive;
+  --subtitle-font-name: "Montserrat", sans-serif;
 }
 
 * {
@@ -151,4 +147,182 @@ ul {
   to {
     transform: rotate(360deg);
   }
+}
+
+/* Hero Section */
+.hero__subtitle img {
+  width: 2.3rem;
+  height: 2.3rem;
+}
+
+.hero__content h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  margin-top: 1rem;
+  margin-bottom: 2rem;
+  color: var(--heading-color);
+  text-align: left;
+}
+
+.hero__content h1 .highlight {
+  color: var(--secondary-color);
+}
+
+.hero__content p {
+  font-size: 1rem;
+  color: var(--text-color);
+  line-height: 1.4rem;
+}
+
+.hero__content {
+  padding-top: 3.5rem;
+}
+
+.hero__img-box,
+.hero__video-box {
+  width: 100%;
+  max-width: 100%; /* Ensure no overflow */
+  height: 350px;
+  overflow: hidden; /* Hide anything that overflows */
+  display: flex;
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+}
+
+.hero__img-box img,
+.hero__video-box video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* Ensure the media covers the container without distortion */
+  border-radius: 20px;
+  
+}
+
+.hero__img-box {
+  padding-top: 2rem;
+}
+
+.hero__video-box {
+  display:flex; /* This can be toggled for showing video on smaller screens */
+}
+
+/* Carousel Wrapper */
+.carousel-wrapper {
+  margin: 0 auto; /* Center the content */
+  width: 90%; /* Adjust the width as needed */
+  max-width: 1200px; /* Prevent it from stretching too wide */
+}
+
+/* Experience Section */
+.experience__content h2 {
+  font-size: 2rem;
+  font-weight: 500;
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.experience__content p {
+  font-size: 1.2rem;
+  color: var(--text-color);
+  margin-top: 1rem;
+}
+
+.counter__wrapper {
+  margin-top: 1.6rem;
+}
+
+.counter__box span {
+  width: 70px;
+  height: 70px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 600;
+  border-radius: 10px 5px 10px 5px;
+}
+
+.counter__box h6 {
+  font-size: 0.8rem;
+  margin-top: 0.5rem;
+  color: var(--text-color);
+}
+
+.experience__img img {
+  width: 90%;
+}
+
+/* TESTIMONIAL SECTION */
+.testimonial__title {
+  font-size: 1.6rem;
+  margin-top: 0.8rem;
+  text-align: left;
+}
+
+/* Footer Styles */
+.footer__content {
+  text-align: center;
+  padding: 2rem 0;
+  background-color: #222;
+  color: #fff;
+  width: 100%;
+}
+
+/* Responsive Adjustments */
+@media only screen and (max-width: 992px) {
+  .hero__content h1 {
+    font-size: 2.5rem;
+  }
+
+  .hero__img-box {
+    display: none;
+  }
+
+  .hero__video-box {
+    display: block;
+  }
+
+  .services__title,
+  .featured__tour-title,
+  .gallery__title,
+  .testimonial__title,
+  .experience__content h2 {
+    font-size: 2rem;
+  }
+
+  .experience__img {
+    margin-top: 2rem;
+  }
+}
+
+@media only screen and (max-width: 576px) {
+  .hero__content h1 {
+    font-size: 1.8rem;
+  }
+
+  .services__title,
+  .featured__tour-title,
+  .gallery__title,
+  .testimonial__title,
+  .experience__content h2 {
+    font-size: 1.5rem;
+  }
+}
+
+.hero-video-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: -1; /* To make sure the video stays in the background */
+}
+
+.hero-video {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }

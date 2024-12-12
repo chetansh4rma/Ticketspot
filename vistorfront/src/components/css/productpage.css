@@ -9,14 +9,12 @@
 
 .section__subtitle {
   background: #faa935;
-  font-family:  "Island Moments", cursive;
+  font-family: "Montserrat", sans-serif; /* Changed to Montserrat */
   width: max-content;
-  padding: 0px 0.5rem;
-  padding-right: 1rem;
-
+  padding: 0.4rem 0.6rem;
   border-radius: 50px;
-  font-weight: 300;
-  font-size: 1.7rem;
+  font-weight: 400;
+  font-size: 1.4rem;
   color: #0b2727;
 }
 

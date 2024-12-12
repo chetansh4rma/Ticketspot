@@ -3,7 +3,7 @@ import yourImage from './assets/LogoTicketspot.jpg'; // Adjust the path and file
 
 const DiscountCoupon = () => {
   return (
-    <div className="flex justify-center items-center bg-[#e9f4fa;] h-[300px]">
+    <div className="flex justify-center items-center bg-white h-[300px]">
       <div className="relative bg-white w-[900px] h-[200px] flex items-center justify-between border-dashed border-4 border-[#faa935] p-6 rounded-lg shadow-lg">
         {/* Left Section */}
         <div className="flex flex-col justify-center items-center bg-[#faa935] text-white h-full w-[120px] rounded-lg shadow-md">

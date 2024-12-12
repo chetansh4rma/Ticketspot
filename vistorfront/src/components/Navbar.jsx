@@ -12,7 +12,6 @@ import './css/navbar.css';
 const pages = [
   { label: 'Home', path: '/', icon: <HomeIcon /> },
   { label: 'About', path: '/about', icon: <InfoIcon /> },
-  { label: 'Explore', path: '/explore', icon: <ExploreIcon /> },
 ];
 
 const Navbar = () => {
@@ -21,6 +20,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [autocompleteResults, setAutocompleteResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [activePage, setActivePage] = useState(location.pathname);
 
   useEffect(() => {
     const fetchAutocomplete = async () => {
@@ -53,12 +53,22 @@ const Navbar = () => {
     setSearchQuery('');
     setAutocompleteResults([]);
   };
-  
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/museums?search=${encodeURIComponent(searchQuery)}`);
+    }
+  };
+
+  const handlePageClick = (path) => {
+    setActivePage(path);
+
+    // Scroll to bottom when 'About' is clicked
+    if (path === '/about') {
+      window.scrollTo(0, document.documentElement.scrollHeight);
+    } else {
+      navigate(path);
     }
   };
 
@@ -100,14 +110,16 @@ const Navbar = () => {
 
         <nav className="navbar-menu">
           {pages.map((page) => (
-            <Link
+            <div
               key={page.label}
-              to={page.path}
-              className={`navbar-item ${location.pathname === page.path ? 'navbar-item-active' : ''}`}
+              className={`navbar-item-wrapper ${activePage === page.path ? 'active' : ''}`}
+              onClick={() => handlePageClick(page.path)}
             >
-              {page.icon}
-              <span className="navbar-item-label">{page.label}</span>
-            </Link>
+              <Link to={page.path} className="navbar-item">
+                {page.icon}
+                <span className="navbar-item-label">{page.label}</span>
+              </Link>
+            </div>
           ))}
 
           <button onClick={() => navigate('/profile')} className="navbar-profile">

@@ -4,7 +4,7 @@
   --heading-color     : #0b2727;
   --text-color        : #6e7074;
   --font-name         : "Montserrat", sans-serif;
-  --subtitle-font-name: "Island Moments", cursive;
+  --subtitle-font-name: "Arial", sans-serif;  /* Change this to a non-cursive font */
 }
 
 /* Global Styles */
@@ -20,8 +20,6 @@ body, html {
 main {
   flex: 1;
 }
-
-/* ... (previous CSS rules remain unchanged) */
 
 /* Recommended Places Carousel */
 .recommended-places {
@@ -125,10 +123,12 @@ main {
     height: 150px;
   }
 }
+
 .container {
   flex: 1;
 }
 
+/* Hero Section */
 /* Hero Section */
 .hero__subtitle img {
   width : 2.3rem;
@@ -140,7 +140,8 @@ main {
   font-weight  : 600;
   margin-top   : 1rem;
   margin-bottom: 2rem;
-  color        : var(--heading-color);
+  color        : black; /* Default color for mobile screens */
+  text-align   : left;
 }
 
 .hero__content h1 .highlight {
@@ -149,17 +150,28 @@ main {
 
 .hero__content p {
   font-size  : 1rem;
-  color      : var(--text-color);
+  color      : black; /* Default color for mobile screens */
   line-height: 1.4rem;
 }
 
-.hero__img-box img,
-.hero__img-box video {
+.hero-video {
   width        : 100%;
   height       : 350px;
   border-radius: 20px;
   border       : 1px solid var(--secondary-color);
   object-fit   : cover;
+  filter       : brightness(70%);
+  z-index      : -1;
+  display      : block;
+}
+
+.hero__img-box img {
+  width        : 100%;
+  height       : 350px;
+  border-radius: 20px;
+  border       : 1px solid var(--secondary-color);
+  object-fit   : cover;
+  display      : none; /* Hide images by default */
 }
 
 .hero__content {
@@ -169,6 +181,43 @@ main {
 .hero__img-box {
   padding-top: 2rem;
 }
+
+/* Media Query for larger screens */
+@media only screen and (min-width: 768px) {
+  .hero-video {
+    display: block; /* Display video on larger screens */
+  }
+
+  .hero__img-box img {
+    display: none; /* Hide images on larger screens */
+  }
+
+  /* White text on larger screens */
+  .hero__content h1, 
+  .hero__content p {
+    color: white; 
+  }
+}
+
+/* Media Query for smaller screens */
+@media only screen and (max-width: 768px) {
+  .hero-video {
+    display: none; /* Hide video on smaller screens */
+  }
+
+  .hero__img-box img {
+    display: block; /* Show images on smaller screens */
+  }
+
+  /* Black text on smaller screens */
+  .hero__content h1, 
+  .hero__content p {
+    color: black; 
+  }
+}
+
+
+
 
 /* Search Bar */
 .search-bar-container {
@@ -203,8 +252,7 @@ main {
   background-color: var(--primary-color);
 }
 
-
-/* corousal */
+/* Carousel */
 .carousel-container {
   margin-top: 60px;
   text-align: center;
@@ -212,21 +260,22 @@ main {
 
 .carousel-container h2 {
   margin-bottom: 20px;
+  
 }
 
 .carousel-image {
   height: 400px;
   object-fit: cover;
+  border-radius: 10px; /* Adds slightly rounded borders */
 }
-
 
 /* Carousel Wrapper */
 .carousel-wrapper {
   margin: 0 auto; /* Center the content */
   width: 90%; /* Adjust the width as needed */
   max-width: 1200px; /* Prevent it from stretching too wide */
+  
 }
-
 
 .small-carousels-section {
   margin: 20px 0;
@@ -239,6 +288,7 @@ main {
 .small-carousel-image {
   height: 200px; /* Adjust height as needed */
   object-fit: cover; /* Ensures images are covered */
+  
 }
 
 /* Small Boxes Section */
@@ -282,52 +332,41 @@ main {
   margin: 0; /* Remove default margin */
 }
 
-
 /* Experience Section */
 .experience__content h2 {
   font-size  : 2rem;
   font-weight: 500;
   margin-top : 1rem;
   text-align:left;
-  
-}
-
-.experience__content p {
-  font-size : 1.2rem;
-  color     : var(--text-color);
-  margin-top: 1rem;
 }
 
 .counter__wrapper {
   margin-top: 1.6rem;
+  gap: 2rem; /* Increased gap between counter boxes */
+}
+
+.counter__box {
+  text-align: center; /* Center align the content */
 }
 
 .counter__box span {
-  width          : 70px;
-  height         : 70px;
-  margin         : auto;
+  width          : 90px; /* Increased from 70px */
+  height         : 90px; /* Increased from 70px */
+  margin         : 0 auto 0.5rem; /* Centered with bottom margin */
   display        : flex;
   align-items    : center;
   justify-content: center;
   background     : var(--primary-color);
   color          : #fff;
-  font-size      : 1.2rem;
+  font-size      : 1.4rem; /* Slightly larger font */
   font-weight    : 600;
   border-radius  : 10px 5px 10px 5px;
 }
 
 .counter__box h6 {
-  font-size : 0.8rem;
-  margin-top: 0.5rem;
+  font-size : 0.9rem; /* Slightly larger label */
   color     : var(--text-color);
 }
-
-.experience__img img {
-  width: 90%;
-}
-
-
-
 
 /* TESTIMONIAL SECTION */
 .testimonial__title {
@@ -335,8 +374,6 @@ main {
   margin-top: 0.8rem;
   text-align:left;
 }
-
-
 
 /* Footer Styles */
 .footer__content {
@@ -348,7 +385,7 @@ main {
 }
 
 /* =============== RESPONSIVE ================ */
-@media only screen and (max-width:992px) {
+@media only screen and (max-width: 992px) {
   .hero__content h1 {
     font-size: 2.5rem;
   }

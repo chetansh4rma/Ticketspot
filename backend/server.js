@@ -122,6 +122,48 @@ const randomMonuments = await Agency.aggregate([
     res.status(500).json({ message: "Error fetching technological monuments" });
   }
 });
+app.post("/fetchmuseumDefault", async (req, res) => {
+  try {
+    console.log(req.body);
+    const { city } = req.body;
+
+    // Fetch monuments in the specified city and category
+    let monuments = await Agency.find({ 
+      "location.city": city  
+    });
+
+    console.log("Monuments Found:", monuments);
+
+    // If no monuments are found for the specified category and city
+    if (monuments.length === 0) {
+      console.log("No monuments found for the specified category and city, fetching random monuments...");
+
+ // Fetch random monuments from the database
+const randomMonuments = await Agency.aggregate([
+  { 
+    $match: { "location.city": city}  // First, filter by city
+  },
+  { 
+    $sample: { size: 5 }  // Then randomly sample 5 documents
+  }
+]);
+
+      console.log("Random Monuments:", randomMonuments);
+
+      return res.status(200).json({
+         randomMonuments,
+      });
+      
+    }
+
+    // Return the monuments if found
+    res.json({randomMonuments,
+    });
+  } catch (error) {
+    console.error("Error fetching technological monuments:", error);
+    res.status(500).json({ message: "Error fetching technological monuments" });
+  }
+});
 
 app.post("/cheapplaces", async (req, res) => {
   try {

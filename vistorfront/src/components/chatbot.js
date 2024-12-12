@@ -159,7 +159,7 @@ export default function Chatbot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZAFfgIM-kLs_d--1bVSAzqV5QfmuQ1YiN-GGBKZmtTMnEPPGcP9xEWzCzTCrlRCEW9OKXfeuO2c9RmFRPnwAImkdUDupeTskGcZkkDJ5b8QhIo_vwWbWGYtbCjFrB1nB_AHrytBR-AlyM-lcNabJmkh2MgQHEFg2wgzgyVP9k9HcQvkBC_VOkTVcAmenc_M0U4cFImbH58msWpLGmYamjf7s_pKJ035d9X__xIH59Q1657AuYcBaPIVw99oVLCMfe7ujGu3RuuVESPBB6t_geiZeRX7jAVvPYjqxAzZ3fgQf1tmD2_9M7DW_nEGB579P6cFa7BrmYOmghD5Qc5rxHTUtmmbiwg3l9qK_j4Bifmv6328i2BJ1zShOZXtqkdrBKS9576v0j8yCtp1Qtu0FRMxuiV5vSTAX4qpHib5JgaCgYKAT8SARMSFQHGX2Mi2H3PrIrolnfGKJNWQCKTrQ0437`,
+          Authorization: `Bearer ya29.a0AeDClZA6FFwAPRltjsTGkh4Iep1ONTtveK6zTB_3d3si9-FlyZt1hgycAhhiIzWcIvjTntQ5yOnaSn4xDERrQmbCdD2ZQ-uLR-o6Yka12k-FcOoXBfOTzT8S5TdPnLFNfjeelr0KapJq423z2TXazQN0oQRF8NuV9LtiE1jNfWvup7GYA57MWVwEmtz3oK-0sNchM8wuhfUjB76HSjo-ozN2oOvSoj7Z89A_afa-3i63e902CudEaAC1gawxE2jnFjlHJeZyN6cNK-MiNi4G6SCwzL1v2zTg9aYGwgtGFMYzwMgum40MwRwsNMkLPIXOCrEI4DvOBxD5QM3PclqxqGq0wX1R8LvZq_9Wbqd3c8D01FTYZHH1cyO5lHDWHuqCEbfx8dLpLE513tJywEyzoxeKccKagFudd3_OQftlztAPFAaCgYKAYwSARMSFQHGX2MiVhjAxHAWT75ULXA7kiQ_rg0437`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -241,7 +241,7 @@ console.log("response : ",data);
             const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Technological"});
            console.log(res.data);
             if(!res.data.length===0){
-                res.data.forEach((event) => {
+                res.data.randomMonuments.forEach((event) => {
                   const { MonumentName, _id } = event;
               addBotMessage(
                 <button
@@ -448,17 +448,14 @@ console.log("response : ",data);
                 addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
               
                 // Capture city, date, and category from Dialogflow parameters
-                const city = data.queryResult.parameters.city; 
-                const date = data.queryResult.parameters.date_time; 
-                const category = data.queryResult.parameters.category
+                const city ="new delhi"; 
+
             
                 // Check if city, date, and category are captured
-                if (city && date && category) {
+                if (cities) {
                   // Make API request with captured parameters
                   const res = await axios.post(`http://localhost:5000/fetchmuseumDefault/`, {
                     city: city,
-                    date: date,
-                    Category: category
                   });
             
                   if (res.data && res.data.length > 0) {

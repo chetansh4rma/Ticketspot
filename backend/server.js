@@ -118,47 +118,29 @@ const randomMonuments = await Agency.aggregate([
     res.json({monuments,
     });
   } catch (error) {
-    console.error("Error fetching technological monuments:", error);
-    res.status(500).json({ message: "Error fetching technological monuments" });
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 });
-app.post("/fetchmuseumDefault", async (req, res) => {
+app.post('/fetchmonumentDefault', async (req, res) => {
+  const { city } = req.body; // Extract the city from the request body
   try {
-    console.log(req.body);
-    const { city } = req.body;
-
-    // Fetch monuments in the specified city and category
-    let monuments = await Agency.find({ 
-      "location.city": city  
-    });
-
-    console.log("Monuments Found:", monuments);
-
-    // If no monuments are found for the specified category and city
-    if (monuments.length === 0) {
-      console.log("No monuments found for the specified category and city, fetching random monuments...");
-
- // Fetch random monuments from the database
-const randomMonuments = await Agency.aggregate([
-  { 
-    $match: { "location.city": city}  // First, filter by city
-  },
-  { 
-    $sample: { size: 5 }  // Then randomly sample 5 documents
-  }
-]);
-
-      console.log("Random Monuments:", randomMonuments);
-
-      return res.status(200).json({
-         randomMonuments,
-      });
-      
-    }
+    const randomMonuments = await Agency.aggregate([
+      {
+        $sample: { size: 5 }, // Randomly sample 5 monuments
+      },
+    ]);
 
     // Return the monuments if found
-    res.json({randomMonuments,
-    });
+    res.json(randomMonuments);
   } catch (error) {
     console.error("Error fetching technological monuments:", error);
     res.status(500).json({ message: "Error fetching technological monuments" });
@@ -313,8 +295,16 @@ else{
 }
   }
 catch (error) {
-    console.error("Error fetching student monuments:", error);
-    res.status(500).json({ message: "Error fetching student monuments" });
+  try {
+    const events = await Event.aggregate([
+      { $sample: { size: 5 } },
+      { $sort: { eventTicketPrice: 1 } }
+    ]);
+    res.json(events);
+  } catch (error) {
+    console.error("Error fetching events:", error);
+    res.status(500).json({ message: "Error fetching events" });
+  }
   }
 });
 async function fetchRandomMonuments(city, count = 5) {
@@ -336,8 +326,16 @@ async function fetchRandomMonuments(city, count = 5) {
     ]);
     return randomMonuments;
   } catch (error) {
-    console.error("Error fetching random monuments:", error);
-    return []; // Return an empty array if the fallback fails
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 }
 
@@ -391,8 +389,16 @@ app.get("/fetchmuseumStudenteventstamil", async (req, res) => {
 
     res.json(translatedEvents);
   } catch (error) {
-    console.error("Error fetching events:", error);
-    res.status(500).json({ message: "Error fetching events", error: error.message });
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 });
 app.get("/fetchmuseumcheapplacetamil", async (req, res) => {
@@ -445,8 +451,16 @@ app.get("/fetchmuseumcheapplacetamil", async (req, res) => {
 
     res.json(translatedEvents);
   } catch (error) {
-    console.error("Error fetching events:", error);
-    res.status(500).json({ message: "Error fetching events", error: error.message });
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 });
 app.post("/fetchplace", authenticateToken, async (req, res) => {
@@ -461,8 +475,16 @@ app.post("/fetchplace", authenticateToken, async (req, res) => {
     console.log(city)
     res.json({ city: city ,state:State});
   } catch (error) {
-    console.error("Error fetching user data:", error);
-    res.status(500).json({ message: 'Error fetching user data' });
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 });
 
@@ -522,8 +544,16 @@ app.post("/category", async (req, res) => {
     console.log("Combined Events:", combinedEvents);
     res.json(combinedEvents);
   } catch (error) {
-    console.error("Error fetching educational events:", error);
-    res.status(500).json({ message: "Error fetching educational events" });
+    try {
+      const events = await Event.aggregate([
+        { $sample: { size: 5 } },
+        { $sort: { eventTicketPrice: 1 } }
+      ]);
+      res.json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res.status(500).json({ message: "Error fetching events" });
+    }
   }
 });
 

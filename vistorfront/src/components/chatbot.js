@@ -97,6 +97,7 @@ export default function Chatbot() {
   const [isListening, setIsListening] = useState(false);
   const [cities, setcities] = useState(null);
   const [dates, setdate] = useState(null);
+  const [budget, setbudget] = useState(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -127,6 +128,8 @@ export default function Chatbot() {
   const addUserMessage = (text) => {
     setMessages((prev) => [...prev, { text, sender: 'user' }]);
   };
+
+  const [id, setId] = useState(null)
   const Soloevents = async (place) => {
     try {
       addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>)
@@ -140,10 +143,202 @@ export default function Chatbot() {
         addBotMessage("Sorry, I couldn't find any events at the moment.");
       }
     } catch (error) {
-      console.error("Error fetching solo events:", error);
+      console.error("Error fetching  events:", error);
       addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
     }
   }
+  const coupon = () => {
+    addBotMessage("do you have any coupon to apply ?")
+    addBotMessage(<div className="flex flex-wrap justify-center gap-2">
+      <button onClick={() => createRazorpayOrder()} className="w-12">yes</button>
+      <button onClick={() => coupon()} className="w-12">no</button>
+    </div>)
+  }
+
+
+  const createRazorpayOrder = () => {
+
+
+    let totalCost = (100) - 0;
+    let data = JSON.stringify({
+      amount: totalCost * 100,
+      currency: "INR",
+      id: '6758954fff45f1ed98042b5b'
+    })
+
+    let config = {
+      method: "post",
+      maxBodyLength: Infinity,
+      url: `${process.env.REACT_APP_BACK_URL}/gateway/orders`,
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      data: data,
+      withCredentials: true
+    }
+
+    axios.request(config)
+      .then((response) => {
+        console.log(JSON.stringify(response.data))
+        if (response.data.success) {
+          handleRazorpayScreen(response)
+        } else {
+          handleCloseChatbot()
+        }
+      })
+      .catch((error) => {
+        console.log("error at", error)
+      })
+  }
+
+  const [step, setStep] = useState(0)
+
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+
+      script.src = src;
+
+      script.onload = () => {
+        resolve(true)
+      }
+      script.onerror = () => {
+        resolve(false)
+      }
+
+      document.body.appendChild(script);
+    })
+  }
+
+  const [productData, setProductData] = useState()
+  const [responseId, setResponseId] = useState("");
+  const [responseState, setResponseState] = React.useState([]);
+
+  const handleCloseChatbot = () => {
+    setIsOpen(false)
+    setMessages([])
+    setStep(0)
+  }
+
+  const disablePrevButtons = (className) => {
+    setMessages((prevMessages) =>
+      prevMessages.map((msg) => {
+        if (msg.buttons) {
+          msg.buttons = msg.buttons.map((btn) => {
+            if (btn.className === className) {
+              return { ...btn, disabled: true }; // Disable buttons with matching class name
+            }
+            return btn;
+          });
+        }
+        return msg;
+      })
+    );
+  }
+
+
+  const handleRazorpayScreen = async (response) => {
+    const { key_id, amount, product_name, description, order_id, name, email } = response.data;
+    const res = await loadScript("https:/checkout.razorpay.com/v1/checkout.js")
+
+    if (!res) {
+      alert("Some error at razorpay screen loading")
+      return;
+    }
+
+    const options = {
+      key: key_id,
+      amount: amount,
+      currency: 'INR',
+      name: product_name,
+      description: `payment to ${productData.MonumentName}`,
+      image: `${productData.MonumentLogo}`,
+      handler: function (response) {
+        setResponseId(response.razorpay_payment_id)
+        disablePrevButtons('proceed-button')
+        paymentFetch(response.razorpay_payment_id)
+      },
+      prefill: {
+        name: "TicketSpot",
+        email: "codex.2420@gmail.com"
+      },
+      theme: {
+        color: "#F4C430"
+      }
+    }
+
+    const paymentObject = new window.Razorpay(options)
+    paymentObject.open()
+  }
+
+  const paymentFetch = (data) => {
+    // e.preventDefault();
+
+    const paymentId = data;
+    console.log(data)
+
+    axios.get(`${process.env.REACT_APP_BACK_URL}/gateway/payment/${paymentId}`, { withCredentials: true })
+      .then((response) => {
+        console.log(response.data);
+        setResponseState(response.data)
+        // if(response.status)
+        // {
+        //   handleConfirmationResponse()
+        // }else{
+        //   handleCloseChatbot()
+        // }
+      })
+      .catch((error) => {
+        console.log("error occures", error)
+      })
+  }
+
+
+  const [discount, setDiscount] = useState(0)
+  // const  handleConfirmationResponse=async()=>{
+  //   // alert(isMonu)
+  //   if(isMonu){
+  //   handleMonu()
+  //   }else{
+  //     handleEvent()
+  //   }
+  //   addBotMessage(await handleTranslation(`Booking confirmed`))
+  //   addBotMessage(await handleTranslation(`Enjoy your visit , and don't forget to give review`))
+  // }
+
+  // const [tickets,setTickets]=useState(null)
+  // const handleMonu=async()=>{
+  //   try{
+  //   const response = await axios.post(
+  //     `${process.env.REACT_APP_BACK_URL}/api/buy-ticket-Regular`,
+  //     {
+  //         place:productData.MonumentName,
+  //         selectedPersons: ticketCount,
+  //         selectedDate: selectDate,
+  //         monuId:productData._id,
+  //         couponId:couponId
+
+  //     },
+  //     {
+  //       headers: { 'Content-Type': 'application/json' },
+  //       withCredentials: true,
+  //     }
+  //   );
+  //   console.log('Booking confirmed:', response.data);
+  //   setTickets(response.data.tickets)
+
+
+
+  //   response.data.tickets.forEach((ticket) => {
+  //     createTicketPDF(ticket,response.data.time,response.data.name); // Generate PDF for each ticket
+  //   });
+
+  //   handleCloseChatbot()
+  // } catch (error) {
+  //   console.error('Error booking ticket:', error.message);
+  // }
+  // }
+
   const fetchApiResponse = async (input) => {
     addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
     try {
@@ -159,7 +354,7 @@ export default function Chatbot() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0AeDClZA6FFwAPRltjsTGkh4Iep1ONTtveK6zTB_3d3si9-FlyZt1hgycAhhiIzWcIvjTntQ5yOnaSn4xDERrQmbCdD2ZQ-uLR-o6Yka12k-FcOoXBfOTzT8S5TdPnLFNfjeelr0KapJq423z2TXazQN0oQRF8NuV9LtiE1jNfWvup7GYA57MWVwEmtz3oK-0sNchM8wuhfUjB76HSjo-ozN2oOvSoj7Z89A_afa-3i63e902CudEaAC1gawxE2jnFjlHJeZyN6cNK-MiNi4G6SCwzL1v2zTg9aYGwgtGFMYzwMgum40MwRwsNMkLPIXOCrEI4DvOBxD5QM3PclqxqGq0wX1R8LvZq_9Wbqd3c8D01FTYZHH1cyO5lHDWHuqCEbfx8dLpLE513tJywEyzoxeKccKagFudd3_OQftlztAPFAaCgYKAYwSARMSFQHGX2MiVhjAxHAWT75ULXA7kiQ_rg0437`,
+          Authorization: `Bearer ya29.a0ARW5m77KUCmJ8Y6bY81I5MyiSTIuim2NQ0GPKjrA78uSPlzvf7cORONky98URLMyIE4Vw3BloKf-NlTlLYizLaSxxqee4c_kEmIQHAgIbxxDz_4jkhh70TkJgrAczcpUiqWoXb9XIgIYbNhMcZTSWyt7_aXqLyRgA9OAIC8oGpuu0XbF5rSHYMxhl2AXlKtbp1Gk4jFsuX2X287Al4kZ1Zfv5OEkt7WoebQNtUwXpBKzLed8AqIjtz0liL9ihA5eMKzeeuz5NlVHzZkhJRlVdy1vX7YDxh1XUzkRhb8Ousntla4f7bYdYsFZl-Izx2Tv5Y_MgEQlNTMxMEUnkFDYideUyAP7RA_r_f8Jd-K-BH8kjnegtQdLNPzr8wP2VgvN91yh7-TKE1kD_C-EdKfFB-9fizP3XkoMB-IRivsm2Yh_lwaCgYKAU0SARMSFQHGX2Mi7mrgZWj7te8GnBmHS3pCmg0437`,
         },
         body: JSON.stringify({
           queryInput: {
@@ -175,9 +370,18 @@ export default function Chatbot() {
         }),
         credentials: 'include', // Correct placement of the credentials property
       });
-
+      const payment = () => {
+        addBotMessage("Enter the number of tickets you want to book");
+        addBotMessage(<div className="flex flex-wrap justify-center gap-2">
+          <button onClick={() => coupon()} className="w-12">1</button>
+          <button onClick={() => coupon()} className="w-12">2</button>
+          <button onClick={() => coupon()} className="w-12">3</button>
+          <button onClick={() => coupon()} className="w-12">4</button>
+          <button onClick={() => coupon()} className="w-12">5</button>
+        </div>)
+      }
       const data = await response.json();
-console.log("response : ",data);
+      console.log("response : ", data);
       setMessages((prev) => prev.slice(0, -1));
 
       if (data.queryResult) {
@@ -211,7 +415,7 @@ console.log("response : ",data);
               addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
             }
             break;
-            
+
           case "cheap_places_tamil":
             try {
               addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
@@ -235,71 +439,14 @@ console.log("response : ",data);
             Soloevents(city);
             break;
           case "Technological":
-            try{const date=data.queryResult.parameters.date_time;
-            const cityintent=data.queryResult.parameters.city;
-           if(date&&cityintent){
-            const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Technological"});
-           console.log(res.data);
-            if(!res.data.length===0){
-                res.data.randomMonuments.forEach((event) => {
-                  const { MonumentName, _id } = event;
-              addBotMessage(
-                <button
-                  onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                  className="redirect-button"
-                >
-                  Visit {MonumentName}
-                </button>
-              );
-            });
-              }
-              else{
-                addBotMessage("Sorry, I couldn't find any museums at the moment.");
-              }
-           }}
-           catch{
-            console.error("Error fetching solo events:", error);
-           }
-            break;
-          case "cheap_places":
-            try{const date=data.queryResult.parameters.date_time;
-            const cityintent=data.queryResult.parameters.city;
-            const budget=data.queryResult.parameters.budget;
-           if(date&&cityintent&&budget){
-            const res = await axios.post(`http://localhost:5000/cheapplaces`,{city:cityintent,date:date,budget:budget});
-            res.data.forEach((event) => {
-              const { MonumentName, _id } = event;
-              addBotMessage(
-                <button
-                  onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                  className="redirect-button"
-                >
-                  Visit {MonumentName}
-                </button>
-              );
-            });
-           }}
-           catch{
-            console.error("Error fetching solo events:", error);
-           }
-            break;
-          case "Cultural":
             try {
               const date = data.queryResult.parameters.date_time;
               const cityintent = data.queryResult.parameters.city;
-          console.log("cityintent",cityintent)
               if (date && cityintent) {
-                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, {
-                  city: cityintent,
-                  date: date,
-                  Category: "Cultural"
-                });
-          
-                console.log(res);
-          
-                if (res.data && res.data.length > 0) {
-                  // If monuments are found, display them
-                  res.data.forEach((event) => {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Technological" });
+                console.log(res.data);
+                if (!res.data.length === 0) {
+                  res.data.randomMonuments.forEach((event) => {
                     const { MonumentName, _id } = event;
                     addBotMessage(
                       <button
@@ -310,16 +457,80 @@ console.log("response : ",data);
                       </button>
                     );
                   });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
+            }
+            catch {
+              console.error("Error fetching solo events:", error);
+            }
+            break;
+          // case "cheap_places":
+          //   try {
+          //     const date = data.queryResult.parameters.date_time;
+          //     const cityintent = data.queryResult.parameters.city;
+          //     const budget = data.queryResult.parameters.budget;
+          //     if (date && cityintent && budget) {
+          //       const res = await axios.post(`http://localhost:5000/cheapplaces`, { city: cityintent, date: date, budget: budget });
+          //       res.data.forEach((event) => {
+          //         const { MonumentName, _id } = event;
+          //         addBotMessage(
+          //           <button
+          //             onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+          //             className="redirect-button"
+          //           >
+          //             Visit {MonumentName}
+          //           </button>
+          //         );
+
+          //       });
+          //     }
+          //   }
+          //   catch {
+          //     console.error("Error fetching solo events:", error);
+          //   }
+          //   break;
+
+          case "Cultural":
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              console.log("cityintent", cityintent)
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, {
+                  city: cityintent,
+                  date: date,
+                  Category: "Cultural"
+                });
+
+                console.log(res);
+
+                if (res.data && res.data.length > 0) {
+                  // If monuments are found, display them
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => payment()}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+
+                  });
                 } else {
                   // Assuming random monuments are returned as part of `res.data.monuments`
                   const randomMonuments = res.data.monuments;  // Access random monuments from the response
-          
+
                   if (randomMonuments && randomMonuments.length > 0) {
                     randomMonuments.forEach((event) => {
                       const { MonumentName, _id } = event;
                       addBotMessage(
                         <button
-                          onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                          onClick={() => payment()}
                           className="redirect-button"
                         >
                           Visit {MonumentName}
@@ -335,90 +546,96 @@ console.log("response : ",data);
               addBotMessage("Sorry, I couldn't fetch the events at the moment.");
             }
             break;
-          
-          
-      
+
+
+
           case "Artistic":
-            try{const date=data.queryResult.parameters.date_time;
-            const cityintent=data.queryResult.parameters.city;
-           if(date&&cityintent){
-            const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Artistic"});
-            if(!res.data.length===0){
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event;
-            addBotMessage(
-              <button
-                onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                className="redirect-button"
-              >
-                Visit {MonumentName}
-              </button>
-            );
-          });
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Artistic" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
             }
-            else{
-              addBotMessage("Sorry, I couldn't find any museums at the moment.");
+            catch {
+              console.error("Error fetching  events:", error);
             }
-           }}
-           catch{
-            console.error("Error fetching  events:", error);
-           }
             break;
           case "Historical":
-            try{const date=data.queryResult.parameters.date_time;
-            const cityintent=data.queryResult.parameters.city;
-           if(date&&cityintent){
-            const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Historical"});
-            if(!res.data.length===0){
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event;
-            addBotMessage(
-              <button
-                onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                className="redirect-button"
-              >
-                Visit {MonumentName}
-              </button>
-            );
-          });
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Historical" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
             }
-            else{
-              addBotMessage("Sorry, I couldn't find any museums at the moment.");
+            catch {
+              console.error("Error fetching  events:", error);
             }
-           }}
-           catch{
-            console.error("Error fetching  events:", error);
-           }
             break;
           case "Scientific":
-            try{const date=data.queryResult.parameters.date_time;
-            const cityintent=data.queryResult.parameters.city;
-           if(date&&cityintent){
-            const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Scientific"});
-            if(!res.data.length===0){
-              res.data.forEach((event) => {
-                const { MonumentName, _id } = event;
-            addBotMessage(
-              <button
-                onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                className="redirect-button"
-              >
-                Visit {MonumentName}
-              </button>
-            );
-          });
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Scientific" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
             }
-            else{
-              addBotMessage("Sorry, I couldn't find any museums at the moment.");
+            catch {
+              console.error("Error fetching  events:", error);
             }
-           }}
-           catch{
-            console.error("Error fetching  events:", error);
-           }
             break;
-      
+
           case "PlaceToVisitIntent":
-            const Place = data.queryResult.parameters.place||"Calico Museum of Texttiles";
+            const Place = data.queryResult.parameters.place || "Calico Museum of Texttiles";
             console.log("Place", Place)
             try {
               addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
@@ -436,81 +653,41 @@ console.log("response : ",data);
                     </button>
                   </div>
                 );
-                
+
               });
             } catch (error) {
               console.error("Error fetching solo events:", error);
               addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
             }
             break;
-            case "DefaultFallbackIntent":
-              try {
-                addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
-              
-                // Capture city, date, and category from Dialogflow parameters
-                const city ="new delhi"; 
-
-            
-                // Check if city, date, and category are captured
-                if (cities) {
-                  // Make API request with captured parameters
-                  const res = await axios.post(`http://localhost:5000/fetchmuseumDefault/`, {
-                    city: city,
-                  });
-            
-                  if (res.data && res.data.length > 0) {
-                    addBotMessage("Here are the upcoming events:");
-                    res.data.map((event) => {
-                      console.log(event);
-                      addBotMessage(<EventCard event={event} />);
-                    });
-                  } else {
-                    addBotMessage("Sorry, I couldn't find any events at the moment.");
-                  }
-                } else {
-                  // If parameters are not captured, ask for missing information
-                  if (!cities) {
-                    setcities(input);
-                    addBotMessage("I didn't catch the city. Can you please tell me the city?");
-                  } else if (!dates) {
-                    setdate(input);
-                    addBotMessage("Can you please provide the date you're looking for?");
-                  } 
-                  console.log("cities: ",cities,"date:",dates);
-                }
-              } catch (error) {
-                console.error("Error fetching events:", error);
-                addBotMessage("Sorry, I couldn't fetch the events at the moment.");
-              }
-              break;
-            
-         
           case "Historical":
-            try{const date=data.queryResult.parameters.date_time;
-              const cityintent=data.queryResult.parameters.city;
-             if(date&&cityintent){
-              const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`,{city:cityintent,date:date,Category:"Technological"});
-             console.log(res.data);
-              if(!res.data.length===0){
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Technological" });
+                console.log(res.data);
+                if (!res.data.length === 0) {
                   res.data.forEach((event) => {
                     const { MonumentName, _id } = event;
-                addBotMessage(
-                  <button
-                    onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-                    className="redirect-button"
-                  >
-                    Visit {MonumentName}
-                  </button>
-                );
-              });
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
                 }
-                else{
+                else {
                   addBotMessage("Sorry, I couldn't find any museums at the moment.");
                 }
-             }}
-             catch{
+              }
+            }
+            catch {
               console.error("Error fetching solo events:", error);
-             }
+            }
             break;
           case "Artistic":
             try {
@@ -535,48 +712,48 @@ console.log("response : ",data);
               addBotMessage("Sorry, I couldn't fetch the events at the moment.");
             }
             break;
-        case "student_event":
-  try {
-    const Budget = data.queryResult.parameters.budget;
+          case "student_event":
+            try {
+              const Budget = data.queryResult.parameters.budget;
 
-    // Check if budget is provided
-    if (!Budget) {
-      addBotMessage("Please provide your budget to fetch events.");
-      break; // Exit the case early if there's no budget
-    }
+              // Check if budget is provided
+              if (!Budget) {
+                addBotMessage("Please provide your budget to fetch events.");
+                break; // Exit the case early if there's no budget
+              }
 
-    // Indicate that the bot is processing the request
-    addBotMessage(
-      <div className="bot-typing">
-        Thinking<span>.</span><span>.</span><span>.</span>
-      </div>
-    );
+              // Indicate that the bot is processing the request
+              addBotMessage(
+                <div className="bot-typing">
+                  Thinking<span>.</span><span>.</span><span>.</span>
+                </div>
+              );
 
-    // Fetch events based on budget and city
-    const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/fetchmuseumStudentevents`, {
-      budget: Budget,
-      city: city,
-    });
+              // Fetch events based on budget and city
+              const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/fetchmuseumStudentevents`, {
+                budget: Budget,
+                city: city,
+              });
 
-    console.log("Res", res);
+              console.log("Res", res);
 
-    // Display fetched events as buttons
-    res.data.forEach((event) => {
-      const { MonumentName, _id } = event;
-      addBotMessage(
-        <button
-          onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
-          className="redirect-button"
-        >
-          Visit {MonumentName}
-        </button>
-      );
-    });
-  } catch (error) {
-    console.error("Error fetching events:", error);
-    addBotMessage("Sorry, I couldn't fetch the events at the moment.");
-  }
-  break;
+              // Display fetched events as buttons
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event;
+                addBotMessage(
+                  <button
+                    onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching events:", error);
+              addBotMessage("Sorry, I couldn't fetch the events at the moment.");
+            }
+            break;
 
           case "student_event_tamil":
             try {
@@ -598,12 +775,11 @@ console.log("response : ",data);
             }
             break;
           default:
-
             if (language.name === "tamil") {
               try {
                 addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
                 console.log("Hello world");
-                const res = await axios.get(`http://localhost:5000/fetchmuseumDefaultamil`);
+                const res = await axios.post(`http://localhost:5000/fetchmuseumDefault`);
                 if (res.data && res.data.length > 0) {
                   addBotMessage("Here are the upcoming events:");
                   res.data.map((event) => {
@@ -620,25 +796,33 @@ console.log("response : ",data);
             }
             else {
               try {
-                addBotMessage(<div className="bot-typing">Thinking<span>.</span><span>.</span><span>.</span></div>);
-                console.log("Hello world");
-                const res = await axios.get(`http://localhost:5000/fetchmuseumDefault/`);
-                if (res.data && res.data.length > 0) {
-                  addBotMessage("Here are the upcoming events:");
-                  res.data.map((event) => {
-                    console.log(event);
-                    addBotMessage(<EventCard event={event} />);
+                const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/fetchmonumentDefault`, {
+                  city: city,
+                });
+                console.log("res",res.data);
+                if (!res.data.length !== 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
                   });
-                } else {
-                  addBotMessage("Sorry, I couldn't find any events at the moment.");
                 }
-              } catch (error) {
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
+              catch {
                 console.error("Error fetching  events:", error);
                 addBotMessage("Sorry, I couldn't fetch the events at the moment.");
               }
-
             }
-          }
+        }
         if (data.queryResult.fulfillmentText) {
           addBotMessage(data.queryResult.fulfillmentText);
         }

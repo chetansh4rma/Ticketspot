@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /* Main Styles */
 .main {
   background-color: #f4f6f9;
@@ -86,3 +87,61 @@ p {
     width: 100%; /* Full width for cards */
   }
 }
+=======
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+/* Custom styles */
+.recharts-cartesian-grid-horizontal line,
+.recharts-cartesian-grid-vertical line {
+  stroke: #e0e0e0;
+}
+
+.recharts-tooltip-wrapper {
+  transition: all 0.3s ease;
+}
+
+.recharts-default-tooltip {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.card-animation {
+  animation: fadeIn 0.5s ease-out, slideUp 0.5s ease-out;
+}
+
+.chart-animation {
+  animation: fadeIn 0.8s ease-out;
+}
+
+/* Dark mode styles */
+.dark .recharts-text {
+  fill: #e0e0e0;
+}
+
+.dark .recharts-cartesian-grid-horizontal line,
+.dark .recharts-cartesian-grid-vertical line {
+  stroke: #4a4a4a;
+}
+
+.dark .recharts-default-tooltip {
+  background-color: rgba(30, 30, 30, 0.9) !important;
+  color: #e0e0e0 !important;
+}
+
+>>>>>>> origin/main

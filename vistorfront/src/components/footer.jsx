@@ -35,22 +35,20 @@ const socialLinks = [
 ];
 
 const Footer = () => {
-  
   return (
     <Box
       component="footer"
-      
       sx={{
-        backgroundColor: '#f5f5f5',
-        color: 'var(--text-color)',
+        backgroundColor: 'var(--footer-bg-color)', /* Use the variable for background */
+        color: 'var(--footer-text-color)', /* Use the variable for text color */
         py: 6,
         mt: 'auto',
       }}
     >
       <Container maxWidth="lg">
         <Grid container spacing={4} sx={{ justifyContent: 'space-around' }}>
-          <Grid item xs={12} md={3}>
-            <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
+          <Grid item xs={12} md={3} sx={{ backgroundColor: 'var(--footer-bg-color)', padding: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'var(--background-color)' }}>
               Monument Ticket Booking
             </Typography>
             <Typography variant="body2" sx={{ mb: 2 }}>
@@ -73,8 +71,9 @@ const Footer = () => {
               ))}
             </Box>
           </Grid>
-          <Grid item xs={12} md={2}>
-            <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
+
+          <Grid item xs={12} md={2} sx={{ backgroundColor: 'var(--footer-bg-color)', padding: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'var(--background-color)' }}>
               Menu
             </Typography>
             {pageMenu.map((item) => (
@@ -89,8 +88,9 @@ const Footer = () => {
               </Link>
             ))}
           </Grid>
-          <Grid item xs={12} md={2}>
-            <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
+
+          <Grid item xs={12} md={2} sx={{ backgroundColor: 'var(--footer-bg-color)', padding: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'var(--background-color)' }}>
               Company
             </Typography>
             {companyMenu.map((item) => (
@@ -105,8 +105,9 @@ const Footer = () => {
               </Link>
             ))}
           </Grid>
-          <Grid item xs={12} md={2}>
-            <Typography variant="h6" gutterBottom sx={{ color: 'var(--heading-color)' }}>
+
+          <Grid item xs={12} md={2} sx={{ backgroundColor: 'var(--footer-bg-color)', padding: 2 }}>
+            <Typography variant="h6" gutterBottom sx={{ color: 'var(--background-color)' }}>
               Explore More
             </Typography>
             {exploreMenu.map((item) => (
@@ -122,6 +123,7 @@ const Footer = () => {
             ))}
           </Grid>
         </Grid>
+
         <Box mt={5}>
           <Typography variant="body2" align="center" sx={{ color: 'var(--text-color)' }}>
             © {new Date().getFullYear()} Monument Ticket Booking. All rights reserved.

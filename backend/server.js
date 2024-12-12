@@ -1145,6 +1145,21 @@ app.get("/gateway/payment/:paymentId",authenticateToken, async(req, res) => {
     }
 })
 
+app.post('/getMonument',  async (req, res) => {
+  const monuId = req.body.productId;
+  console.log(req.body.monuId)
+  
+  try {
+    const productData = await Agency.findOne({ _id: monuId }).select('-password');
+    if (!productData) return res.status(404).json({ msg: 'Event not found' });
+   
+    
+      res.status(201).json({productData});
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ msg: 'Server error' });
+    }
+  });
 
 app.use('/api/auth', authRoutes);
 app.use('/api/agency', Monument);

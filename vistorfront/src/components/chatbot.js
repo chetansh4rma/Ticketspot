@@ -98,6 +98,7 @@ export default function Chatbot() {
   const [cities, setcities] = useState(null);
   const [dates, setdate] = useState(null);
   const [budget, setbudget] = useState(null);
+  const [budget, setbudget] = useState(null);
 
   useEffect(() => {
     if (isOpen && messages.length === 0) {
@@ -143,6 +144,7 @@ export default function Chatbot() {
         addBotMessage("Sorry, I couldn't find any events at the moment.");
       }
     } catch (error) {
+      console.error("Error fetching  events:", error);
       console.error("Error fetching  events:", error);
       addBotMessage("Sorry, I couldn't fetch the solo events at the moment.");
     }
@@ -382,6 +384,7 @@ export default function Chatbot() {
       }
       const data = await response.json();
       console.log("response : ", data);
+      console.log("response : ", data);
       setMessages((prev) => prev.slice(0, -1));
 
       if (data.queryResult) {
@@ -415,6 +418,7 @@ export default function Chatbot() {
               addBotMessage("Sorry, I couldn't fetch the family events at the moment.");
             }
             break;
+
 
           case "cheap_places_tamil":
             try {
@@ -498,6 +502,7 @@ export default function Chatbot() {
               const date = data.queryResult.parameters.date_time;
               const cityintent = data.queryResult.parameters.city;
               console.log("cityintent", cityintent)
+              console.log("cityintent", cityintent)
               if (date && cityintent) {
                 const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, {
                   city: cityintent,
@@ -505,7 +510,9 @@ export default function Chatbot() {
                   Category: "Cultural"
                 });
 
+
                 console.log(res);
+
 
                 if (res.data && res.data.length > 0) {
                   // If monuments are found, display them
@@ -520,10 +527,12 @@ export default function Chatbot() {
                       </button>
                     );
 
+
                   });
                 } else {
                   // Assuming random monuments are returned as part of `res.data.monuments`
                   const randomMonuments = res.data.monuments;  // Access random monuments from the response
+
 
                   if (randomMonuments && randomMonuments.length > 0) {
                     randomMonuments.forEach((event) => {
@@ -549,7 +558,36 @@ export default function Chatbot() {
 
 
 
+
+
+
           case "Artistic":
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Artistic" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
+            }
+            catch {
+              console.error("Error fetching  events:", error);
+            }
             try {
               const date = data.queryResult.parameters.date_time;
               const cityintent = data.queryResult.parameters.city;
@@ -604,6 +642,32 @@ export default function Chatbot() {
             catch {
               console.error("Error fetching  events:", error);
             }
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Historical" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
+            }
+            catch {
+              console.error("Error fetching  events:", error);
+            }
             break;
           case "Scientific":
             try {
@@ -632,9 +696,37 @@ export default function Chatbot() {
             catch {
               console.error("Error fetching  events:", error);
             }
+            try {
+              const date = data.queryResult.parameters.date_time;
+              const cityintent = data.queryResult.parameters.city;
+              if (date && cityintent) {
+                const res = await axios.post(`http://localhost:5000/fetchmuseumtechnological`, { city: cityintent, date: date, Category: "Scientific" });
+                if (!res.data.length === 0) {
+                  res.data.forEach((event) => {
+                    const { MonumentName, _id } = event;
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
+                }
+                else {
+                  addBotMessage("Sorry, I couldn't find any museums at the moment.");
+                }
+              }
+            }
+            catch {
+              console.error("Error fetching  events:", error);
+            }
             break;
 
+
           case "PlaceToVisitIntent":
+            const Place = data.queryResult.parameters.place || "Calico Museum of Texttiles";
             const Place = data.queryResult.parameters.place || "Calico Museum of Texttiles";
             console.log("Place", Place)
             try {
@@ -653,6 +745,7 @@ export default function Chatbot() {
                     </button>
                   </div>
                 );
+
 
               });
             } catch (error) {
@@ -679,14 +772,28 @@ export default function Chatbot() {
                       </button>
                     );
                   });
+                    addBotMessage(
+                      <button
+                        onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                        className="redirect-button"
+                      >
+                        Visit {MonumentName}
+                      </button>
+                    );
+                  });
                 }
+                else {
                 else {
                   addBotMessage("Sorry, I couldn't find any museums at the moment.");
                 }
               }
             }
             catch {
+              }
+            }
+            catch {
               console.error("Error fetching solo events:", error);
+            }
             }
             break;
           case "Artistic":
@@ -715,7 +822,15 @@ export default function Chatbot() {
           case "student_event":
             try {
               const Budget = data.queryResult.parameters.budget;
+          case "student_event":
+            try {
+              const Budget = data.queryResult.parameters.budget;
 
+              // Check if budget is provided
+              if (!Budget) {
+                addBotMessage("Please provide your budget to fetch events.");
+                break; // Exit the case early if there's no budget
+              }
               // Check if budget is provided
               if (!Budget) {
                 addBotMessage("Please provide your budget to fetch events.");
@@ -728,7 +843,18 @@ export default function Chatbot() {
                   Thinking<span>.</span><span>.</span><span>.</span>
                 </div>
               );
+              // Indicate that the bot is processing the request
+              addBotMessage(
+                <div className="bot-typing">
+                  Thinking<span>.</span><span>.</span><span>.</span>
+                </div>
+              );
 
+              // Fetch events based on budget and city
+              const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/fetchmuseumStudentevents`, {
+                budget: Budget,
+                city: city,
+              });
               // Fetch events based on budget and city
               const res = await axios.post(`${process.env.REACT_APP_BACK_URL}/fetchmuseumStudentevents`, {
                 budget: Budget,
@@ -736,7 +862,25 @@ export default function Chatbot() {
               });
 
               console.log("Res", res);
+              console.log("Res", res);
 
+              // Display fetched events as buttons
+              res.data.forEach((event) => {
+                const { MonumentName, _id } = event;
+                addBotMessage(
+                  <button
+                    onClick={() => window.open(`http://localhost:3000/product/${_id}`, '_blank')}
+                    className="redirect-button"
+                  >
+                    Visit {MonumentName}
+                  </button>
+                );
+              });
+            } catch (error) {
+              console.error("Error fetching events:", error);
+              addBotMessage("Sorry, I couldn't fetch the events at the moment.");
+            }
+            break;
               // Display fetched events as buttons
               res.data.forEach((event) => {
                 const { MonumentName, _id } = event;
@@ -822,6 +966,7 @@ export default function Chatbot() {
                 addBotMessage("Sorry, I couldn't fetch the events at the moment.");
               }
             }
+        }
         }
         if (data.queryResult.fulfillmentText) {
           addBotMessage(data.queryResult.fulfillmentText);
@@ -939,6 +1084,10 @@ export default function Chatbot() {
     }
   };
 
+
+  const [disab,setDisab]=useState(false)
+  
+
   return (
     <>
       <motion.div
@@ -1006,12 +1155,12 @@ export default function Chatbot() {
               </AnimatePresence>
               <div ref={messagesEndRef} />
             </div>
-            <div className="chatbot-input">
+           <div className="chatbot-input">
               <input
                 type="text"
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleInputSubmit()}
+                onKeyDown={(e) => e.key === 'Enter' && handleInputSubmit()}
                 placeholder="Type your message here..."
               />
               <motion.button

@@ -364,8 +364,9 @@ router.get('/search-monuments/:name', async (req, res) => {
 });
 
 router.get('/Recommend', authenticateToken, async (req, res) => {
-  const userId = req.user.userId; // Get userId from decoded token
+   const userId = req.user.userId; // Get userId from decoded token
   try {
+
     const tickets = await Ticket.find({ userId }).populate('eventId', 'MonumentName'); // Assuming eventId contains the MonumentName
     // Fetch tickets for the user
     // Check if any tickets were found
@@ -377,7 +378,7 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
     // Extract the first monument name from tickets
     const firstMonumentName = "Taj Mahal"; // Get the first ticket's monument name or set default
     console.log("first", firstMonumentName);
-    // Send data to the recommendation API with the first monument name
+  
     try{
 
       const response = await fetch('http://127.0.0.1:8000/recommend', {
@@ -391,11 +392,13 @@ router.get('/Recommend', authenticateToken, async (req, res) => {
     }
     catch(fetchError){
       const randomMonuments = await Monument.aggregate([{ $sample: { size: 6 } }]);
-      res.json(randomMonuments);
-}
+      return res.json(randomMonuments);
+  }
   } catch (error) {
-    console.error('Error fetching user tickets:', error);
-    res.status(500).json({ message: 'Error fetching user tickets' });
+    // console.error('Error fetching user tickets:', error);
+    // res.status(500).json({ message: 'Error fetching user tickets' });
+    const randomMonuments = await Monument.aggregate([{ $sample: { size: 6 } }]);
+    return res.json(randomMonuments);
   }
 });
 
@@ -616,6 +619,9 @@ router.post('/match-coupon',authenticateToken, async (req, res) => {
     res.status(500).json({ error: 'Server error' });
   }
 });
+
+
+
 
 
 module.exports = router;

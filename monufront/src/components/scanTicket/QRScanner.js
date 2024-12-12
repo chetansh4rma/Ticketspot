@@ -43,12 +43,14 @@ const QRScanner = () => {
           {
             // console.log(response.data.msg);
             alert("You are verified , now you can enjoy your visit , have a great day!")
+            window.location.reload();
           }
           
         } catch (error) {
             if (error.response) {
                 // Server responded with a status code other than 2xx
                 alert(error.response.data.msg); // Set error message from the server
+                window.location.reload();
               } else {
                 alert("Something went wrong. Please try again."); // Handle other errors
               }
@@ -84,3 +86,5 @@ const QRScanner = () => {
 };
 
 export default QRScanner;
+
+// @ts-check

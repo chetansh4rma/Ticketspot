@@ -125,6 +125,8 @@ const Home = () => {
   return (
     <>
       <Navbar />
+      <div style={{ height: "4rem" }}></div> {/* Spacer with custom height */}
+
 
       {/* Hero Section */}
       <section className="hero-section">
@@ -203,7 +205,7 @@ const Home = () => {
       <section>
         <Container>
           <Row>
-          <Col lg='6'>
+          <Col lg='6' className="ml-12">
               <div className="experience__content">
                 <Subtitle subtitle={'Get to know us'} />
                 <h2>Statistics about Ticketspot</h2>

@@ -7,6 +7,28 @@
   --subtitle-font-name: "Arial", sans-serif;  /* Change this to a non-cursive font */
 }
 
+/* Light mode styles (default) */
+body.light-mode {
+  --background-color: #fff;
+  --text-color: #000;
+  --primary-color: #ff7e01;
+  --secondary-color: #faa935;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+  --background-color: #121212; /* Dark background */
+  --text-color: #fff;           /* Light text */
+  --primary-color: #ff7e01;     /* You can change the colors */
+  --secondary-color: #faa935;   /* Adjust for dark mode */
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  font-family: var(--font-name);
+}
+
 /* Global Styles */
 body, html {
   margin: 0;
@@ -14,12 +36,43 @@ body, html {
   min-height: 100%;
   display: flex;
   flex-direction: column;
-  font-family: var(--font-name);
 }
 
 main {
   flex: 1;
 }
+/* Navbar styles */
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.navbar.light-mode {
+  background-color: var(--primary-color); /* Change these colors */
+  color: var(--background-color);
+}
+
+.navbar.dark-mode {
+  background-color: #222;
+  color: var(--text-color);
+}
+
+.toggle-mode-btn {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+}
+
+
 
 /* Recommended Places Carousel */
 .recommended-places {
@@ -129,7 +182,6 @@ main {
 }
 
 /* Hero Section */
-/* Hero Section */
 .hero__subtitle img {
   width : 2.3rem;
   height: 2.3rem;
@@ -155,15 +207,30 @@ main {
 }
 
 .hero-video {
-  width        : 100%;
-  height       : 350px;
+  margin-top: 80px; /* Navbar height */
+  width: 100%;
+  height: 550px;
   border-radius: 20px;
-  border       : 1px solid var(--secondary-color);
-  object-fit   : cover;
-  filter       : brightness(70%);
-  z-index      : -1;
-  display      : block;
+  border: 1px solid var(--secondary-color);
+  object-fit: cover;
+  filter: brightness(70%);
+  z-index: -1;
+  display: block;
+  position: relative; /* Needed if adding gradients or shadows */
 }
+
+.hero-video::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px; /* Same as navbar height */
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.8), transparent);
+  z-index: 0;
+}
+
+
 
 .hero__img-box img {
   width        : 100%;
@@ -216,9 +283,6 @@ main {
   }
 }
 
-
-
-
 /* Search Bar */
 .search-bar-container {
   display: flex;
@@ -260,7 +324,6 @@ main {
 
 .carousel-container h2 {
   margin-bottom: 20px;
-  
 }
 
 .carousel-image {
@@ -274,7 +337,6 @@ main {
   margin: 0 auto; /* Center the content */
   width: 90%; /* Adjust the width as needed */
   max-width: 1200px; /* Prevent it from stretching too wide */
-  
 }
 
 .small-carousels-section {
@@ -288,7 +350,6 @@ main {
 .small-carousel-image {
   height: 200px; /* Adjust height as needed */
   object-fit: cover; /* Ensures images are covered */
-  
 }
 
 /* Small Boxes Section */
@@ -338,11 +399,14 @@ main {
   font-weight: 500;
   margin-top : 1rem;
   text-align:left;
+  margin-left: 2rem;
 }
+
 
 .counter__wrapper {
   margin-top: 1.6rem;
   gap: 2rem; /* Increased gap between counter boxes */
+  margin-left: 2rem;
 }
 
 .counter__box {
@@ -365,62 +429,6 @@ main {
 
 .counter__box h6 {
   font-size : 0.9rem; /* Slightly larger label */
-  color     : var(--text-color);
+  color     : var(--secondary-color);
 }
 
-/* TESTIMONIAL SECTION */
-.testimonial__title {
-  font-size : 1.6rem;
-  margin-top: 0.8rem;
-  text-align:left;
-}
-
-/* Footer Styles */
-.footer__content {
-  text-align: center;
-  padding: 2rem 0;
-  background-color: #222;
-  color: #fff;
-  width: 100%;
-}
-
-/* =============== RESPONSIVE ================ */
-@media only screen and (max-width: 992px) {
-  .hero__content h1 {
-    font-size: 2.5rem;
-  }
-
-  .hero__img-box {
-    display: none;
-  }
-
-  .hero__video-box {
-    display: block;
-  }
-
-  .services__title,
-  .featured__tour-title,
-  .gallery__title,
-  .testimonial__title,
-  .experience__content h2 {
-    font-size: 2rem;
-  }
-
-  .experience__img {
-    margin-top: 2rem;
-  }
-}
-
-@media only screen and (max-width: 576px) {
-  .hero__content h1 {
-    font-size: 1.8rem;
-  }
-
-  .services__title,
-  .featured__tour-title,
-  .gallery__title,
-  .testimonial__title,
-  .experience__content h2 {
-    font-size: 1.5rem;
-  }
-}

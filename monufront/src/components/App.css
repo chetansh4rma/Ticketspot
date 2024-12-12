@@ -21,12 +21,7 @@ section {
   padding: 50px 0px;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
+h1, h2, h3, h4, h5, h6 {
   color: var(--heading-color);
 }
 
@@ -120,20 +115,119 @@ body.dark-mode {
   color: #ffffff;
 }
 
-/* Navbar Theme Toggle Button */
-.navbar-theme-toggle {
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: inherit;
-  font-size: 1.5rem;
+.navbar-profile {
+  padding: 10px; /* Adjust padding for better layout */
+  background-color: transparent; /* Ensure transparent background */
+  border: none; /* Remove default border */
+  cursor: pointer; /* Make it clickable */
   display: flex;
-  align-items: center;
   justify-content: center;
-  margin-left: 1rem;
+  align-items: center;
 }
 
-/* Existing styles */
+/* Navbar Theme Toggle Button */
+.navbar-theme-toggle {
+  font-size: 2rem; /* Adjust font size for emojis */
+  padding: 10px;   /* Increase button padding */
+  background-color: transparent; /* Make background transparent */
+  border: none;   /* Remove border */
+  cursor: pointer; /* Pointer cursor for clickability */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+
+.navbar__theme-toggle-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Navbar Styles */
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 2rem;
+  background-color: var(--navbar-bg-color); /* Dynamic color based on theme */
+  border-bottom: 2px solid var(--text-color);
+}
+
+/* Define theme-specific variables */
+body.light-mode {
+  --navbar-bg-color: #ffffff; /* Light mode background */
+}
+
+body.dark-mode {
+  --navbar-bg-color: #121212; /* Dark mode background */
+}
+
+
+.navbar__logo {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--heading-color);
+}
+
+.navbar__menu {
+  display: flex;
+  align-items: center;
+}
+
+.navbar__menu li {
+  list-style: none;
+  margin-left: 2rem;
+}
+
+.navbar__menu li a {
+  font-size: 1rem;
+  color: var(--heading-color);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.navbar__menu li a:hover {
+  color: var(--secondary-color);
+}
+
+.navbar__menu .navbar__item {
+  margin-right: 1.5rem;
+}
+
+.navbar__theme-toggle-button {
+  color: var(--heading-color);
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+
+.navbar__theme-toggle-button:hover {
+  color: var(--secondary-color);
+}
+
+/* Navbar Responsive Styles */
+@media only screen and (max-width: 768px) {
+  .navbar {
+    flex-direction: column;
+    padding: 1rem;
+  }
+
+  .navbar__menu {
+    flex-direction: column;
+    margin-top: 1rem;
+  }
+
+  .navbar__menu li {
+    margin: 1rem 0;
+  }
+
+  .navbar__theme-toggle-button {
+    margin-top: 1rem;
+  }
+}
+
 .App {
   text-align: center;
 }
@@ -173,6 +267,7 @@ body.dark-mode {
   }
 }
 
+
 /* Hero Section */
 .hero__subtitle img {
   width: 2.3rem;
@@ -206,7 +301,7 @@ body.dark-mode {
 .hero__video-box {
   width: 100%;
   max-width: 100%; /* Ensure no overflow */
-  height: 350px;
+  height: 200px;
   overflow: hidden; /* Hide anything that overflows */
   display: flex;
   justify-content: center; /* Center content horizontally */
@@ -218,8 +313,10 @@ body.dark-mode {
   width: 100%;
   height: 100%;
   object-fit: cover; /* Ensure the media covers the container without distortion */
+  object-position: top center; /* Adjust the position of the video to show more of the top part */
   border-radius: 20px;
 }
+
 
 .hero__img-box {
   padding-top: 2rem;

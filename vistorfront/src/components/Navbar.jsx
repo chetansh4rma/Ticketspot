@@ -2,8 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import axios from 'axios';
 import HomeIcon from '@mui/icons-material/Home';
-import InfoIcon from '@mui/icons-material/Info';
-import ExploreIcon from '@mui/icons-material/Explore';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward'; // Importing Down Arrow Icon
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import SearchIcon from '@mui/icons-material/Search';
 import Logo from './assets/LogoTicketspott.png';
@@ -11,7 +10,7 @@ import './css/navbar.css';
 
 const pages = [
   { label: 'Home', path: '/', icon: <HomeIcon /> },
-  { label: 'About', path: '/about', icon: <InfoIcon /> },
+  { label: 'Go Down', path: '/about', icon: <ArrowDownwardIcon /> }, // Change label and icon here
 ];
 
 const Navbar = () => {
@@ -21,25 +20,37 @@ const Navbar = () => {
   const [autocompleteResults, setAutocompleteResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [activePage, setActivePage] = useState(location.pathname);
+  const [darkMode, setDarkMode] = useState(localStorage.getItem('theme') === 'dark');
 
   useEffect(() => {
-    const fetchAutocomplete = async () => {
-      if (searchQuery.trim().length === 0) {
-        setAutocompleteResults([]);
-        return;
-      }
+    const savedTheme = localStorage.getItem('theme');
+    const isDarkMode = savedTheme === 'dark';
+    setDarkMode(isDarkMode);
+  }, []);
 
-      try {
-        setLoading(true);
-        const response = await axios.get(`${process.env.REACT_APP_BACK_URL}/api/auth/search-monuments/${searchQuery}`);
-        setAutocompleteResults(response.data.monuments || []);
-        setLoading(false);
-      } catch (error) {
-        console.error('Error fetching autocomplete results:', error);
-        setLoading(false);
-      }
-    };
+  useEffect(() => {
+    document.body.className = darkMode ? 'dark-mode' : 'light-mode';
+    localStorage.setItem('theme', darkMode ? 'dark' : 'light');
+  }, [darkMode]);
 
+  const fetchAutocomplete = async () => {
+    if (searchQuery.trim().length === 0) {
+      setAutocompleteResults([]);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const response = await axios.get(`${process.env.REACT_APP_BACK_URL}/api/auth/search-monuments/${searchQuery}`);
+      setAutocompleteResults(response.data.monuments || []);
+      setLoading(false);
+    } catch (error) {
+      console.error('Error fetching autocomplete results:', error);
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     const debounceTimer = setTimeout(() => fetchAutocomplete(), 300);
     return () => clearTimeout(debounceTimer);
   }, [searchQuery]);
@@ -64,7 +75,6 @@ const Navbar = () => {
   const handlePageClick = (path) => {
     setActivePage(path);
 
-    // Scroll to bottom when 'About' is clicked
     if (path === '/about') {
       window.scrollTo(0, document.documentElement.scrollHeight);
     } else {
@@ -72,8 +82,12 @@ const Navbar = () => {
     }
   };
 
+  const toggleTheme = () => {
+    setDarkMode((prevMode) => !prevMode);
+  };
+
   return (
-    <header className="navbar">
+    <header className={`navbar ${darkMode ? 'dark-mode' : 'light-mode'}`}>
       <div className="navbar-container">
         <Link to="/" className="navbar-logo">
           <img src={Logo} alt="Logo" className="logo-img" />
@@ -122,9 +136,15 @@ const Navbar = () => {
             </div>
           ))}
 
-          <button onClick={() => navigate('/profile')} className="navbar-profile">
-            <AccountCircleIcon />
-          </button>
+<button onClick={() => navigate('/profile')} className="navbar-profile">
+  <AccountCircleIcon sx={{ fontSize: '2.5rem' }} /> {/* Increase icon size */}
+</button>
+
+
+<button onClick={toggleTheme} className="navbar-theme-toggle">
+  {darkMode ? '🌙' : '☀️'}
+</button>
+
         </nav>
       </div>
     </header>

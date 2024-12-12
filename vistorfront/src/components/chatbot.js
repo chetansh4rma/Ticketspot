@@ -152,7 +152,7 @@ export default function Chatbot() {
     addBotMessage("do you have any coupon to apply ?")
     addBotMessage(<div className="flex flex-wrap justify-center gap-2">
       <button onClick={() => createRazorpayOrder()} className="w-12">yes</button>
-      <button onClick={() => coupon()} className="w-12">no</button>
+      <button onClick={() =>createRazorpayOrder() } className="w-12">no</button>
     </div>)
   }
 
@@ -360,7 +360,7 @@ const input = decode(escapedContent);
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ya29.a0ARW5m77ALPoPRNI2mD-9Aet2-goNYbnm3t4D9ffX1ubOyVvIsZDjTyRZRGSyXGpaNlgvXfclKQyr4RBpLJwfxh58BxMyVoVhHzSRPp14ZcxEHwMPNwQw4D7BDx6fcuPlOt8mMt6u94R8mXUADCUgwlc0r9hoV2WgfhioIMP4yIM6oX0o0LTpIPNfP0BQzS7ahcP80bHbFnMlGZR6VqfiHxE-2Fh0y2p1GZEqgCaAQE4fpJXhnFxKayB0jz3HIww4Hr9j0z67QIPhgKsjg1RBlRLUtXlQK9-8LaqoOo1ONu-coOq9o_zRCKgWNORzMz15a1vjJqBt0fBN-PmUn4LegtylHKPP0og2ZcsAUuYD_1syICZCYD5HAAei2kinfMTwPmNEcoqP1pP8JcWDBDYfY4Gc4B3HFy_8e5_LCBAF3JUiLwaCgYKAQ0SARMSFQHGX2MiVpaX4ay1bV1wLCSLlh3iEw0437`,
+          Authorization: `Bearer ya29.a0ARW5m76XuXdpOGB6eKpFOtSl89WP1X2f0qWQwGhNT7KpIL9KgR8Q5yy3l2rOXTVjNmVeP5y_9HM7Q9I6lsoQ-BY6M6aMkljnBQGwW8MKKWuc2n7vFSOIuSeoBkDyAngNUJmUl_06p87E1baKUJL5DlZVhBuVU_07RrSCnMsWwOWU53rWJt0iBUbGiqAv8WtO0JtST3P_V7lB8Tq3AKhLTymCsWP2cC6djjWTJVYQbxUQ5JAXwO2uenKgHoQ_MDMCR6679arKKxsvHYkdab7kbv-TFyJZNOsGaQZeZDC8EMJ-aE-sk_jRpyTXcuIop0UCBKj_FLtd2ui4GKWQwwzAnHACmNbXMPkwAXCpJTTKGM72-297wVfYn_EBqiqRbIfPJibtc_QrXi7A-jNc-jnH7xSMpRn-CVyyG5VUToHwowLfkwaCgYKAfcSARMSFQHGX2Mi-QmtaufnJeGHm8Yfam4txg0437`,
         },
         body: JSON.stringify({
           queryInput: {

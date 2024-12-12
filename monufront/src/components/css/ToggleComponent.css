@@ -3,22 +3,24 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* background-color: #f8f9fa; */
-  /* padding: 20px; */
-  padding: 40px 20px;
+  padding: 40px 20px; /* Adjusted padding for better spacing */
   border-radius: 8px;
-  /* box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); */
-  width: 100%;
-  height: 100%;
-
+  width: 100%; /* Set width to 100% for better responsiveness */
+  max-width: 1400px; /* Optional: limit max width for large screens */
+  margin: 0 auto; /* Center the container */
+  height: auto; /* Allow height to adjust based on content */
 }
 
-@media (max-width:468px)
-{
+@media (max-width: 768px) {
   .toggle-container {
-    padding:10px;
+    padding: 20px; /* Adjusted padding for tablets */
   }
+}
 
+@media (max-width: 468px) {
+  .toggle-container {
+    padding: 10px; /* Adjusted padding for smaller devices */
+  }
 }
 
 /* Toggle buttons container */
@@ -28,7 +30,7 @@
   justify-content: center;
   /* gap: 20px; */
   /* flex-wrap: wrap; */
-  margin-bottom: 20px;
+  margin-bottom: 5px;
 }
 
 /* Button styling */
@@ -61,10 +63,11 @@
   color: #333;
 }
 
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .toggle-buttons {
-    gap: 10px;
+    gap: 10px; /* Space between buttons */
   }
 
   .toggle-button {
@@ -79,12 +82,11 @@
 
 @media (max-width: 480px) {
   .toggle-buttons {
-    /* flex-direction: column; */
-    gap: 10px;
+    gap: 10px; /* Space between buttons */
   }
 
   .toggle-button {
-    width: 100%;
+    flex: 1 1 100%; /* Make buttons full width on smaller screens */
     padding: 10px;
     font-size: 14px;
   }

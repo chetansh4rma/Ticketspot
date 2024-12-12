@@ -1,17 +1,20 @@
-/* NavBar.css */
-
-.ul{
-  margin-bottom:0 !important;
+/* General styles */
+.ul {
+  margin-bottom: 0 !important;
 }
+
+/* Navbar styles */
 .navbar {
-  background-color: #282c34; /* Dark background */
+  background-color: #4a90e2; /* Adjust as per your design */
   padding: 10px 20px; /* Padding around the navbar */
+  height: 80px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Shadow for depth */
 }
 
+/* Navbar container */
 .navbar-container {
   display: flex;
   justify-content: space-between;
@@ -19,52 +22,69 @@
   width: 100%; /* Full width */
 }
 
-@media (max-width:468px)
-{
-  .navbar-logo{
-    display:none;
-  }
-
-  .navbar-item {
-    margin: 0 10px;
-  }
-
-  .navbar-menu{
-    margin-left:0;
-    padding-left: 0 !important;
-  }
-
-  .ul{
-    padding-left: 0 !important;
-  }
-}
-
+/* Logo styles */
 .navbar-logo {
-  color: #61dafb; /* Logo color */
-  font-size: 24px; /* Logo font size */
-  text-decoration: none; /* Remove underline */
-  margin-left:10px;
+  color: white; /* Logo color */
+  font-size: 2.5rem; /* Increase the font size for the logo */
+  font-weight: bold;
+  text-decoration: none;
+  margin-left: 30px;
+  padding-left: 160px; /* Adjust padding if needed */
 }
 
-.navbar-menu{
-  margin-bottom:0 !important;
-}
-
+/* Navbar menu styles */
 .navbar-menu {
   list-style: none; /* Remove default list styling */
   display: flex; /* Flexbox for horizontal layout */
+  gap: 25px; /* Add spacing between menu items */
+  margin: 0;
+  padding: 0;
+  margin-right: 20px; /* Add margin to the right side of the menu */
 }
 
+/* Navbar item styles */
 .navbar-item {
-  margin: 0 15px; /* Spacing between items */
+  text-align: center;
 }
 
 .navbar-link {
-  color: white; /* Link color */
+  color: #fff;
+  font-size: 1.2rem; /* Increase the font size for menu links */
   text-decoration: none; /* Remove underline */
-  transition: color 0.3s; /* Smooth color transition */
+  transition: color 0.3s ease; /* Smooth color transition */
 }
 
 .navbar-link:hover {
-  color: #61dafb; /* Change color on hover */
+  color: #61dafb; /* Add a hover effect */
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .navbar {
+    height: 80px;
+    padding: 10px 10px; /* Reduced padding for smaller screens */
+  }
+
+  .navbar-logo {
+    margin-left: 10px; /* Move logo to the left corner */
+    padding-left: 0; /* Remove left padding */
+    font-size: 1.5rem; /* Adjust font size for smaller screens */
+  }
+
+  .navbar-menu {
+    margin-right: 0; /* Remove right margin for menu */
+    padding-left: 0; /* Remove left padding */
+    gap: 10px; /* Adjust gap between items */
+  }
+
+  .navbar-item {
+    margin: 0 10px; /* Spacing between items */
+  }
+
+  /* Optional: Hide logo on very small screens */
+  @media (max-width: 468px) {
+    .navbar-logo {
+      display: none; /* Hide logo for very small screens */
+    }
+  }
 }

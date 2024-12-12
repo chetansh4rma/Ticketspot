@@ -5,6 +5,7 @@ import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
 import "./css/Setting.css";
 import ImagePreviewSection from "./ImagePreviewSection";
 
+
 const Setting = () => {
   const [settingData, setSettingData] = useState({
     museumName: "",

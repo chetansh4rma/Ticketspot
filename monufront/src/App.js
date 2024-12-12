@@ -15,6 +15,7 @@ import ToggleComponent from './components/ToggleComponent';
 import QRScanner from './components/scanTicket/QRScanner';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import './App.css';
 
 function App() {
   const { isLoactionExist} = useStore()

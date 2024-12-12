@@ -80,12 +80,11 @@ app.post("/fetchmuseumtechnological", async (req, res) => {
   try {
     console.log(req.body);
     const Category = req.body.Category;
-    console.log("Fetching technological monuments...");
-
     const { city, date } = req.body;
-    console.log("Category:", Category, "City:", city, "date:", date);
 
-    // Fetch monuments in the specified city
+    console.log("Category:", Category, "City:", city, "Date:", date);
+
+    // Fetch monuments in the specified city and category
     let monuments = await Agency.find({ 
       category: Category, 
       "location.city": city  
@@ -93,13 +92,37 @@ app.post("/fetchmuseumtechnological", async (req, res) => {
 
     console.log("Monuments Found:", monuments);
 
-    // Return the monuments
-    res.json(monuments);
+    // If no monuments are found for the specified category and city
+    if (monuments.length === 0) {
+      console.log("No monuments found for the specified category and city, fetching random monuments...");
+
+ // Fetch random monuments from the database
+const randomMonuments = await Agency.aggregate([
+  { 
+    $match: { "location.city": city}  // First, filter by city
+  },
+  { 
+    $sample: { size: 5 }  // Then randomly sample 5 documents
+  }
+]);
+
+      console.log("Random Monuments:", randomMonuments);
+
+      return res.status(200).json({
+        message: `Sorry, we couldn't find any monuments for the category "${Category}" in "${city}". Here are some random monuments from other categories and places:`,
+        monuments: randomMonuments,
+      });
+    }
+
+    // Return the monuments if found
+    res.json({monuments,
+    });
   } catch (error) {
     console.error("Error fetching technological monuments:", error);
     res.status(500).json({ message: "Error fetching technological monuments" });
   }
 });
+
 app.post("/cheapplaces", async (req, res) => {
   try {
     console.log(req.body);
@@ -216,35 +239,66 @@ app.get("/fetchmuseumDefaultamil", async (req, res) => {
 
 
 
-app.get("/fetchmuseumStudentevents", async (req, res) => {
+app.post("/fetchmuseumStudentevents", async (req, res) => {
+  const { budget,city } = req.body; // Extract budget from the request body
   try {
-    const events = await Event.aggregate([
-      { $match: { audience_type: { $in: ["student", "General", "Solo"] } } },
-      { $sample: { size: 5 } },
-      { $sort: { ticketPrice: 1 } }
+    console.log(req.body);
+    if(budget && city){
+    console.log("Fetching student monuments...");
+
+    // Use aggregate to fetch and randomly select 5 monuments within budget
+    const monuments = await Agency.aggregate([
+      // Stage 1: Match monuments within budget
+      {
+        $match: {
+          ticketPrice: { $lte: budget }, 
+          "location.city":city
+        },
+      },
+      // Stage 2: Randomly sample 5 monuments
+      {
+        $sample: { size: 5 }, // Randomly select 5 monuments
+      },
     ]);
 
-    const eventWithMonuments = await Promise.all(events.map(async (event) => {
-      const monument = await Agency.findById(event.MonumentId);
-      return {
-        eventName: event.eventName,
-        eventTicketPrice: event.eventTicketPrice,
-        eventDate: event.eventDate,
-        monument: {
-          MonumentName: monument.MonumentName,
-          MonumentId: monument._id,
-          location: monument.location,
-          MonumentLogo: monument.MonumentLogo,
-        },
-      };
-    }));
+    console.log("Random Affordable Monuments:", monuments);
 
-    res.json(eventWithMonuments);
-  } catch (error) {
-    console.error("Error fetching student events:", error);
-    res.status(500).json({ message: "Error fetching events" });
+    // Return the random affordable monuments
+    res.json(monuments);
+  } 
+else{
+  fetchRandomMonuments(city)
+}
+  }
+catch (error) {
+    console.error("Error fetching student monuments:", error);
+    res.status(500).json({ message: "Error fetching student monuments" });
   }
 });
+async function fetchRandomMonuments(city, count = 5) {
+  try {
+    const randomMonuments = await Agency.aggregate([
+      // Match monuments from the specified city
+      { $match: { "location.city": city } },
+      // Randomly sample a specified number of monuments
+      { $sample: { size: count } },
+      // Optionally project specific fields
+      {
+        $project: {
+          name: 1,
+          ticketPrice: 1,
+          location: 1,
+          category: 1,
+        },
+      },
+    ]);
+    return randomMonuments;
+  } catch (error) {
+    console.error("Error fetching random monuments:", error);
+    return []; // Return an empty array if the fallback fails
+  }
+}
+
 app.get("/fetchmuseumStudenteventstamil", async (req, res) => {
   try {
     const events = await Event.aggregate([
